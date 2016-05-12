@@ -1,0 +1,389 @@
+{% autoescape off %}
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>配置管理系统</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/tcal.css" />
+     
+    <script src="/static/js/jquery.min.js"></script> 
+    <script src="/static/js/bootstrap.min.js"></script> 
+    <script type="text/javascript" src="/static/js/tcal.js"></script> 
+    <link rel="stylesheet" href="/static/css/datepicker/css/reset.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/datepicker/css/default.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/datepicker/css/style.css" type="text/css">
+    <script type="text/javascript" src="/static/css/datepicker/javascript/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="/static/css/datepicker/javascript/zebra_datepicker.js"></script>
+    <script type="text/javascript" src="/static/css/datepicker/javascript/core.js"></script>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div style = "margin: 0; font-size: 11px; text-align: right; color: #487858;">
+		<a href="/update_db_from_work_bi/">刷新</a> |
+	</div>
+    <table width="620" border="0" align="center" cellpadding="0" cellspacing="0">
+    <tr>
+    <th scope="col">
+    <form action="/cm_bi_index/" method="get">
+            <input id="datepicker-example1" type="text" name="query1" value=""/>
+            <input id="datepicker-example9" type="text" name="query2" value=""/>
+            <input type="submit" value="按时间搜索">
+    </form>
+    </tr>
+    </table>
+    <div class="row"> 
+	    <div class="span9">
+	    	<div id="main" style="height:400px;width:1300px"></div>
+		</div> 
+		
+		<div class="span5">
+			<div id="main1" style="height:{{len_num}}px;float:none;"></div>
+		</div> 
+	</div> 
+	<div class="row"> 
+	<div id="insert_table">	
+	</div> 
+    <!--div id="main" style="height:600px"></div-->
+    <!-- ECharts单文件引入 -->
+    <script src="/static/js/echarts.js"></script>
+    <script type="text/javascript">
+	var table_info = {{sys_update_info}}
+        // 路径配置
+        require.config({
+            paths: {
+                echarts: '/static/js/build/dist'
+            }
+        });
+        
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/gauge' ,// 使用力导向布局图就加载gauge模块，按需加载
+                'echarts/chart/bar' 
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('main'));
+                
+                var myChart2 = ec.init(document.getElementById('main1'));
+         
+              
+		
+        
+        var option = {
+        title: {
+        x: 'center',
+        text: '{{month_tag}}UAT环境总览'
+    },
+        
+    toolbox: {
+        show : true,
+        feature : {
+            restore : {show: true},
+            saveAsImage : {show: true}
+        }
+    },
+    series : [
+        {
+            name:'累计升级次数',
+            
+            type:'gauge',
+            z: 3,
+            min:0,
+            max:220,
+            splitNumber:11,
+            axisLine: {            // 坐标轴线
+                lineStyle: {       // 属性lineStyle控制线条样式
+                    width: 8
+                }
+            },
+            axisTick: {            // 坐标轴小标记
+                length :15,        // 属性length控制线长
+                lineStyle: {       // 属性lineStyle控制线条样式
+                    color: 'auto'
+                }
+            },
+            splitLine: {           // 分隔线
+                length :20,         // 属性length控制线长
+                lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
+                    color: 'auto'
+                }
+            },
+            title : {
+                textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+                    fontWeight: 'bolder',
+                    fontSize: 19,
+                    fontStyle: 'italic'
+                }
+            },
+            detail : {
+                formatter:'{value}次',
+                textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+                    fontWeight: 'bolder'
+                }
+            },
+            data:[{value: {{count_total_result}}, name: '累计升级次数'}]
+        },
+        {
+            name:'环境问题个数',
+            type:'gauge',
+            center : ['32%', '55%'],    // 默认全局居中
+            radius : '50%',
+            min:0,
+            max:30,
+            endAngle:45,
+            splitNumber:6,
+            axisLine: {            // 坐标轴线
+                lineStyle: {       // 属性lineStyle控制线条样式
+                    width: 7
+                }
+            },
+            axisTick: {            // 坐标轴小标记
+                length :12,        // 属性length控制线长
+                lineStyle: {       // 属性lineStyle控制线条样式
+                    color: 'auto'
+                }
+            },
+            splitLine: {           // 分隔线
+                length :20,         // 属性length控制线长
+                lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
+                    color: 'auto'
+                }
+            },
+            pointer: {
+                width:5
+            },
+            title : {
+                offsetCenter: [0, '-30%'],       // x, y，单位px
+            },
+            detail : {
+                formatter:'{value}个',
+                 textStyle: {
+                    color: 'auto',
+                    fontSize : 20,
+                    fontWeight: 'bolder'
+                }
+            },
+            data:[{value: {{count_envi_Pro}}, name: '环境问题个数'}]
+        },
+        {
+            name:'A类问题数',
+            type:'gauge',
+            center : ['68%', '50%'],    // 默认全局居中
+            radius : '50%',
+            min:0,
+            max:20,
+            startAngle:135,
+            endAngle:45,
+            splitNumber:5,
+            axisLine: {            // 坐标轴线
+                lineStyle: {       // 属性lineStyle控制线条样式
+                    
+                    width: 6
+                }
+            },
+            axisTick: {            // 坐标轴小标记
+                splitNumber:5,
+                length :10,        // 属性length控制线长
+                lineStyle: {       // 属性lineStyle控制线条样式
+                    color: 'auto'
+                }
+            },
+            
+            splitLine: {           // 分隔线
+                length :15,         // 属性length控制线长
+                lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
+                    color: 'auto'
+                }
+            },
+            pointer: {
+                width:2
+            },
+            title : {
+                show: true,
+                offsetCenter: [0, '-15%'],       // x, y，单位px
+            },
+            detail : {
+                show: true,
+                offsetCenter: [0, '-70%'],
+                textStyle: {
+                    color: 'auto',
+                    fontSize : 15
+                }
+            },
+            data:[{value: {{count_A_pro}}, name: 'A类问题'}]
+        },
+        {
+            name:'B类问题',
+            type:'gauge',
+            center : ['68%', '50%'],    // 默认全局居中
+            radius : '50%',
+            min:0,
+            max:20,
+            startAngle:315,
+            endAngle:225,
+            splitNumber:5,
+            axisLine: {            // 坐标轴线
+                lineStyle: {       // 属性lineStyle控制线条样式
+                    
+                    width: 6
+                }
+            },
+            axisTick: {            // 坐标轴小标记
+                show: true
+            },
+            
+            splitLine: {           // 分隔线
+                length :15,         // 属性length控制线长
+                lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
+                    color: 'auto'
+                }
+            },
+            pointer: {
+                width:2
+            },
+            title : {
+                show: true,
+                offsetCenter: [0, '25%'],       // x, y，单位px
+            },
+            detail : {
+                show: true,
+                offsetCenter: [0, '25%'],
+                textStyle: {
+                    color: 'auto',
+                    fontSize : 15,
+                   
+                }
+            },
+            data:[{value: {{count_B_pro}}, name: 'B类问题'}]
+        }
+    ]
+};
+
+
+
+
+
+
+option2 = {
+     title: {
+        x: 'center',
+        text: '升级次数预警',
+        subtext: '版本升级超过三次',
+        link: ''
+    },
+    tooltip: {
+        trigger: 'item'
+    },
+    toolbox: {
+        show: true,
+        feature: {
+            dataView: {show: false, readOnly: false},
+            saveAsImage: {show: true}
+        }
+    },
+    
+    calculable: true,
+    grid: {
+        borderWidth: 0,
+        y: 80,
+        y2: 30
+    },
+    yAxis: [
+        {
+            type: 'category',
+            show: false,
+            data:[
+				{% for sys_name in sys_name_list %}
+					'{{ sys_name }}',
+				{% endfor %} 
+				],
+        }
+    ],
+    xAxis: [
+        {
+            type: 'value',
+            show: false
+        }
+    ],
+    series: [
+        {
+            name: '升级次数',
+            type: 'bar',
+            barWidth:15,
+            itemStyle: {
+                normal: {
+                    color: function(params) {
+                        // build a color map as your need.
+                        var colorList = [
+							{% for color_count in color_count_list %}
+								'{{color_count}}',
+							{% endfor %}                         
+                        ];
+                       
+                        return colorList[params.dataIndex]
+                    },
+                    label: {
+                        show: true,
+                        position: 'insideBottom',
+                        formatter: '{b}  ({c}次）'
+                    }
+                }
+            },
+            data:[
+				{% for sys_count in sys_count_list %}
+					{{sys_count}},
+				{% endfor %} 
+				],
+           
+        }
+    ]
+};
+var ecConfig = require('echarts/config');
+function eConsole(param) {
+	var nodeName = param.name;
+	if(nodeName=="环境问题个数"){
+		window.location.href='/bi_envi_prob{{month_jump}}/';
+	}
+	else if(nodeName=="累计升级次数"){
+		window.location.href='/bi_update{{month_jump}}/';
+	}
+	else if(nodeName=="A类问题" || nodeName=="B类问题"){
+		window.location.href='/bi_problem{{month_jump}}/';
+	}else if(table_info[nodeName]){
+		$("#insert_table").html(table_info[nodeName])
+	}
+	//nodeName = nodeName.replace("\t","|");
+	//window.location.href='/system_node_detail_'+nodeName+'/';
+}		
+
+
+		myChart.setOption(option);
+		myChart2.setOption(option2);
+		myChart.on(ecConfig.EVENT.CLICK, eConsole);
+		myChart.on(ecConfig.EVENT.DBLCLICK, eConsole);
+		myChart2.on(ecConfig.EVENT.CLICK, eConsole);
+		myChart2.on(ecConfig.EVENT.DBLCLICK, eConsole);		
+		//myChart.on(ecConfig.EVENT.HOVER, eConsole);
+		//myChart.on(ecConfig.EVENT.DATA_ZOOM, eConsole);
+		//myChart.on(ecConfig.EVENT.LEGEND_SELECTED, eConsole);
+		//myChart.on(ecConfig.EVENT.MAGIC_TYPE_CHANGED, eConsole);
+		//myChart.on(ecConfig.EVENT.DATA_VIEW_CHANGED, eConsole);
+		
+		}
+		);
+		
+	
+	
+	
+    </script>
+    <div style = "margin: 0; font-size: 11px; text-align: right; color: #487858;">
+        <a href="/upload_file/">| 文件上传</a> |
+		<a href="/system_detail/">系统详情页</a> |
+		<a href="/version_detail/">版本详情页</a> |
+		<a href="/dataex_detail/">交互信息展示页</a> |
+		<a href="/cm_baseline/">基线展示页</a> |
+		<a href="/cm_bi_index/">报表展示页</a> |
+	</div>
+</body>
+{% endautoescape %}
