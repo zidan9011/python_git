@@ -1,0 +1,11 @@
+/__init__.pyc
+/admin.pyc
+/apps.pyc
+/data_mine.pyc
+/get_legend_info.pyc
+/login_form.pyc
+/models.pyc
+/response.pyc
+/serialize.pyc
+/urls.pyc
+/views.pyc

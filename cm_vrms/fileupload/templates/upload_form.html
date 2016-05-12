@@ -1,0 +1,119 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>应用配置管理系统</title>
+	<!-- Force latest IE rendering engine or ChromeFrame if installed -->
+	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- Bootstrap styles -->
+	<link rel="stylesheet" href="/static/css/bootstrap.min.css">
+	<!-- Generic page styles -->
+	<link rel="stylesheet" href="/static/css/style.css">
+	<!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
+	<link rel="stylesheet" href="/static/css/jquery.fileupload-ui.css">
+	<script src="/static/js/jquery.min.js"></script>
+	<script src="/static/js/bootstrap.min.js"></script>
+</head>
+<body >
+
+<div id="main" style="min-height:0px">
+<div class="bs-example bs-example-tabs" role="tabpanel" data-example-id="togglable-tabs">
+    <ul id="myTab" class="nav nav-tabs " role="tablist">
+      <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="true">上传系统关系文件</a></li>
+      <li role="presentation"><a href="#profile" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">上传版本配置文件</a></li>
+      <li role="presentation"><a href="#profile3" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">上传数据交互信息文件</a></li>
+
+      <li role="presentation"><a href="#profile2" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">挖掘系统信息</a></li>
+    </ul>
+    <div id="myTabContent" class="tab-content">
+      <div role="tabpanel" class="tab-pane fade in active" id="home" aria-labelledby="home-tab">
+	     <form action="/upload_file_system/" method="post" enctype="multipart/form-data" accept-charset="utf-8">
+	        {% csrf_token %}
+	        <span class="btn btn-success fileinput-button">
+			    <i class="glyphicon glyphicon-plus"></i>
+			    <span>上传系统关系文件</span>
+			    <input type="file" name="t_file" value="" />
+			</span>
+	        <button type="submit" class="btn btn-primary start">
+	            <i class="glyphicon glyphicon-upload"></i>
+	            <span>开始上传</span>
+	        </button>
+	    </form>
+      </div>
+      <div role="tabpanel" class="tab-pane fade" id="profile" aria-labelledby="profile-tab">
+	     <form action="/upload_file_version/" method="post" enctype="multipart/form-data" accept-charset="utf-8">
+	        {% csrf_token %}
+	        <span class="btn btn-success fileinput-button">
+			    <i class="glyphicon glyphicon-plus"></i>
+			    <span>上传版本配置文件</span>
+			    <input type="file" name="t_file" value="" />
+			</span>
+	        <button type="submit" class="btn btn-primary start">
+	            <i class="glyphicon glyphicon-upload"></i>
+	            <span>开始上传</span>
+	        </button>
+	    </form>        
+      </div>
+      <div role="tabpanel" class="tab-pane fade" id="profile3" aria-labelledby="profile-tab">
+	     <form action="/upload_file_dataex/" method="post" enctype="multipart/form-data" accept-charset="utf-8">
+	        {% csrf_token %}
+	        <span class="btn btn-success fileinput-button">
+			    <i class="glyphicon glyphicon-plus"></i>
+			    <span>上传数据交互信息文件</span>
+			    <input type="file" name="t_file" value="" />
+			</span>
+	        <button type="submit" class="btn btn-primary start">
+	            <i class="glyphicon glyphicon-upload"></i>
+	            <span>开始上传</span>
+	        </button>
+	    </form>        
+      </div>      
+      <div role="tabpanel" class="tab-pane fade" id="profile2" aria-labelledby="profile-tab">
+        <a href="/system_detail_mine/" class="btn btn-primary start"  role="button">开始挖掘</a>
+      </div>      
+    </div>
+  </div>
+  </div>
+{% if if_check_list %}
+  <table class="table table-condensed">
+   <caption>配置文件上传错误信息</caption>
+   <thead>
+      <tr>
+         <th>出错行</th>
+         <th>出错内容</th>
+         <th>冲突于</th>
+      </tr>
+   </thead>
+   <tbody>
+		{% for check_info in check_list %}
+			{% autoescape off %}
+			{{check_info}}
+         	{% endautoescape %}
+		{% endfor %}
+   </tbody>
+</table>
+{% endif %}
+
+
+    <div style = "margin: 0; font-size: 11px; text-align: right; color: #487858;">
+		<a href="/upload_file/">| 文件上传</a> |
+		<a href="/system_detail/">系统详情页</a> |
+		<a href="/version_detail/">版本详情页</a> |
+		<a href="/dataex_detail/">交互信息展示页</a> |
+		<a href="/cm_baseline/">基线展示页</a> |
+		<a href="/cm_bi_index/">报表展示页</a> |
+	</div>
+
+    
+</body>
+<script type="text/javascript">
+$('.dropdown-toggle').dropdown();
+$('.collapse').collapse()
+$('#myTab a').click(function (e) {
+  e.preventDefault()
+  $(this).tab('show')
+})
+
+</script>
