@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>配置管理系统</title>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="height:600px"></div>
+
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui.min.css">
+	<script src="{{ STATIC_URL }}js/jquery.min.js"></script>
+	<script src="{{ STATIC_URL }}js/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/style.css">
+    <!-- ECharts单文件引入 -->
+    <script src="{{ STATIC_URL }}js/echarts.js"></script>
+
+<div id="dialog" title="数据交互信息" >
+	<p></p>
+	</div>
+
+
+    <script type="text/javascript">
+        // 路径配置
+		$(function() {
+			$( "#dialog" ).dialog({
+				width: 700,
+				
+			  autoOpen: false,
+			  show: {
+				effect: "blind",
+				duration: 1000
+			  },
+			  hide: {
+				effect: "explode",
+				duration: 1000
+			  }
+			 
+			
+			});
+			
+		  });
+		function displaydetail(){
+            
+			$("p").toggle();
+        }
+    
+		  
+
+		
+        require.config({
+            paths: {
+                echarts: '{{ STATIC_URL }}js/build/dist'
+            }
+        });
+        
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/force' // 使用力导向布局图就加载force模块，按需加载
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('main')); 
+		
+        
+        var option = {
+    title : {
+        text: '{{source_info}}和其他{{out_title}}间数据交互信息',
+        x:'right',
+        y:'bottom'
+    },
+    tooltip : {
+        trigger: 'item',
+        formatter: ' {b}'
+    },
+    toolbox: {
+        show : true,
+        feature : {
+            restore : {show: true},
+            //magicType: {show: true, type: ['force', 'chord']},
+            saveAsImage : {show: true}
+        }
+    },
+    legend: {
+        x: 'left',
+        orient : 'vertical',
+        data:[
+		'服务发布者',
+		'服务订阅者',
+		'ETL',
+		'IMIX',
+		'FTS'
+		]
+    },
+    series : [
+        {
+            type:'force',
+            name : "{{out_title}}间数据流",
+            ribbonType: false,
+            categories : [
+                {
+                    name: '服务发布者'
+                },
+                {
+                    name: '服务订阅者'
+                },
+                {% for category in category_list %}
+                {
+                    name: '{{category}}'
+                },
+		        {% endfor %}
+				
+            ],
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        textStyle: {
+                            color: '#333'
+                        }
+                    },
+                    nodeStyle : {
+                        brushType : 'both',
+                        borderColor : 'rgba(255,215,0,0.4)',
+                        borderWidth : 1
+                    },
+                    linkStyle: {
+                        type: 'curve'
+                    }
+                },
+                emphasis: {
+                    label: {
+                        show: false
+                        // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+                    },
+                    nodeStyle : {
+                        //r: 30
+                    },
+                    linkStyle : {}
+                }
+            },
+            useWorker: false,
+            minRadius : 35,
+            maxRadius : 55,
+            gravity: 1.1,
+            scaling: 1.8,
+            roam: 'move',
+            nodes:[
+                {category:0, name: '{{source_info}}', value : 30, label: '{{source_info}}',
+                   itemStyle: {
+                        normal: {
+                            label: {
+                                textStyle: {
+                                    color: 'black',
+                                    fontSize: 10
+                                  
+                                }
+                            }
+                        }
+                    }
+                },
+	            {% for target in target_list %}
+	            	{category:1, name: '{{ target }}', value : 20,
+	            	    itemStyle: {
+                        normal: {
+                            label: {
+                                textStyle: {
+                                    color: 'black',
+                                    fontSize: 7
+                                  }
+                                }
+                            }
+                        }
+	            	},
+	            {% endfor %}   
+				{% for node_category_info in node_category_list %}
+	            	{% autoescape off %}
+	            		{{node_category_info}}
+	            	{% endautoescape %}
+	            {% endfor %}  	
+            ],
+           links : [
+	            {% for target in target_list %}
+	            	{source : '{{source_info}}', target : '{{ target }}', weight :1},
+	            {% endfor %} 
+                
+            ]
+        }
+    ]
+};
+
+        // 为echarts对象加载数据 
+        myChart.setOption(option); 
+		
+		
+var ecConfig = require('echarts/config');
+
+var dialog_tabel_info = {
+	{% for taget,s_t_info in source_target_info.items %}
+		'{{source_info}} - {{taget}}':'{{s_t_info}}',
+		
+	{% endfor %}
+}
+
+function eConsole(param) {
+	var lineName = param.name//辨别当前点中的边
+	if (typeof lineName == 'undefined'){
+		return;
+	} 	
+	if (lineName.indexOf(" - ") >= 0){
+		var info_hash = {}//判断版本来源信息是否添加
+		var info_str = ""//保存版本来源信息
+		var s_t_info_list = dialog_tabel_info[lineName].split("|||");
+		tabel_str = "<tr><th>服务编号</th><th>所属服务体系</th><th>所属主体域</th><th>所属数据实体</th><th>所属数据实体类型</th><th>服务名称</th><th>MEP</th><th>公有/私有</th><th>数据交换方式</th></tr>"
+		for(var i = 0; i<s_t_info_list.length;i++){
+		var s_t_info = s_t_info_list[i].split("	");
+		var tmp_str ="<tr><td>"+s_t_info[0]+"</td><td>"+s_t_info[1]+"</td><td>"+s_t_info[2]+"</td><td>"+s_t_info[3]+"</td><td>"+s_t_info[4]+"</td><td>"+s_t_info[5]+"</td><td>"+s_t_info[6]+"</td><td>"+s_t_info[7]+"</td><td>"+s_t_info[15]+"</td></tr>";
+		tabel_str += tmp_str;				
+		}
+		
+		
+		var lineFrom = param.value.source;
+		var lineTarget = param.value.target;
+		document.getElementById('dialog').innerHTML = 
+		"<table  border='1' >"+
+		"<tr><th colspan='18'>"+lineFrom+"<--->"+lineTarget+"</th></tr>"+
+		tabel_str+
+		"</table>"+
+		info_str ;
+		$( "#dialog" ).dialog( "open" );
+		
+		
+	}
+	else{
+			window.location.href='/dataex_node_detail_'+lineName+'/';
+	}
+}
+
+		myChart.on(ecConfig.EVENT.CLICK, eConsole);
+		myChart.on(ecConfig.EVENT.DBLCLICK, eConsole);
+		//myChart.on(ecConfig.EVENT.HOVER, eConsole);
+		myChart.on(ecConfig.EVENT.DATA_ZOOM, eConsole);
+		myChart.on(ecConfig.EVENT.LEGEND_SELECTED, eConsole);
+		myChart.on(ecConfig.EVENT.MAGIC_TYPE_CHANGED, eConsole);
+		myChart.on(ecConfig.EVENT.DATA_VIEW_CHANGED, eConsole);
+
+		
+		}
+		);
+		
+		
+    </script>
+    <div style = "margin: 0; font-size: 11px; text-align: right; color: #487858;">
+		<a href="/upload_file/">| 文件上传</a> |
+		<a href="/system_detail/">系统详情页</a> |
+		<a href="/version_detail/">版本详情页</a> |
+		<a href="/dataex_detail/">交互信息展示页</a> |
+		<a href="/cm_baseline/">基线展示页</a> |
+		<a href="/cm_bi_index/">报表展示页</a> |
+	</div>
+</body>

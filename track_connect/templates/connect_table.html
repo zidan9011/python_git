@@ -1,0 +1,281 @@
+{% autoescape off %}
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+
+    <title>应用配置管理系统</title>
+</head>
+<html>
+  <head>
+     
+     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+     <title>应用配置管理系统</title>
+     <link rel="stylesheet" href="/static/css/slick.grid.css" type="text/css"/>
+     <link rel="stylesheet" href="/static/css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+     <link rel="stylesheet" href="/static/css/examples.css" type="text/css"/>
+     <link rel="stylesheet" href="/static/css/slick-default-theme.css" type="text/css"/>
+     <link rel="stylesheet" href="/static/css/table_styles.css" type="text/css"/>   
+
+</head>
+<body>
+
+<div id="box">
+<h1 align="center">联测跟踪表</h1>
+
+<table id="mytable" cellspacing="0">
+  <tr>
+    <th width="20%" scope="col" abbr="Dual 1.8">主系统项目及版本号</th>
+    <td width="20%" ></td>
+    <th width="15%" scope="col" abbr="Dual 1.8">计划上线</th>
+	<td width="15%" ></td>
+	<th width="15%" scope="col" abbr="Dual 1.8">项目经理</th>
+	<td width="15%" ></td>
+  </tr>
+  <tr>
+    <th>升级主要内容</th>
+    <td colspan="5"></td>
+    
+  </tr>
+  <tr>
+    <th >第三方测试负责人</th>
+    <td ></td>
+    <th >联测管理人</th>
+	<td ></td>
+	<th >报告接收人</th>
+	<td></td>
+  </tr>
+  <tr>
+    <th >环境规划</th>
+    <td  colspan="5"></td>  
+  </tr>
+</table>
+<table id="mytable" cellspacing="0">
+  <tr>
+    <th width="20%" scope="col" abbr="Dual 1.8">主系统项目及版本号</th>
+    <th width="8%" scope="col" abbr="Dual 1.8">计划开始日期</th> 
+    <th width="8%" scope="col" abbr="Dual 1.8">计划结束日期</th> 
+    <th width="8%" scope="col" abbr="Dual 1.8">报告要求日期</th> 
+    <th width="8%" scope="col" abbr="Dual 1.8">升级开始日期</th> 
+    <th width="8%" scope="col" abbr="Dual 1.8">升级结束日期</th> 
+    <th width="8%" scope="col" abbr="Dual 1.8">实际开始日期</th> 
+    <th width="8%" scope="col" abbr="Dual 1.8">实际结束日期</th> 
+    <th width="14%" scope="col" abbr="Dual 1.8">备注</th> 
+  </tr>
+  
+  <tr>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  </tr>
+   <tr>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  </tr>
+</table>
+
+
+<table id="mytable" cellspacing="0">
+  <tr>
+    <th width="20%" scope="col" abbr="Dual 1.8">联测系统</th>
+    <th width="8%" scope="col" abbr="Dual 1.8">联测类别</th> 
+    <th width="8%" scope="col" abbr="Dual 1.8">版本号（UAT/模拟）</th> 
+    <th width="8%" scope="col" abbr="Dual 1.8">UAT环境测试实际开始日期</th> 
+    <th width="8%" scope="col" abbr="Dual 1.8">UAT环境测试实际结束日期</th> 
+    <th width="8%" scope="col" abbr="Dual 1.8">模拟环境联测实际开始日期</th> 
+    <th width="8%" scope="col" abbr="Dual 1.8">模拟环境联测实际结束日期</th> 
+    <th width="8%" scope="col" abbr="Dual 1.8">测试负责人</th> 
+    <th width="7%" scope="col" abbr="Dual 1.8">项目经理</th> 
+    <th width="7%" scope="col" abbr="Dual 1.8">项目组评估结果</th> 
+  </tr>
+  
+  <tr>
+  <td>计费系统</td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  </tr>
+   <tr>
+  <td>交易后处理系统</td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  </tr>
+</table>
+</div>
+</br>
+
+
+<div style="position:relative">
+  <div style="width:100%;">
+    <div id="myGrid" style="width:100%;height:600px;"></div>
+  </div>
+</div>
+
+
+
+
+
+<script src="/static/js/firebugx.js"></script>
+
+<script src="/static/js/jquery-1.7.min.js"></script>
+<script src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
+<script src="/static/js/jquery.event.drag-2.2.js"></script>
+<script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
+
+<script src="/static/js/slick.core.js"></script>
+<script src="/static/js/slick.cellrangeselector.js"></script>
+<script src="/static/js/slick.cellselectionmodel.js"></script>
+<script src="/static/js/slick.formatters.js"></script>
+<script src="/static/js/slick.editors.js"></script>
+<script src="/static/js/slick.grid.js"></script>
+<script src="/static/js/slick.compositeeditor.js"></script>
+
+
+
+<script>
+  function requiredFieldValidator(value) {
+    if (value == null || value == undefined || !value.length) {
+      return {valid: false, msg: "This is a required field"};
+    } else {
+      return {valid: true, msg: null};
+    }
+  }
+
+  var grid;
+  var data = [];
+  var columns = [
+    {id: "Connectsys", name: "联测系统", field: "conncetsys", width: 120,  editor: Slick.Editors.Text},
+    {id: "ConnectType", name: "联测类别", field: "connecttype", width: 100, editor: Slick.Editors.Text},
+    {id: "VersionNum", name: "版本号（UAT/模拟）", field: "versionnum",width: 120, editor: Slick.Editors.Text},
+    {id: "UATRealStartDate", name: "UAT环境测试\n实际开始日期", field: "UATrealstartdate", minWidth: 160, editor: Slick.Editors.Date},
+    {id: "UATRealFinishDate", name: "UAT环境测试\n实际结束日期", field: "UATrealfinishdate", minWidth: 160, editor: Slick.Editors.Date},
+    {id: "SimulatRealStartDate", name: "模拟环境联测实际开始日期", field: "simulatealstartdate", minWidth: 160, editor: Slick.Editors.Date},
+    {id: "SimulatRealFinishDate", name: "模拟环境联测实际结束日期", field: "simulatealfinishdate", minWidth: 160, editor: Slick.Editors.Date},
+    {id: "TestOwer", name: "测试负责人", field: "testower", width: 100, editor: Slick.Editors.Text},
+    {id: "ProductManager", name: "产品经理", field: "productmanager", width: 100, editor: Slick.Editors.Text},
+    {id: "ProductAssessment", name: "项目评估结果", field: "productassessment", width: 170, editor: Slick.Editors.Text}
+  ];
+  var options = {
+    editable: true,
+    enableAddRow: true,
+    enableCellNavigation: true,
+    asyncEditorLoading: false,
+    autoEdit: false
+  };
+
+
+  function openDetails() {
+    if (grid.getEditorLock().isActive() && !grid.getEditorLock().commitCurrentEdit()) {
+      return;
+    }
+
+    var $modal = $("<div class='item-details-form'></div>");
+
+    $modal = $("#itemDetailsTemplate")
+        .tmpl({
+          context: grid.getDataItem(grid.getActiveCell().row),
+          columns: columns
+        })
+        .appendTo("body");
+
+    $modal.keydown(function (e) {
+      if (e.which == $.ui.keyCode.ENTER) {
+        grid.getEditController().commitCurrentEdit();
+        e.stopPropagation();
+        e.preventDefault();
+      } else if (e.which == $.ui.keyCode.ESCAPE) {
+        grid.getEditController().cancelCurrentEdit();
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    });
+
+    $modal.find("[data-action=save]").click(function () {
+      grid.getEditController().commitCurrentEdit();
+    });
+
+    $modal.find("[data-action=cancel]").click(function () {
+      grid.getEditController().cancelCurrentEdit();
+    });
+
+
+    var containers = $.map(columns, function (c) {
+      return $modal.find("[data-editorid=" + c.id + "]");
+    });
+
+    var compositeEditor = new Slick.CompositeEditor(
+        columns,
+        containers,
+        {
+          destroy: function () {
+            $modal.remove();
+          }
+        }
+    );
+
+    grid.editActiveCell(compositeEditor);
+  }
+
+  $(function () {
+    
+
+    grid = new Slick.Grid("#myGrid", data, columns, options);
+
+    grid.onAddNewRow.subscribe(function (e, args) {
+      var item = args.item;
+      var column = args.column;
+      grid.invalidateRow(data.length);
+      data.push(item);
+      grid.updateRowCount();
+      grid.render();
+    });
+
+
+    grid.onValidationError.subscribe(function (e, args) {
+      // handle validation errors originating from the CompositeEditor
+      if (args.editor && (args.editor instanceof Slick.CompositeEditor)) {
+        var err;
+        var idx = args.validationResults.errors.length;
+        while (idx--) {
+          err = args.validationResults.errors[idx];
+          $(err.container).stop(true, true).effect("highlight", {color: "red"});
+        }
+      }
+    });
+
+    grid.setActiveCell(0, 0);
+  })
+</script>
+
+
+
+
+
+</body>
+</html>
+{% endautoescape %}

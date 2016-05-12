@@ -1,0 +1,177 @@
+{% autoescape off %}
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    
+    <title>配置管理系统</title>
+  	<link href="/static/css/bootstrap.min.css" rel="stylesheet" /> 
+    <link rel="stylesheet" href="/static/css/datepicker/css/reset.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/datepicker/css/default.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/datepicker/css/style.css" type="text/css">
+    <script type="text/javascript" src="/static/css/datepicker/javascript/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="/static/css/datepicker/javascript/zebra_datepicker.js"></script>
+    <script type="text/javascript" src="/static/css/datepicker/javascript/core.js"></script>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+	<div class="row"> 
+	    <div class="span8">
+	         <form action="/bi_update/" method="get">
+			            <input id="datepicker-example11" type="text" name="query" value=""/>
+			            <input type="submit" value="按时间搜索">
+			    </form>
+	    	<div id="main" style="height:600px;width:850px">			   
+	    	</div>
+		</div>
+		<div class="span5" style="margin:100px;float:right">
+		
+			<table class="table">
+			   
+			   <thead>
+			    <tr>
+			         <th colspan="2" style="text-align:center;">{{month_tag}}UAT升级次数月度环比</th>
+			        
+			      </tr>
+			      <tr>
+			         <th>项目群名称</th>
+			         <th>升级月度环比</th>
+			      </tr>
+			   </thead>
+			   <tbody>
+					{{out_str}}
+			   </tbody>
+			</table>
+			
+		</div> 
+	</div> 
+    <!--div id="main" style="height:600px"></div-->
+    <!-- ECharts单文件引入 -->
+    <script src="/static/js/echarts.js"></script>
+    <script type="text/javascript">
+	
+        // 路径配置
+        require.config({
+            paths: {
+                echarts: '/static/js/build/dist'
+            }
+        });
+        
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar',
+                'echarts/chart/line' 
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('main'));
+                
+		
+		
+		option = {
+    title : {
+        text: '{{month_tag}}UAT升级次数分布',
+        subtext: '按项目群分'
+         
+    },
+    tooltip : {
+        trigger: 'axis'
+    },
+    legend: {
+        data:['{{ last_month }}','{{ current_month }}',]
+    },
+    toolbox: {
+        show : true,
+        feature : {
+            magicType : {show: true, type: ['line', 'bar']},
+            restore : {show: true},
+            saveAsImage : {show: true}
+        }
+    },
+    calculable : true,
+    xAxis : [
+        {
+            type : 'category',
+            data : [
+				{% for project in all_projects_list %}
+					'{{ project }}',
+				{% endfor %}            	
+					]            
+        }
+    ],
+    yAxis : [
+        {
+            type : 'value'
+        }
+    ],
+    series : [
+        {
+            name:'{{ last_month }}',
+            type:'bar',
+            data:[				
+            	{% for pro_count in all_projects_last %}
+					{{pro_count}},
+				{% endfor %} 
+				],
+            itemStyle : { normal: {label : {show: true, position:  'top'}}},
+            markLine : {
+                data : [
+                    {type : 'average', name: '平均值'}
+                ]
+            }
+        },
+        {
+            name:'{{ current_month }}',
+            type:'bar',
+            itemStyle : { normal: {label : {show: true, position:  'top'}}},
+            data:[				
+            	{% for pro_count in all_projects_current %}
+					{{pro_count}},
+				{% endfor %} 
+				],           
+            markLine : {
+                data : [
+                    {type : 'average', name : '平均值'}
+                ]
+            }
+        }
+    ]
+};
+		
+		
+        
+      
+
+
+
+
+		
+		
+		
+		myChart.setOption(option);
+		
+		myChart.on(ecConfig.EVENT.CLICK, eConsole);
+		myChart.on(ecConfig.EVENT.DBLCLICK, eConsole);
+		//myChart.on(ecConfig.EVENT.HOVER, eConsole);
+		//myChart.on(ecConfig.EVENT.DATA_ZOOM, eConsole);
+		//myChart.on(ecConfig.EVENT.LEGEND_SELECTED, eConsole);
+		//myChart.on(ecConfig.EVENT.MAGIC_TYPE_CHANGED, eConsole);
+		//myChart.on(ecConfig.EVENT.DATA_VIEW_CHANGED, eConsole);
+		
+		}
+		);
+		
+	
+	
+	
+    </script>
+    <div style = "margin: 0; font-size: 11px; text-align: right; color: #487858;">
+		<a href="/system_detail/">系统详情页</a> |
+		<a href="/version_detail/">版本详情页</a> |
+		<a href="/dataex_detail/">交互信息展示页</a> |
+		<a href="/cm_baseline/">基线展示页</a> |
+		<a href="/cm_bi_index/">报表展示页</a> |
+	</div>
+</body>
+{% endautoescape %}
