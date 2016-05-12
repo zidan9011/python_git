@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: cm_vrms
-Bundle-SymbolicName: cm_vrms
-Bundle-Version: 1.0.0.qualifier
