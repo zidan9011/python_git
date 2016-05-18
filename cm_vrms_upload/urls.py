@@ -7,6 +7,7 @@ from track_connect.views import  *
 from cm_vrms_upload import *
 from cm_vrms_bi.views import  *
 from cm_vrms_bi import *
+from cm_middleware.views import *
 import os
 
 
@@ -85,6 +86,13 @@ urlpatterns = patterns('',
     
     (r'^get_updatetime_from_db/$', get_updatetime_from_db),
     
+    
+    (r'^update_table_from_wiki/$',update_table_from_wiki),
+    (r'^show_middleware/$',show_middleware),
+    (r'^middleware_detail_*',middleware_detail),
+   
+    
+   
     
    
     

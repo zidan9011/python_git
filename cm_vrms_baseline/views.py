@@ -550,12 +550,14 @@ def get_version_info_from_work_bi(request):
                                                  main_system_name = issue_one[12],main_ver_num = issue_one[13]
                                                  )
         
-        requir_info_tmp.save()#插入  
+        requir_info_tmp.save()#插入 
+         
     insert_into_version(request)   
+    
     return HttpResponseRedirect('/version_detail/')#重定向
 
 def parse_subject_info(subject,version,main_system):
-    #XXXX系统通过XXXX（IMIX、ETL、FTS中的一个）方式向XXXX系统获取XXXXXX（数据服务，填写时请报蔡博确认）数据
+    #XXXX系统通过XXXX（IMIX、ETL、FTS中的一个）方式向XXXX系统获取XXXXXX数据
     try:
         sys_name_a = subject.split("通过")[0]
         depend_detail = subject.split("系统通过")[1].split("从")[0]
@@ -586,6 +588,7 @@ def convert_version(publish_version_num_str):
             nums = nums[0:4]
             publish_version_num = "V{}.{}.{}.{}".format(*nums)
     return publish_version_num
+
 def insert_into_version(request):
     
     VerConfInfo.objects.filter(remark_col1='').delete()#将未修改的行全部删除
@@ -655,11 +658,11 @@ def insert_into_version(request):
         all_need_middle_ware_node = [val for val in all_need_middle_ware_node if val not in have_cover_version]#从中排除掉已经出现了的信息
         all_need_middle_ware_node = [val.split(" ") for val in all_need_middle_ware_node]
         all_need_middle_ware_node = [[val[0],val[1],"Y","Y"] for val in all_need_middle_ware_node]
-        '''
+        #传输中间件系统也同时置为同步状态
         middle_subject_info_data = {}
         for val in all_need_middle_ware_node:
             middle_subject_info_data[val[0]+val[1]] = ["->","{} {}(同步)".format(val[0],val[1]),""]
-        '''
+        
             
                     
         other_nodes_from_info = [[val[1],val[2],"Y","Y"] for val in info_list if val[1] not in un_need_requir_system and val[1]!=main_system]
@@ -679,10 +682,10 @@ def insert_into_version(request):
                 if len(relevant_sys_name) == 0:
                     continue
                 main_up_sys_data_flow,depend_detail,data_interaction_detail = subject_info_data.get(relevant_sys_name,["","",""])
-                '''
+                #当中间件系统没有作为传输介质时，则作为目标系统
                 if relevant_sys_name+relevant_sys_version in middle_subject_info_data:
                     main_up_sys_data_flow,depend_detail,data_interaction_detail = middle_subject_info_data[relevant_sys_name+relevant_sys_version]
-                '''
+                
                 try:#如果已经存在,则不修改
                     conf_info_tmp = VerConfInfo.objects.get(main_up_sys_name=main_up_sys_name,
                                         main_up_sys_version=main_up_sys_version,

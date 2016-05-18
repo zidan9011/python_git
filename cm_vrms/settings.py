@@ -27,7 +27,7 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'bootstrap_toolkit',
     'cm_vrms_baseline',
     'track_connect',
+    'cm_middleware',
     
     'xadmin',
     'crispy_forms', 

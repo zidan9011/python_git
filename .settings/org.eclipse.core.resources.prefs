@@ -1,4 +1,7 @@
 eclipse.preferences.version=1
+encoding//cm_middleware/adminx.py=utf-8
+encoding//cm_middleware/models.py=utf-8
+encoding//cm_middleware/views.py=utf-8
 encoding//cm_vrms_baseline/__init__.py=utf-8
 encoding//cm_vrms_baseline/admin.py=utf-8
 encoding//cm_vrms_baseline/adminx.py=utf-8

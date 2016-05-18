@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = '@_ame5azplg5=t7ji6n%7cul&$7)gef1w7av@ezpeh7t2is7un'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = True
 
@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'bootstrap_toolkit',
     'cm_vrms_baseline',
     'track_connect',
+    'cm_middleware',
     
     'xadmin',
     'crispy_forms', 

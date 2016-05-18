@@ -174,8 +174,8 @@ class Appserver(models.Model):
     LBIP = models.CharField(max_length=32, blank=True,verbose_name = '负载均衡IP')
     ServiceIP = models.CharField(max_length=32, verbose_name = '服务IP')
     ServerIP = models.CharField(max_length=32, verbose_name = '虚拟化集群/宿主IP')
-    Usage = models.CharField(max_length=32,blank=True, choices=Usage_CHOICES, verbose_name = '功能说明')
-    Remark = models.CharField(max_length=1024,blank=True,choices= EnvType_CHOICE,verbose_name = '环境名称',help_text='描述系统环境:UAT1，UAT2等')
+    Usage = models.CharField(max_length=32, choices=Usage_CHOICES, verbose_name = '功能说明')
+    Remark = models.CharField(max_length=1024,choices= EnvType_CHOICE,verbose_name = '环境名称',help_text='描述系统环境:UAT1，UAT2等')
     #UpdateTime = models.DateField(default = datetime.date.today(), verbose_name = '更新时间')
     UpdateTime = models.DateField( verbose_name = '更新时间')
     
@@ -418,7 +418,7 @@ class License(models.Model):
     
 
 class DB(models.Model):
-    #数据的详细信息
+    #数据库的详细信息
     HA_CHOICES = (('Y','是'),('N','否'))
     DBID = models.AutoField(primary_key=True, verbose_name = 'DBID')
     SoftwareID = models.ForeignKey(Software, verbose_name = '软件ID')
