@@ -265,7 +265,7 @@ class CmVrmsBaselineUsers(models.Model):
 
 class CmVrmsBaselineRequire(models.Model):
     id = models.IntegerField(primary_key=True,verbose_name = 'id')
-    issue_id = models.IntegerField(max_length=11,verbose_name = 'issue_id')
+    issue_id = models.IntegerField(verbose_name = 'issue_id')
     project_name = models.CharField(max_length=255, blank=True, null=True,verbose_name = '项目')
     subject = models.CharField(max_length=255, blank=True, null=True,verbose_name = '主题')
     user_name = models.CharField(max_length=255, blank=True, null=True,verbose_name = '作者')

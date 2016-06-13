@@ -679,6 +679,8 @@ def insert_into_version(request):
                 continue
             for targe_info in other_nodes:
                 relevant_sys_name,relevant_sys_version,main_relevant_con_if_test,main_relevant_con_if_sync = targe_info
+                #同一关联系统版本号可能有多个且有误，此处先不生成关联系统的版本号，暂时设为空值，后续有需要可以去掉
+                relevant_sys_version = ""
                 if len(relevant_sys_name) == 0:
                     continue
                 main_up_sys_data_flow,depend_detail,data_interaction_detail = subject_info_data.get(relevant_sys_name,["","",""])

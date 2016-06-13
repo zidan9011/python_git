@@ -9,4 +9,3 @@ if __name__ == "__main__":
     sys.argv = ['C:\\DEV\\PythonWork\\cm_vrms\\manage.py', 'runserver','0.0.0.0:8000']
     
     execute_from_command_line(sys.argv)
-    

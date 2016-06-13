@@ -85,14 +85,12 @@ urlpatterns = patterns('',
     #(r'^get_version_info_from_work_bi/$', insert_into_version),
     
     (r'^get_updatetime_from_db/$', get_updatetime_from_db),
-    
-    
-    (r'^update_table_from_wiki/$',update_table_from_wiki),
+	
+	
+	(r'^update_table_from_wiki/$',update_table_from_wiki),
     (r'^show_middleware/$',show_middleware),
     (r'^middleware_detail_*',middleware_detail),
-   
     
-   
     
    
     
