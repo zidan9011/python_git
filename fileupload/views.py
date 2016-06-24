@@ -10,7 +10,7 @@ from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.template import Context
-from .models import SystemInfo,VersionInfo,SysConfInfo,VerConfInfo,DataExInfo
+from .models import *
 from fileupload.login_form import LoginForm,ChangepwdForm
 from django.shortcuts import render_to_response,render,get_object_or_404  
 from django.contrib.auth.models import User  
@@ -36,6 +36,8 @@ UN_NEED_SYCN = ["ETL","IMIX中间件","IMIX"]#无需同步的系统列表
 system_info = SystemInfo()
 version_info = VersionInfo()
 dataex_info = DataExInfo()
+SysName_info = SysNameInfo()
+testreport_info = Report_DetailInfo()
 sys_query_result = SysConfInfo.objects.all()
 base_version_info = version_info.read_conf_info_from_db()#未做闭环时的version_info
 
@@ -790,7 +792,28 @@ def upload_file(request):
                     return render_to_response('upload_form.html',context_instance=c)
                 else:
                     #return version_detail(request)#输出系统页面
-                    return HttpResponseRedirect('/dataex_detail/')#重定向                
+                    return HttpResponseRedirect('/dataex_detail/')#重定向
+            elif "Sysname" in request.path:
+                check_list = SysName_info.update_conf_from_file(request,filename=file_conf)#file_conf = version_conf
+                if check_list:#若有出错的行,则输出
+                    c = Context({'STATIC_URL': '/static/'})
+                    c["if_check_list"] = True
+                    c["check_list"] = check_list
+                    return render_to_response('upload_form.html',context_instance=c)
+                else:
+                    #return version_detail(request)#输出系统页面
+                    return HttpResponseRedirect('/test_report_index/')#重定向
+                
+            elif "testreport" in request.path:
+                check_list = testreport_info.update_conf_from_file(request,filename=file_conf)#file_conf = version_conf
+                if check_list:#若有出错的行,则输出
+                    c = Context({'STATIC_URL': '/static/'})
+                    c["if_check_list"] = True
+                    c["check_list"] = check_list
+                    return render_to_response('upload_form.html',context_instance=c)
+                else:
+                    #return version_detail(request)#输出系统页面
+                    return HttpResponseRedirect('/test_report_index/')#重定向                
             
     c = RequestContext(request)
     c['STATIC_URL'] = '/static/'

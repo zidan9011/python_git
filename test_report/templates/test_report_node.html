@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>配置管理系统</title>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="height:620px"></div>
+
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui.min.css">
+	<script src="{{ STATIC_URL }}js/jquery.min.js"></script>
+	<script src="{{ STATIC_URL }}js/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/style.css">
+    <!-- ECharts单文件引入 -->
+    <script src="{{ STATIC_URL }}js/echarts.js"></script>
+
+<div id="dialog" title="版本具体情况" >
+	</div>
+
+
+    <script type="text/javascript">
+        // 路径配置
+		$(function() {
+			$( "#dialog" ).dialog({
+				
+			  autoOpen: false,
+			  show: {
+				effect: "blind",
+				duration: 1000
+			  },
+			  hide: {
+				effect: "explode",
+				duration: 1000
+			  }
+			 
+			
+			});
+			
+		  });
+		function displaydetail(){
+            
+			$("p").toggle();
+        }
+    
+		  
+
+		
+        require.config({
+            paths: {
+                echarts: '{{ STATIC_URL }}js/build/dist'
+            }
+        });
+        
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/force' // 使用力导向布局图就加载force模块，按需加载
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('main')); 
+		
+        
+        var option = {
+    title : {
+        text: '外汇交易系统变更关系关联图',
+        x:'right',
+        y:'bottom'
+    },
+    tooltip : {
+        trigger: 'item',
+        formatter: ' {b}'
+    },
+    toolbox: {
+        show : true,
+        feature : {
+            restore : {show: true},
+            saveAsImage : {show: true}
+        }
+    },
+    legend: {
+        x: 'left',
+        orient : 'vertical',
+        data:[
+		'主系统',
+		'项目正常',
+		'项目延期',
+		'项目暂停'
+		]
+    },
+    series : [
+        {
+            type:'force',
+            name : "变更关系",
+            ribbonType: false,
+           
+            categories : [
+                {
+                    name: '主系统',
+                    itemStyle: {
+                        normal: {
+                            color : '#FFFF00'
+                        }
+                    }
+                },
+                
+                {
+                    name: '项目正常',
+                    itemStyle: {
+                        normal: {
+                            color : '#00CD00'
+                        }
+                    }
+                },
+                {
+                    name: '项目延期',
+                    itemStyle: {
+                        normal: {
+                            color : '#FF0000'
+                        }
+                    }
+                },
+                {
+                    name: '项目暂停',
+                    itemStyle: {
+                        normal: {
+                            color : '#828282'
+                        }
+                    }
+                    
+                },
+               
+				
+            ],
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        textStyle: {
+                            color: '#333'
+                        }
+                    },
+                    nodeStyle : {
+                        brushType : 'both',
+                        borderColor : 'rgba(255,215,0,0.4)',
+                        borderWidth : 2
+                    },
+                    linkStyle: {
+                        type: 'line'
+                    }
+                },
+                emphasis: {
+                    label: {
+                        show: false
+                        // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+                    },
+                    nodeStyle : {
+                        //r: 30
+                    },
+                    linkStyle : {}
+                }
+            },
+            useWorker: false,
+            minRadius : 15,
+            maxRadius : 35,
+            gravity: 1.1,
+            scaling: 1.6,
+            roam: 'move',
+            nodes:[
+                {category:0, name: '外汇交易系统V1.8.5.0', value : 30, label: '外汇交易系统V1.8.5.0'},
+            	{category:1, name: 'C-SwapV1.3.0.0\n升级联测', value : 25}, 
+            	{category:2, name: 'CIMV1.9.0.0\n升级联测', value : 25},
+            	{category:1, name: 'IMIXV4.2.77.0\n升级联测', value : 25},
+            	{category:1, name: '交易后V2.3.4.8\n升级联测', value : 25},
+				{category:2, name: '基准系统V1.3.0.0\n无影响联测', value : 20}, 
+            	{category:2, name: '大屏展示系统V3.4.1.2\n无影响联测', value : 20},
+            	{category:2, name: '本币CSTPV4.2.77.0\n无影响联测', value : 20,symbol:'star'},
+            	{category:3, name: 'CMDRV2.3.4.8\n无影响联测', value : 20},
+            	
+            ],
+           links : [
+           			{source : '外汇交易系统V1.8.5.0', target : 'C-SwapV1.3.0.0\n升级联测', weight :5},
+           			{source : '外汇交易系统V1.8.5.0', target : 'CIMV1.9.0.0\n升级联测', weight :5},
+           			{source : '外汇交易系统V1.8.5.0', target : 'IMIXV4.2.77.0\n升级联测', weight :5},
+           			{source : '外汇交易系统V1.8.5.0', target : '交易后V2.3.4.8\n升级联测', weight :5},
+           			{source : '外汇交易系统V1.8.5.0', target : '基准系统V1.3.0.0\n无影响联测', weight :2},
+           			{source : '外汇交易系统V1.8.5.0', target : '大屏展示系统V3.4.1.2\n无影响联测', weight :2},
+           			{source : '外汇交易系统V1.8.5.0', target : '本币CSTPV4.2.77.0\n无影响联测', weight :2},
+           			{source : '外汇交易系统V1.8.5.0', target : 'CMDRV2.3.4.8\n无影响联测', weight: 2},
+           		
+            ],
+             markPoint : {
+                symbol: 'pin',
+                symbolSize:10,
+                large:true,
+	            effect : {
+                    show: true,
+                    type: 'scale',
+                    loop:true,
+                    color : '#FF0000',
+                    scaleSize :5,
+                    shadowBlur :10
+                },
+                data : [
+                    {name: '交易后V2.3.4.8\n升级联测', value: 10}
+                ]
+            }
+        }
+    ]
+};
+
+        // 为echarts对象加载数据 
+        myChart.setOption(option); 
+		
+		
+var ecConfig = require('echarts/config');
+
+
+
+function eConsole(param) {
+	var lineName = param.name//辨别当前点中的边
+	if (typeof lineName == 'undefined'){
+		return;
+	} 	
+
+		
+	tabel_str = "<tr><th>目前项目阶段</th><td>模拟流程</td><th>项目质量</th><td>质量一般</td></tr><tr><th>项目测试工作量投入情况</th><td>超签报工作量</td><th>人力投入情况</th><td>人力充足</td></tr><tr><th >具体原因</th><td colspan=3>因为项目计划拖长导致测试工作量超出签报工作量，已和各方确认在1.1版本的签报补足工作量。</td></tr>"
+					
+
+	
+	var lineFrom = param.value.source;
+	var lineTarget = param.value.target;
+	document.getElementById('dialog').innerHTML = 
+	"<table  border='1' >"+
+	"<tr><th colspan='18'>"+lineTarget+"</th></tr>"+
+	tabel_str+
+	"</table>"
+	$( "#dialog" ).dialog( "open" );
+		
+	
+	
+}
+
+		myChart.on(ecConfig.EVENT.CLICK, eConsole);
+		myChart.on(ecConfig.EVENT.DBLCLICK, eConsole);
+		//myChart.on(ecConfig.EVENT.HOVER, eConsole);
+		myChart.on(ecConfig.EVENT.DATA_ZOOM, eConsole);
+		myChart.on(ecConfig.EVENT.LEGEND_SELECTED, eConsole);
+		myChart.on(ecConfig.EVENT.MAGIC_TYPE_CHANGED, eConsole);
+		myChart.on(ecConfig.EVENT.DATA_VIEW_CHANGED, eConsole);
+
+		
+		}
+		);
+		
+		
+    </script>
+    <div style = "margin: 0; font-size: 11px; text-align: right; color: #487858;">
+		<a href="/upload_file/">| 文件上传</a> |
+		<a href="/system_detail/">系统详情页</a> |
+		<a href="/version_detail/">版本详情页</a> |
+		<a href="/dataex_detail/">交互信息展示页</a> |
+		<a href="/cm_baseline/">基线展示页</a> |
+		<a href="/cm_bi_index/">报表展示页</a> |
+	</div>
+</body>

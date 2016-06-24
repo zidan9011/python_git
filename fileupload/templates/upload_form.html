@@ -24,8 +24,10 @@
       <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="true">上传系统关系文件</a></li>
       <li role="presentation"><a href="#profile" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">上传版本配置文件</a></li>
       <li role="presentation"><a href="#profile3" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">上传数据交互信息文件</a></li>
-
       <li role="presentation"><a href="#profile2" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">挖掘系统信息</a></li>
+      
+      <li role="presentation"><a href="#profile4" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">上次系统名称文件</a></li>
+      <li role="presentation"><a href="#profile5" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">上传测试周报</a></li>
     </ul>
     <div id="myTabContent" class="tab-content">
       <div role="tabpanel" class="tab-pane fade in active" id="home" aria-labelledby="home-tab">
@@ -69,7 +71,40 @@
 	            <span>开始上传</span>
 	        </button>
 	    </form>        
-      </div>      
+      </div> 
+      
+      <div role="tabpanel" class="tab-pane fade" id="profile4" aria-labelledby="profile-tab">
+	     <form action="/upload_file_Sysname/" method="post" enctype="multipart/form-data" accept-charset="utf-8">
+	        {% csrf_token %}
+	        <span class="btn btn-success fileinput-button">
+			    <i class="glyphicon glyphicon-plus"></i>
+			    <span>上传系统名称文件</span>
+			    <input type="file" name="t_file" value="" />
+			</span>
+	        <button type="submit" class="btn btn-primary start">
+	            <i class="glyphicon glyphicon-upload"></i>
+	            <span>开始上传</span>
+	        </button>
+	    </form>        
+      </div> 
+      
+      <div role="tabpanel" class="tab-pane fade" id="profile5" aria-labelledby="profile-tab">
+	     <form action="/upload_file_testreport/" method="post" enctype="multipart/form-data" accept-charset="utf-8">
+	        {% csrf_token %}
+	        <span class="btn btn-success fileinput-button">
+			    <i class="glyphicon glyphicon-plus"></i>
+			    <span>上传测试周报</span>
+			    <input type="file" name="t_file" value="" />
+			</span>
+	        <button type="submit" class="btn btn-primary start">
+	            <i class="glyphicon glyphicon-upload"></i>
+	            <span>开始上传</span>
+	        </button>
+	    </form>        
+      </div> 
+      
+      
+           
       <div role="tabpanel" class="tab-pane fade" id="profile2" aria-labelledby="profile-tab">
         <a href="/system_detail_mine/" class="btn btn-primary start"  role="button">开始挖掘</a>
       </div>      

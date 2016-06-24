@@ -23,7 +23,7 @@ class Envi_Detail(models.Model):
     
 class Envi_Relation(models.Model):
     
-    AppID_Source = models.ForeignKey(Envi_Detail,related_name ='AppID_Source', verbose_name = '源系统ID')
+    AppID_Source = models.ForeignKey(Envi_Detail ,related_name ='AppID_Source', verbose_name = '源系统ID')
     AppID_Target = models.ForeignKey(Envi_Detail, related_name ='AppID_Target',verbose_name = '目标系统ID')
 
     

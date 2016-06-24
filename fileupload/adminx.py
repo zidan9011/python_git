@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.admin.models import LogEntry
 from django.contrib.admin.sites import AdminSite
 from django.utils.translation import ugettext as _, ugettext_lazy
-from .models import SystemInfo,VersionInfo,SysConfInfo,VerConfInfo,NameMap,NamemapInfo,DataExchangeInfo,DataExInfo
+from .models import *
 #怎样自定义列表页面？
 from xadmin import views
 from xadmin.layout import Main, TabHolder, Tab, Fieldset, Row, Col, AppendedText, Side
@@ -216,6 +216,54 @@ class VerConfAdmin(object):
     delete_selected.short_description = ugettext_lazy("Delete selected %(verbose_name_plural)s")
 #将Author模块和管理类绑定在一起，注册到后台管理
 xadmin.site.register(VerConfInfo, VerConfAdmin)
+
+class Report_DetailAdmin(object):
+    def save_model(self, request, obj, form, change):
+        if not obj.id:
+            obj.Writter = request.user.username
+        obj.save()
+        
+    list_export = ('xlsx',)
+    reversion_enable = True
+    actions = ['delete_selected']
+    list_display = ('SystemName','VersionNum','Main_SysName','Main_VersionNum',
+                    'ProjectName','PlanTime','TestType','ProjectStage',
+                    'TestRuns','OverallSchedule',
+                    'ManpowerInput','VersionQuality','Workload','CRType','PerformanceTest',
+                    'Reason','Writter',)
+    #列表页出现搜索框，参数是搜索的域
+    search_fields = ('SystemName','VersionNum','Main_SysName','Main_VersionNum',
+                    'ProjectName','PlanTime','TestType','ProjectStage',
+                    'TestRuns','OverallSchedule',
+                    'ManpowerInput','VersionQuality','Workload','CRType','PerformanceTest',
+                    'Reason','Writter')
+    #右侧会出现过滤器，根据字段类型，过滤器显示过滤选项
+    list_filter = ('SystemName','VersionNum','Main_SysName','Main_VersionNum',
+                    'ProjectName','PlanTime','TestType','ProjectStage',
+                    'TestRuns','OverallSchedule',
+                    'ManpowerInput','VersionQuality','Workload','CRType','PerformanceTest',
+                    'Reason','Writter',)
+    fields = ('SystemName','VersionNum','Main_SysName','Main_VersionNum',
+                    'ProjectName','PlanTime','TestType','ProjectStage',
+                    'TestRuns','OverallSchedule',
+                    'ManpowerInput','VersionQuality','Workload','CRType','PerformanceTest',
+                    'Reason','Writter','UpdateDate')
+    #自然是排序所用了，减号代表降序排列
+    ordering = ('SystemName','VersionNum','Main_SysName','Main_VersionNum',
+                    'ProjectName','PlanTime','TestType','ProjectStage',
+                    'TestRuns','OverallSchedule',
+                    'ManpowerInput','VersionQuality','Workload','CRType','PerformanceTest',
+                    'Reason','Writter',)
+    #表格列表可编辑
+    
+    list_editable = ['SystemName','VersionNum','Main_SysName','Main_VersionNum',
+                    'ProjectName','PlanTime','TestType','ProjectStage',
+                    'TestRuns','OverallSchedule',
+                    'ManpowerInput','VersionQuality','Workload','CRType','PerformanceTest',
+                    'Reason','Writter',]
+
+#注册到后台管理
+xadmin.site.register(Report_Detail, Report_DetailAdmin)
 
 
 class LogEntryAdmin(object):

@@ -6,6 +6,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 import copy
 import xlrd
+import datetime
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
 def singleton(cls, *args, **kw):
@@ -26,6 +27,14 @@ def convert_xlsx_csv(xlsx_path,csv_path):
     your_csv_file = open(csv_path, 'wb') 
     for rownum in xrange(sh.nrows):
         line_values = sh.row_values(rownum)
+        line_types = sh.row_types(rownum)
+        for i in range(0,len(line_types)):
+            if line_types[i] == 3:#格式化string字符串，加星号是format的一种写法
+                #line_values[i] = "{}-{}-{}".format(*xlrd.xldate_as_tuple(line_values[i],wb.datemode))
+                year,month,day=xlrd.xldate_as_tuple(line_values[i],wb.datemode)[:3]
+                tmp_date = datetime.date(year,month,day)
+                line_values[i] = tmp_date.strftime('%Y-%m-%d')
+                
         line_values = [str(val) for val in line_values]
         line_str = "\t".join(line_values)
         line_str = line_str.encode("utf-8")
@@ -103,7 +112,352 @@ def convert_name(name):#如果在映射内,则返回映射后结果。否则返�
             return name
     except:
         return name
+    
 
+'''测试周报中标准系统名称表'''
+class SysName_Info(models.Model):
+    SysName = models.CharField(max_length=128, verbose_name = '系统名称')
+    
+    def save(self, *args, **kwargs):
+        '''重写保存方法'''
+        super(SysName_Info, self).save(*args, **kwargs) # Call the "real" save() method.
+        tmp_info = DataExInfo()#更新sys_info
+        tmp_info.refresh_sys_info()
+    
+    def delete(self, *args, **kwargs):
+        #重写删除方法
+        super(SysName_Info, self).delete(*args, **kwargs) # Call the "real" delete() method.
+        tmp_info = DataExInfo()#更新sys_info
+        tmp_info.refresh_sys_info() 
+    
+    def __unicode__(self):
+        return "{}".format(self.SysName)
+    class Meta:
+        db_table = u"test_report_Sys_Name"
+        verbose_name=u"测试周报系统名称表"
+        verbose_name_plural=u"测试周报系统名称表"
+        
+@singleton
+class SysNameInfo(models.Model):
+    '''SysNameInfo 即为测试管理周报中系统标准命名信息'''
+    
+    def __init__(self):
+        self.sys_info = {}
+        self.sys_info = self.read_conf_info_from_db()
+    
+    def refresh_sys_info(self):
+        #更新信息
+        self.sys_info = self.read_conf_info_from_db()
+        return self.sys_info
+    
+    def update_conf_from_file(self,request,filename="SysName_conf.xlsx"):
+        #上传文件后触发,更新文件且插入数据库
+        file_path = os.getcwd()
+        in_path = file_path+"\\cm_vrms_upload\\media\\pictures\\"
+        upload_file_path=in_path+filename#上传文件的地址
+        csv_path = "{}SysName_conf{}.csv".format(in_path,"".join(filename.split(".")))
+        csv_path = csv_path.decode("utf-8").encode("gbk")
+        if ".xls" in filename:
+            #xlsx_path= in_path+filename+".xlsx"#system_conf.xlsx/version.xlsx/SysName_conf.xlsx
+            #将上传进来的配置文件改为csv文件,并且改成utf-8的格式
+            convert_xlsx_csv(upload_file_path,csv_path)
+        elif ".csv" in filename:
+            convert_csv_csv(upload_file_path,csv_path)#将gbk修正为utf-8
+        self.write_conf_info_to_db(request,csv_path)#插入数据库
+        self.refresh_sys_info()#更新sysinfo
+        
+        
+    def write_conf_info_to_db(self,request,file_path):
+        '''将信息从文件更新到数据库中'''
+        f_info = open(file_path)
+        sys_info = [val.strip() for val in f_info.readlines()]
+        f_info.close()
+        sys_info = sys_info[1:]
+        sys_info = [val.split("\t") for val in sys_info]
+        
+        for node_info in sys_info:
+            if len(node_info) != 18:
+                continue
+
+            try:
+                conf_info_tmp = SysName_Info.objects.get(SysName=node_info[0])
+        
+                conf_info_tmp.save()#更新
+            except SysName_Info.DoesNotExist:
+                try:
+                    conf_info_tmp = SysName_Info(SysName=node_info[0])
+                    conf_info_tmp.save()#插入
+                    
+                except:
+                    print "\t".join(node_info)
+                
+        return True  
+    def read_conf_info_from_db(self):
+        '''从数据库中读取SysName_Info'''
+        conf_info_list = SysName_Info.objects.all()
+        sys_source_node_info = {}
+        for conf_info in conf_info_list:
+            try:
+                SysName=conf_info.SystemName.encode("utf-8")
+                
+                
+                if SysName not in sys_source_node_info:
+                    sys_source_node_info[SysName]=[]
+                
+                    
+                sys_source_node_info[SysName].append('''{0}'''.format(SysName))
+            
+            except:
+                print SysName
+                       
+        return sys_source_node_info
+
+
+'''测试管理模块表信息模型'''   
+class Report_Detail(models.Model):
+    TestType_CHOICES = (('zxt','主系统'),('sjlc','升级联测'),('wyxlc','无影响联测'),('whf','未回复'))
+    ProjectStage_CHOICES = (('xqfx','需求分析'),('ylsj','用例设计'),('uat1jd','UAT1阶段'),('xtcs','系统测试'),('yslc','验收流程'),('ysjd','验收阶段'),('mnlc','模拟流程'),('mncs','模拟测试'),('mnjd','模拟阶段'),('mnwc','模拟完成'),('scsx','生产上线'))
+    OverallSchedule_CHOICES = (('zc','正常'),('yq','延期'),('zt','暂停'),('zf','作废'))
+    ManpowerInput_CHOICES = (('rljz','人力紧张'),('rlcz','人力充足'),('rlbz','人力不足'))
+    VersionQuality_CHOICES = (('zlyb','质量一般'),('zljh','质量较好'),('zljc','质量较差'))
+    Workload_CHOICES = (('cqbgzl','超签报工作量'),('zc','正常'),('wlx','未立项'))
+    TestRuns_CHOICES =(('1','1'),('2','2'),('3','3'),('4','4'),('5','5'),('6','6'),('7','7'),('8','8'),('9','9'),('10','10'))
+    CRType_CHOICES =(('zc','正常'),('jj','紧急'),('lx','例行'),('kj','快捷'))
+    PerformanceTest_CHOICES =(('y','有'),('n','无'))
+    
+    SystemName = models.CharField(max_length=128,verbose_name = '系统名称')
+    VersionNum = models.CharField(max_length=16,verbose_name = '版本号')
+    Main_SysName = models.CharField(max_length=128,verbose_name = '主系统名称')
+    Main_VersionNum = models.CharField(max_length=16,verbose_name='主系统版本号')
+    ProjectName = models.CharField(max_length=128,blank=True,verbose_name='项目名称')
+    PlanTime = models.DateField(verbose_name = '计划上线时间')
+    TestType = models.CharField(max_length=32, choices=TestType_CHOICES, verbose_name = '联测类别')
+    ProjectStage = models.CharField(max_length=32, choices=ProjectStage_CHOICES, verbose_name = '目前项目阶段')
+    TestRuns = models.CharField(max_length=64,blank=True,verbose_name='测试轮次')
+    OverallSchedule = models.CharField(max_length=32,choices=OverallSchedule_CHOICES,verbose_name='项目整体进度')
+    ManpowerInput = models.CharField(max_length=32,choices=ManpowerInput_CHOICES,blank=True,verbose_name = '人力投入情况')
+    VersionQuality = models.CharField(max_length=32,choices=VersionQuality_CHOICES,blank=True,verbose_name = '版本质量')
+    Workload = models.CharField(max_length=32,choices=Workload_CHOICES,blank=True,verbose_name = '工作量情况')
+    CRType = models.CharField(max_length=32,choices=CRType_CHOICES,blank=True,verbose_name = '变更类型')
+    PerformanceTest = models.CharField(max_length=32,choices=PerformanceTest_CHOICES,blank=True,verbose_name = '性能测试')
+    Reason = models.CharField(max_length=1024,blank=True,verbose_name = '原因说明')
+    Writter = models.CharField(max_length=32,blank=True,verbose_name = '填写人')
+    UpdateDate = models.DateField(default = datetime.datetime.now().date(),blank=True,verbose_name='填写日期')
+    
+    def save(self, *args, **kwargs):
+        '''重写保存方法'''
+        super(Report_Detail, self).save(*args, **kwargs) # Call the "real" save() method.
+        tmp_info = Report_DetailInfo()#更新sys_info
+        tmp_info.refresh_sys_info()
+    
+    def delete(self, *args, **kwargs):
+        #重写删除方法
+        super(Report_Detail, self).delete(*args, **kwargs) # Call the "real" delete() method.
+        tmp_info = Report_DetailInfo()#更新sys_info
+        tmp_info.refresh_sys_info()
+    
+    def __unicode__(self):
+        return "{}".format(self.SystemName)
+    class Meta:
+        db_table = u"test_report_Report_Detail"
+        verbose_name=u"测试周报信息"
+        verbose_name_plural=u"测试周报信息表"
+        
+@singleton
+class Report_DetailInfo(models.Model):
+    '''Report_DetailInfo 即为测试管理周报中的详细信息'''
+    
+    def __init__(self):
+        self.sys_info = {}
+        self.sys_info = self.read_conf_info_from_db()
+    
+    def refresh_sys_info(self):
+        #更新信息
+        self.sys_info = self.read_conf_info_from_db()
+        return self.sys_info
+    
+    def update_conf_from_file(self,request,filename="Report_Detail_conf.xlsx"):
+        #上传文件后触发,更新文件且插入数据库
+        file_path = os.getcwd()
+        in_path = file_path+"\\cm_vrms_upload\\media\\pictures\\"
+        upload_file_path=in_path+filename#上传文件的地址
+        csv_path = "{}Report_Detail_conf{}.csv".format(in_path,"".join(filename.split(".")))
+        csv_path = csv_path.decode("utf-8").encode("gbk")
+        if ".xls" in filename:
+            #xlsx_path= in_path+filename+".xlsx"#system_conf.xlsx/version.xlsx/SysName_conf.xlsx/Report_Detail_conf.xlsx
+            #将上传进来的配置文件改为csv文件,并且改成utf-8的格式
+            convert_xlsx_csv(upload_file_path,csv_path)
+        elif ".csv" in filename:
+            convert_csv_csv(upload_file_path,csv_path)#将gbk修正为utf-8
+        self.write_conf_info_to_db(request,csv_path)#插入数据库
+        self.refresh_sys_info()#更新sysinfo
+        
+        
+    def write_conf_info_to_db(self,request,file_path):
+        '''将信息从文件更新到数据库中'''
+        test_type_map_info = {'主系统':'zxt','升级联测':'sjlc','无影响联测':'wyxlc','未回复':'whf','':''}
+        ProjectStage_map_info = {'需求分析':'xqfx','用例设计':'ylsj','UAT1阶段':'uat1jd','系统测试':'xtcs','验收流程':'yslc','验收阶段':'ysjd','模拟流程':'mnlc','模拟阶段':'mnjd','模拟测试':'mncs','模拟完成':'mnwc','生产上线':'scsx','':''}
+        OverallSchedule_map_info = {'正常':'zc','延期':'yq','暂停':'zt','作废':'zf','':''}
+        ManpowerInput_map_info = {'人力紧张':'rljz','人力充足':'rlcz','人力不足':'rlbz','':''}
+        VersionQuality_map_info = {'质量一般':'zlyb','质量较好':'zljh','质量较差':'zljc','':''}
+        Workload_map_info = {'超签报工作量':'cqbgzl','正常':'zc','未立项':'wlx','':''}
+        CRType_map_info = {'正常':'zc','紧急':'jj','例行':'lx','快捷':'kj'}
+        PerformanceTest_map_info = {'有':'y','无':'n'}
+        
+        
+        f_info = open(file_path)
+        sys_info = [val.strip() for val in f_info.readlines()]
+        f_info.close()
+        sys_info = sys_info[1:]
+        sys_info = [val.split("\t") for val in sys_info]
+        print request.user
+        
+        for node_info in sys_info:
+            test_type = node_info[6]
+            node_info[6] = test_type_map_info[test_type]
+            projectstage = node_info[7]
+            node_info[7] = ProjectStage_map_info[projectstage]
+            overallschedule = node_info[9]
+            node_info[9] = OverallSchedule_map_info[overallschedule]
+            manpowerinput = node_info[10]
+            node_info[10] = ManpowerInput_map_info[manpowerinput]
+            versionquality = node_info[11]
+            node_info[11] = VersionQuality_map_info[versionquality]
+            workload = node_info[12]
+            node_info[12] = Workload_map_info[workload]
+            crtype = node_info[13]
+            node_info[13] = CRType_map_info[crtype]
+            performancetest = node_info[14]
+            node_info[14] = PerformanceTest_map_info[performancetest]
+            
+            node_info[16] = request.user.username
+            
+            if len(node_info) == 17:#若是缺失后一列的
+                datestr = datetime.datetime.now().date().strftime('%Y-%m-%d') 
+                node_info.append(datestr)#增加备注信息    
+            
+            if len(node_info) != 18 :
+                continue
+            if len(node_info[5]) == 0:
+                node_info[5] = None
+            else:
+                node_info[5]=datetime.datetime.strptime(node_info[5],"%Y-%m-%d")
+                
+           
+            node_info[17]=datetime.datetime.strptime(node_info[17],"%Y-%m-%d")
+            
+            try:
+                conf_info_tmp = Report_Detail.objects.get(SystemName=node_info[0],
+                                                          VersionNum=node_info[1],
+                                                          Main_SysName=node_info[2],
+                                                          Main_VersionNum=node_info[3])
+                
+                conf_info_tmp = Report_Detail.objects.filter(SystemName=node_info[0],
+                                                          VersionNum=node_info[1],
+                                                          Main_SysName=node_info[2],
+                                                          Main_VersionNum=node_info[3]).update(ProjectName=node_info[4],
+                                                                                               PlanTime=node_info[5],
+                                                                                               TestType=node_info[6],
+                                                                                               ProjectStage=node_info[7],
+                                                                                               TestRuns=node_info[8],
+                                                                                               OverallSchedule=node_info[9],
+                                                                                               ManpowerInput=node_info[10],
+                                                                                               VersionQuality=node_info[11],
+                                                                                               Workload=node_info[12],
+                                                                                               CRType = node_info[13],
+                                                                                               PerformanceTest = node_info[14],
+                                                                                               Reason=node_info[15],
+                                                                                               Writter=node_info[16],
+                                                                                               UpdateDate=node_info[17])
+                #conf_info_tmp.save()#更新
+            except Report_Detail.DoesNotExist:
+                try:
+                    
+                    conf_info_tmp = Report_Detail(SystemName=node_info[0],
+                                                  VersionNum=node_info[1],
+                                                  Main_SysName=node_info[2],
+                                                  Main_VersionNum=node_info[3],
+                                                  ProjectName=node_info[4],
+                                                  PlanTime=node_info[5],
+                                                  TestType=node_info[6],
+                                                  ProjectStage=node_info[7],
+                                                  TestRuns=node_info[8],
+                                                  OverallSchedule=node_info[9],
+                                                  ManpowerInput=node_info[10],
+                                                  VersionQuality=node_info[11],
+                                                  Workload=node_info[12],
+                                                  CRType = node_info[13],
+                                                  PerformanceTest = node_info[14],
+                                                  Reason=node_info[15],
+                                                  Writter=node_info[16],
+                                                  UpdateDate=node_info[17])
+                    conf_info_tmp.save()#插入
+                    
+                except:
+                    print "\t".join(node_info)
+                
+        return True       
+            
+    def read_conf_info_from_db(self):
+        '''从数据库中读取Repoer_Detail_Info'''
+        conf_info_list = Report_Detail.objects.all()
+        sys_source_node_info = {}
+        for conf_info in conf_info_list:
+            try:
+                SystemName=conf_info.SystemName.encode("utf-8")
+                VersionNum=conf_info.VersionNum.encode("utf-8")
+                Main_SysName=conf_info.Main_SysName.encode("utf-8")
+                Main_VersionNum=conf_info.Main_VersionNum.encode("utf-8")
+                ProjectName=conf_info.ProjectName.encode("utf-8")
+                PlanTime=conf_info.PlanTime.encode("utf-8")
+                TestType=conf_info.TestType.encode("utf-8")
+                ProjectStage=conf_info.ProjectStage.encode("utf-8")
+                TestRuns=conf_info.TestRuns.encode("utf-8")
+                OverallSchedule=conf_info.OverallSchedule.encode("utf-8")
+                ManpowerInput=conf_info.ManpowerInput.encode("utf-8")
+                VersionQuality=conf_info.VersionQuality.encode("utf-8")
+                Workload=conf_info.Workload.encode("utf-8")
+                CRType=conf_info.CRType.encode("utf-8")
+                PerformanceTest=conf_info.PerformanceTest.encode("utf-8")
+                Reason=conf_info.Reason.encode("utf-8")
+                Writter=conf_info.Writter.encode("utf-8")
+                UpdateDate=conf_info.UpdateDate.encode("utf-8")
+                
+                if SystemName not in sys_source_node_info:
+                    sys_source_node_info[SystemName]={}
+                if VersionNum not in sys_source_node_info[SystemName]:
+                    sys_source_node_info[SystemName][VersionNum] = []
+                    
+                sys_source_node_info[SystemName][VersionNum].append('''{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}'''.format(Main_SysName,
+                                                                     Main_VersionNum,
+                                                                     ProjectName,
+                                                                     PlanTime,
+                                                                     TestType,
+                                                                     ProjectStage,
+                                                                     TestRuns,
+                                                                     OverallSchedule,
+                                                                     ManpowerInput,
+                                                                     VersionQuality,
+                                                                     Workload,
+                                                                     CRType,
+                                                                     PerformanceTest,
+                                                                     Reason,
+                                                                     Writter,
+                                                                     UpdateDate))
+            
+            except:
+                print SystemName
+                       
+        return sys_source_node_info
+
+
+
+
+
+
+
+    
+'''技术开发部数据交换信息模型'''
 class DataExchangeInfo(models.Model):
     service_num=models.CharField(max_length=500, verbose_name = '服务编号')
     service_system=models.CharField(max_length=100, verbose_name = '所属服务体系' )
@@ -162,7 +516,10 @@ class DataExchangeInfo(models.Model):
         db_table = u"data_exchange"
         verbose_name=u"数据交换信息管理"
         verbose_name_plural=u"数据交换信息管理(总)"
-     
+
+
+
+'''系统信息模型 '''     
 class SysConfInfo(models.Model):
     node_source=models.CharField(max_length=100, verbose_name = '源系统')
     node_target=models.CharField(max_length=100, verbose_name = '目标系统')
@@ -193,7 +550,9 @@ class SysConfInfo(models.Model):
         db_table = u"fileupload_sysconfinfo"
         verbose_name=u"系统信息管理"
         verbose_name_plural=u"系统信息管理(总)"
-        
+
+
+'''手动挖掘信息模型 '''        
 class SysDataMineInfo(models.Model):
     node_source=models.CharField(max_length=100, verbose_name='源系统')
     node_target=models.CharField(max_length=100, verbose_name='目标系统')
@@ -216,6 +575,9 @@ class SysDataMineInfo(models.Model):
         verbose_name=u"挖掘系统信息管理"
         verbose_name_plural=u"挖掘系统信息管理(总)"            
 
+
+
+''' 版本信息模型'''
 class VerConfInfo(models.Model):
     IF_CHOICES = (('Y', 'Y'), ('N', 'N'))
     Flow_CHOICES = (('->','->'),('<-','<-'),('<->','<->'))
@@ -289,7 +651,7 @@ class VerConfInfo(models.Model):
 
 @singleton
 class DataExInfo(models.Model):
-    '''sys_info 即为数据交互信息'''
+    '''DataEx_info 即为数据交互信息'''
     
     def __init__(self):
         self.sys_info = {}
@@ -378,7 +740,7 @@ class DataExInfo(models.Model):
         return True       
             
     def read_conf_info_from_db(self):
-        '''从数据库中读取conf_info'''
+        '''从数据库中读取dataex_info'''
         conf_info_list = DataExchangeInfo.objects.all()
         sys_source_node_info = {}
         for conf_info in conf_info_list:

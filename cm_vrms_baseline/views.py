@@ -209,7 +209,7 @@ def get_dict_map(info_map,info_set,info_key):
 def get_project_map():
     """获取所有映射到主项目群的project_id,产出 project-项目群名 的映射关系"""
     project_list = CmVrmsBaselineProjects.objects.all()#project的信息,获取应用到每个项目群的映射关系
-    need_check_set = set([272,273,274,275,276,277,278,280,433])
+    need_check_set = set([272,273,274,275,276,277,278,280,433,27,28,30,31,32,33,34,35,36])
     project_child = {}
     project_name = {}
     group_dict = {}#存放每个need_check_set对应的所有子id集合

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    
+    <title>配置管理系统</title>
+  	<link href="/static/css/bootstrap.min.css" rel="stylesheet" /> 
+    <link rel="stylesheet" type="text/css" href="/static/css/tcal.css" />
+     
+    <script src="/static/js/jquery.min.js"></script> 
+    <script src="/static/js/bootstrap.min.js"></script> 
+    <script type="text/javascript" src="/static/js/tcal.js"></script> 
+    <link rel="stylesheet" href="/static/css/datepicker/css/reset.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/datepicker/css/default.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/datepicker/css/style.css" type="text/css">
+    <script type="text/javascript" src="/static/css/datepicker/javascript/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="/static/css/datepicker/javascript/zebra_datepicker.js"></script>
+    <script type="text/javascript" src="/static/css/datepicker/javascript/core.js"></script>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+     <table width="620" border="0" align="center" cellpadding="0" cellspacing="0">
+    <tr>
+    <th scope="col">
+    <form action="/bi_human/" method="get">
+            <input id="datepicker-example1" type="text" name="query1" value=""/>
+            <input id="datepicker-example9" type="text" name="query2" value=""/>
+            <input type="submit" value="按时间搜索">
+    </form>
+    </tr>
+    </table>
+	<div class="row"> 
+	    <div class="span3">
+	    	<div id="main" style="height:280px;width:400px"></div>
+	    	<div id="main1" style="height:280px;width:400px"></div>
+		</div>
+		<div class="span2">
+	    	<div id="main6" style="height:560px"></div>
+		</div>
+		<div class="span3">
+	    	<div id="main2" style="height:280px;width:400px"></div>
+	    	<div id="main3" style="height:280px;width:400px"></div>
+		</div>
+		<div class="span1">
+	    	<div id="main4" style="height:560px"></div>
+		</div>
+		<div class="span6" >
+		    <div id="main5" style="height:500px;width:700px"></div>
+		</div> 
+	</div> 
+    <!--div id="main" style="height:600px"></div-->
+    <!-- ECharts单文件引入 -->
+    <script src="/static/js/echarts.js"></script>
+    <script type="text/javascript">
+	
+        // 路径配置
+        require.config({
+            paths: {
+                echarts: '/static/js/build/dist'
+            }
+        });
+        
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar',
+                'echarts/chart/line' 
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('main'));
+                var myChart1 = ec.init(document.getElementById('main1'));
+                var myChart2 = ec.init(document.getElementById('main2'));
+                var myChart3 = ec.init(document.getElementById('main3'));
+                var myChart5 = ec.init(document.getElementById('main5'));
+                
+		
+		
+		option = {
+    title : {
+        x : 'center',
+        text: '项目进度状态',
+        subtext:'{{month_tag}}'
+         
+    },
+    tooltip : {
+        trigger: 'axis'
+    },
+    toolbox: {
+        show : true,
+        x:'left',
+        feature : {
+            saveAsImage : {show: true}
+        }
+    },
+    calculable : true,
+    xAxis : [
+        {
+            type : 'category',
+            splitLine :{show:false},
+            data : ['延期','正常','暂停']
+        }
+    ],
+    yAxis : [
+        {
+            type : 'value',
+            splitLine :{show:true}
+        }
+    ],
+    series : [
+        {
+            name:'项目进度状态',
+            type:'bar',
+            itemStyle : { normal: {label : {show: true, position: 'inside'}}},
+            data:[11,105,22]
+            
+        }
+    ]
+};
+
+option1 = {
+    title : {
+        x : 'center',
+        text: '质量情况'
+         
+    },
+    tooltip : {
+        trigger: 'axis'
+    },
+    toolbox: {
+        show : true,
+        x:'left',
+        feature : {
+            saveAsImage : {show: true}
+        }
+    },
+    calculable : true,
+    xAxis : [
+        {
+            type : 'category',
+            splitLine :{show:false},
+            data : ['质量较差','质量一般','质量较好']
+        }
+    ],
+    yAxis : [
+        {
+            type : 'value',
+            splitLine :{show:true}
+        }
+    ],
+    series : [
+        {
+            name:'质量情况',
+            type:'bar',
+            itemStyle : { normal: {label : {show: true, position: 'inside'}}},
+            data:[12,25,35]
+            
+        }
+    ]
+};
+
+option2 = {
+    title : {
+        x : 'center',
+        text: '人力情况'
+         
+    },
+    tooltip : {
+        trigger: 'axis'
+    },
+    toolbox: {
+        show : true,
+        x:'left',
+        feature : {
+            saveAsImage : {show: true}
+        }
+    },
+    calculable : true,
+    xAxis : [
+        {
+            type : 'category',
+            splitLine :{show:false},
+            data : ['人力不足','人力紧张','人力充足']
+        }
+    ],
+    yAxis : [
+        {
+            type : 'value',
+            splitLine :{show:true}
+        }
+    ],
+    series : [
+        {
+            name:'人力情况',
+            type:'bar',
+            itemStyle : { normal: {label : {show: true, position: 'inside'}}},
+            data:[8,69,50]
+            
+        }
+    ]
+};
+
+
+option3 = {
+    title : {
+        x : 'center',
+        text: '工作量情况'
+         
+    },
+    tooltip : {
+        trigger: 'axis'
+    },
+    toolbox: {
+        show : true,
+        x:'left',
+        feature : {
+            saveAsImage : {show: true}
+        }
+    },
+    calculable : true,
+    xAxis : [
+        {
+            type : 'category',
+             splitLine :{show:false},
+            data : ['超签报工作量','正常']
+        }
+    ],
+    yAxis : [
+        {
+            type : 'value',
+            splitLine :{show:true}
+        }
+    ],
+    series : [
+        {
+            name:'工作量情况',
+            type:'bar',
+            itemStyle : { normal: {label : {show: true, position: 'inside'}}},
+            data:[12,102]
+            
+        }
+    ]
+};
+	
+	
+	
+option5 = {
+    title : {
+        x : 'center',
+        text: '项目阶段情况'
+         
+    },
+    tooltip : {
+        trigger: 'axis'
+    },
+    toolbox: {
+        show : true,
+        feature : {
+            saveAsImage : {show: true}
+        }
+    },
+    calculable : true,
+    xAxis : [
+        {
+            type : 'category',
+            splitLine :{show:false},
+            data : ['需求分析','用例设计','UAT1阶段','验收流程','验收阶段','模拟流程','模拟阶段','生产上线']
+        }
+    ],
+    yAxis : [
+        {
+            type : 'value',
+            splitLine :{show:true}
+        }
+    ],
+    series : [
+        {
+            name:'项目阶段情况',
+            type:'bar',
+            itemStyle : { normal: {label : {show: true, position: 'inside'}}},
+            data:[5,5,53,9,2,32,12,5,15]
+            
+        }
+    ]
+};
+		
+	
+		myChart.setOption(option);
+		myChart1.setOption(option1);
+		myChart2.setOption(option2);
+		myChart3.setOption(option3);
+		myChart5.setOption(option5);
+		
+		myChart.on(ecConfig.EVENT.CLICK, eConsole);
+		myChart.on(ecConfig.EVENT.DBLCLICK, eConsole);
+		//myChart.on(ecConfig.EVENT.HOVER, eConsole);
+		//myChart.on(ecConfig.EVENT.DATA_ZOOM, eConsole);
+		//myChart.on(ecConfig.EVENT.LEGEND_SELECTED, eConsole);
+		//myChart.on(ecConfig.EVENT.MAGIC_TYPE_CHANGED, eConsole);
+		//myChart.on(ecConfig.EVENT.DATA_VIEW_CHANGED, eConsole);
+		
+		}
+		);
+		
+	
+	
+	
+    </script>
+</body>

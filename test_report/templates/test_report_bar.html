@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>配置管理系统</title>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="height:600px"></div>
+
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui.min.css">
+	<script src="{{ STATIC_URL }}js/jquery.min.js"></script>
+	<script src="{{ STATIC_URL }}js/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/style.css">
+    <!-- ECharts单文件引入 -->
+    <script src="{{ STATIC_URL }}js/echarts.js"></script>
+
+<div id="dialog" title="版本具体情况" >
+	</div>
+
+
+    <script type="text/javascript">
+        // 路径配置
+		$(function() {
+			$( "#dialog" ).dialog({
+				
+			  autoOpen: false,
+			  show: {
+				effect: "blind",
+				duration: 1000
+			  },
+			  hide: {
+				effect: "explode",
+				duration: 1000
+			  }
+			 
+			
+			});
+			
+		  });
+		function displaydetail(){
+            
+			$("p").toggle();
+        }
+    
+		  
+
+		
+        require.config({
+            paths: {
+                echarts: '{{ STATIC_URL }}js/build/dist'
+            }
+        });
+        
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar' // 使用力导向布局图就加载force模块，按需加载
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('main')); 
+		
+        
+        var option = {
+            title:{ text: '项目目前阶段'},
+			tooltip : {
+				formatter: function (params,ticket,callback) {
+					console.log(params)
+					var res = params[0].name;
+					for (var i = 0, l = params.length; i < l; i++) {
+						res += '<br/>' + params[i].seriesName;
+						res += ' : ' 
+						res += ["","需求分析","用例设计","系统测试","验收流程","验收测试","模拟流程","模拟测试","上线就绪","生产上线"][parseInt(params[i].value)];
+					}
+					setTimeout(function (){
+						// 仅为了模拟异步回调
+						callback(ticket, res);
+					}, 10)
+					return 'loading';
+				},
+			 trigger: 'axis',
+			 axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+				type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+				}
+			},
+			legend: {
+				data:['项目阶段']
+			},
+			toolbox: {
+				show : true,
+				feature : {
+					saveAsImage : {show: true}
+				}
+			},
+			calculable : true,
+			xAxis : [
+				{
+					type : 'value',
+					splitNumber:11,
+					axisTick : {show: true, interval:0},
+					axisLabel : {
+						show:true,
+						margin: 8,
+						formatter: function (value){return ["  ","需求分析","用例设计","系统测试","验收流程","验收测试","模拟流程","模拟测试","上线就绪","生产上线"][value];},
+						textStyle: {
+							color: 'blue',
+							fontFamily: 'sans-serif',
+							fontSize: 10,
+							fontStyle: 'italic',
+							fontWeight: 'bold'
+						}
+						
+					}
+				}
+			],
+			yAxis : [
+				{
+					type : 'category',
+					axisTick : {show: false},
+					show: false,
+					data : ['外汇交易系统V2.84.1.0','CMDR V2.8.0.0','ETL V9.86.0.1','IMIX V5.0.14.0','交易后 V2.3.4.9','数据仓库 V4.5.1.0','会员机构管理系统 V1.5.6.0']
+				}
+			],
+			series : [
+				{
+					name:'项目阶段',
+					type:'bar',
+					barWidth:30,
+					itemStyle: {
+						normal: {
+							label: {
+								show: true,
+								position: 'insideBottom',
+								formatter: '{b} '
+							}
+						}
+					},
+					
+					data:['1','2','1','4','4','6','8']
+				}
+			]
+		};
+
+        // 为echarts对象加载数据 
+        myChart.setOption(option); 
+		
+		
+var ecConfig = require('echarts/config');
+
+
+
+		myChart.on(ecConfig.EVENT.CLICK, eConsole);
+		myChart.on(ecConfig.EVENT.DBLCLICK, eConsole);
+		//myChart.on(ecConfig.EVENT.HOVER, eConsole);
+		myChart.on(ecConfig.EVENT.DATA_ZOOM, eConsole);
+		myChart.on(ecConfig.EVENT.LEGEND_SELECTED, eConsole);
+		myChart.on(ecConfig.EVENT.MAGIC_TYPE_CHANGED, eConsole);
+		myChart.on(ecConfig.EVENT.DATA_VIEW_CHANGED, eConsole);
+
+		
+		}
+		);
+		
+		
+    </script>
+    <div style = "margin: 0; font-size: 11px; text-align: right; color: #487858;">
+		<a href="/upload_file/">| 文件上传</a> |
+		<a href="/system_detail/">系统详情页</a> |
+		<a href="/version_detail/">版本详情页</a> |
+		<a href="/dataex_detail/">交互信息展示页</a> |
+		<a href="/cm_baseline/">基线展示页</a> |
+		<a href="/cm_bi_index/">报表展示页</a> |
+	</div>
+</body>

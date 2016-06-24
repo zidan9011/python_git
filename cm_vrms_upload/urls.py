@@ -3,11 +3,11 @@ from django.http import HttpResponseRedirect
 from fileupload.views import *
 from cm_vrms_wiki.views import *
 from cm_vrms_baseline.views import *
-from track_connect.views import  *
 from cm_vrms_upload import *
 from cm_vrms_bi.views import  *
 from cm_vrms_bi import *
 from cm_middleware.views import *
+from test_report.views import *
 import os
 
 
@@ -81,6 +81,7 @@ urlpatterns = patterns('',
     (r'^bi_envi_prob*', bi_envi_prob),
     (r'^bi_human*', bi_human),
     (r'^update_db_from_work_bi/$', update_db_from_work_bi),
+    
     (r'^get_version_info_from_work_bi/$', get_version_info_from_work_bi),
     #(r'^get_version_info_from_work_bi/$', insert_into_version),
     
@@ -90,6 +91,14 @@ urlpatterns = patterns('',
 	(r'^update_table_from_wiki/$',update_table_from_wiki),
     (r'^show_middleware/$',show_middleware),
     (r'^middleware_detail_*',middleware_detail),
+    
+    (r'^test_report_index',test_report_index),
+    (r'^test_report_node',test_report_node),
+    (r'^test_report_bar',test_report_bar),
+    (r'^test_report_charts',test_report_charts),
+    
+    
+    
     
     
    

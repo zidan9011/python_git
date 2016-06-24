@@ -45,8 +45,8 @@ INSTALLED_APPS = (
     'cm_vrms_bi',
     'bootstrap_toolkit',
     'cm_vrms_baseline',
-    'track_connect',
 	'cm_middleware',
+    'test_report',
     
     'xadmin',
     'crispy_forms', 
@@ -56,13 +56,13 @@ INSTALLED_APPS = (
 )
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
-    
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'reversion.middleware.RevisionMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     
     
 )
