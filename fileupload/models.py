@@ -30,10 +30,13 @@ def convert_xlsx_csv(xlsx_path,csv_path):
         line_types = sh.row_types(rownum)
         for i in range(0,len(line_types)):
             if line_types[i] == 3:#格式化string字符串，加星号是format的一种写法
+                try:
                 #line_values[i] = "{}-{}-{}".format(*xlrd.xldate_as_tuple(line_values[i],wb.datemode))
-                year,month,day=xlrd.xldate_as_tuple(line_values[i],wb.datemode)[:3]
-                tmp_date = datetime.date(year,month,day)
-                line_values[i] = tmp_date.strftime('%Y-%m-%d')
+                    year,month,day=xlrd.xldate_as_tuple(line_values[i],wb.datemode)[:3]
+                    tmp_date = datetime.date(year,month,day)
+                    line_values[i] = tmp_date.strftime('%Y-%m-%d')
+                except:
+                    line_values[i] = ""
                 
         line_values = [str(val) for val in line_values]
         line_str = "\t".join(line_values)
@@ -116,22 +119,23 @@ def convert_name(name):#如果在映射内,则返回映射后结果。否则返�
 
 '''测试周报中标准系统名称表'''
 class SysName_Info(models.Model):
-    SysName = models.CharField(max_length=128, verbose_name = '系统名称')
+    SysName = models.CharField(max_length=256, verbose_name = '系统名称')
+    map_sysname = models.CharField(max_length=256, verbose_name = '映射系统名称')
     
     def save(self, *args, **kwargs):
         '''重写保存方法'''
         super(SysName_Info, self).save(*args, **kwargs) # Call the "real" save() method.
-        tmp_info = DataExInfo()#更新sys_info
+        tmp_info = SysNameInfo()#更新sys_info
         tmp_info.refresh_sys_info()
     
     def delete(self, *args, **kwargs):
         #重写删除方法
         super(SysName_Info, self).delete(*args, **kwargs) # Call the "real" delete() method.
-        tmp_info = DataExInfo()#更新sys_info
+        tmp_info = SysNameInfo()#更新sys_info
         tmp_info.refresh_sys_info() 
     
     def __unicode__(self):
-        return "{}".format(self.SysName)
+        return "{0}\t{1}".format(self.SysName,self.map_sysname)
     class Meta:
         db_table = u"test_report_Sys_Name"
         verbose_name=u"测试周报系统名称表"
@@ -176,16 +180,17 @@ class SysNameInfo(models.Model):
         sys_info = [val.split("\t") for val in sys_info]
         
         for node_info in sys_info:
-            if len(node_info) != 18:
+            if len(node_info) != 2:
                 continue
 
             try:
-                conf_info_tmp = SysName_Info.objects.get(SysName=node_info[0])
+                conf_info_tmp = SysName_Info.objects.get(SysName=node_info[0],map_sysname=node_info[1])
+                
         
                 conf_info_tmp.save()#更新
             except SysName_Info.DoesNotExist:
                 try:
-                    conf_info_tmp = SysName_Info(SysName=node_info[0])
+                    conf_info_tmp = SysName_Info(SysName=node_info[0],map_sysname=node_info[1])
                     conf_info_tmp.save()#插入
                     
                 except:
@@ -198,17 +203,18 @@ class SysNameInfo(models.Model):
         sys_source_node_info = {}
         for conf_info in conf_info_list:
             try:
-                SysName=conf_info.SystemName.encode("utf-8")
+                SysName=conf_info.SysName.encode("utf-8")
+                map_sysname = conf_info.map_sysname.encode("utf-8")
                 
                 
                 if SysName not in sys_source_node_info:
                     sys_source_node_info[SysName]=[]
                 
                     
-                sys_source_node_info[SysName].append('''{0}'''.format(SysName))
+                sys_source_node_info[SysName].append('''{0}'''.format(map_sysname))
             
             except:
-                print SysName
+                print "error"
                        
         return sys_source_node_info
 
@@ -216,13 +222,13 @@ class SysNameInfo(models.Model):
 '''测试管理模块表信息模型'''   
 class Report_Detail(models.Model):
     TestType_CHOICES = (('zxt','主系统'),('sjlc','升级联测'),('wyxlc','无影响联测'),('whf','未回复'))
-    ProjectStage_CHOICES = (('xqfx','需求分析'),('ylsj','用例设计'),('uat1jd','UAT1阶段'),('xtcs','系统测试'),('yslc','验收流程'),('ysjd','验收阶段'),('mnlc','模拟流程'),('mncs','模拟测试'),('mnjd','模拟阶段'),('mnwc','模拟完成'),('scsx','生产上线'))
-    OverallSchedule_CHOICES = (('zc','正常'),('yq','延期'),('zt','暂停'),('zf','作废'))
-    ManpowerInput_CHOICES = (('rljz','人力紧张'),('rlcz','人力充足'),('rlbz','人力不足'))
-    VersionQuality_CHOICES = (('zlyb','质量一般'),('zljh','质量较好'),('zljc','质量较差'))
-    Workload_CHOICES = (('cqbgzl','超签报工作量'),('zc','正常'),('wlx','未立项'))
-    TestRuns_CHOICES =(('1','1'),('2','2'),('3','3'),('4','4'),('5','5'),('6','6'),('7','7'),('8','8'),('9','9'),('10','10'))
-    CRType_CHOICES =(('zc','正常'),('jj','紧急'),('lx','例行'),('kj','快捷'))
+    ProjectStage_CHOICES = (('cszb','测试准备'),('uat1cs','UAT1测试'),('uat1wc','UAT1完成'),('yslc','验收流程'),('yslc','验收流程'),('yscs','验收测试'),('mnlc','模拟流程'),('mncs','模拟测试'),('mnjd','模拟阶段'),('mnwc','模拟完成'),('ysx','已上线'),('NA','NA'))
+    OverallSchedule_CHOICES = (('zc','正常'),('yq','延期'),('zt','暂停'),('zf','作废'),('NA','NA'))
+    ManpowerInput_CHOICES = (('rljz','人力紧张'),('rlcz','人力充足'),('rlbz','人力不足'),('NA','NA'))
+    VersionQuality_CHOICES = (('zlyb','质量一般'),('zljh','质量较好'),('zljc','质量较差'),('NA','NA'))
+    Workload_CHOICES = (('cqb','超签报'),('zc','正常'),('ccg','超采购'),('NA','NA'))
+    TestRuns_CHOICES =(('1','1'),('2','2'),('3','3'),('4','4'),('5','5'),('6','6'),('7','7'),('8','8'),('9','9'),('10','10'),('11','11'),('12','12'),('13','13'),('14','14'),('15','15'),('16','16'),('17','17'),('18','18'),('19','19'),('20','20'))
+    CRType_CHOICES =(('zc','正常'),('jj','紧急'),('lx','例行'),('kj','快捷'),('NA','NA'))
     PerformanceTest_CHOICES =(('y','有'),('n','无'))
     
     SystemName = models.CharField(max_length=128,verbose_name = '系统名称')
@@ -230,18 +236,18 @@ class Report_Detail(models.Model):
     Main_SysName = models.CharField(max_length=128,verbose_name = '主系统名称')
     Main_VersionNum = models.CharField(max_length=16,verbose_name='主系统版本号')
     ProjectName = models.CharField(max_length=128,blank=True,verbose_name='项目名称')
-    PlanTime = models.DateField(verbose_name = '计划上线时间')
+    PlanTime = models.DateField(blank = True,verbose_name = '生产上线日期')
+    CRType = models.CharField(max_length=32,choices=CRType_CHOICES,verbose_name = '变更类型')
     TestType = models.CharField(max_length=32, choices=TestType_CHOICES, verbose_name = '联测类别')
     ProjectStage = models.CharField(max_length=32, choices=ProjectStage_CHOICES, verbose_name = '目前项目阶段')
-    TestRuns = models.CharField(max_length=64,blank=True,verbose_name='测试轮次')
+    TestRuns = models.CharField(max_length=32,choices=TestRuns_CHOICES,blank=True,verbose_name='测试轮次')
     OverallSchedule = models.CharField(max_length=32,choices=OverallSchedule_CHOICES,verbose_name='项目整体进度')
-    ManpowerInput = models.CharField(max_length=32,choices=ManpowerInput_CHOICES,blank=True,verbose_name = '人力投入情况')
-    VersionQuality = models.CharField(max_length=32,choices=VersionQuality_CHOICES,blank=True,verbose_name = '版本质量')
-    Workload = models.CharField(max_length=32,choices=Workload_CHOICES,blank=True,verbose_name = '工作量情况')
-    CRType = models.CharField(max_length=32,choices=CRType_CHOICES,blank=True,verbose_name = '变更类型')
+    Reason = models.CharField(max_length=2048,blank=True,verbose_name = '原因说明')
+    ManpowerInput = models.CharField(max_length=32,choices=ManpowerInput_CHOICES,verbose_name = '人力投入情况')
+    VersionQuality = models.CharField(max_length=32,choices=VersionQuality_CHOICES,verbose_name = '版本质量')
+    Workload = models.CharField(max_length=32,choices=Workload_CHOICES,verbose_name = '工作量情况')
     PerformanceTest = models.CharField(max_length=32,choices=PerformanceTest_CHOICES,blank=True,verbose_name = '性能测试')
-    Reason = models.CharField(max_length=1024,blank=True,verbose_name = '原因说明')
-    Writter = models.CharField(max_length=32,blank=True,verbose_name = '填写人')
+    Writter = models.CharField(max_length=32,blank=True,verbose_name = '测试负责人')
     UpdateDate = models.DateField(default = datetime.datetime.now().date(),blank=True,verbose_name='填写日期')
     
     def save(self, *args, **kwargs):
@@ -296,12 +302,12 @@ class Report_DetailInfo(models.Model):
     def write_conf_info_to_db(self,request,file_path):
         '''将信息从文件更新到数据库中'''
         test_type_map_info = {'主系统':'zxt','升级联测':'sjlc','无影响联测':'wyxlc','未回复':'whf','':''}
-        ProjectStage_map_info = {'需求分析':'xqfx','用例设计':'ylsj','UAT1阶段':'uat1jd','系统测试':'xtcs','验收流程':'yslc','验收阶段':'ysjd','模拟流程':'mnlc','模拟阶段':'mnjd','模拟测试':'mncs','模拟完成':'mnwc','生产上线':'scsx','':''}
-        OverallSchedule_map_info = {'正常':'zc','延期':'yq','暂停':'zt','作废':'zf','':''}
-        ManpowerInput_map_info = {'人力紧张':'rljz','人力充足':'rlcz','人力不足':'rlbz','':''}
-        VersionQuality_map_info = {'质量一般':'zlyb','质量较好':'zljh','质量较差':'zljc','':''}
-        Workload_map_info = {'超签报工作量':'cqbgzl','正常':'zc','未立项':'wlx','':''}
-        CRType_map_info = {'正常':'zc','紧急':'jj','例行':'lx','快捷':'kj'}
+        ProjectStage_map_info = {'测试准备':'cszb','UAT1测试':'uat1cs','UAT1完成':'uat1wc','验收流程':'yslc','验收测试':'yscs','模拟流程':'mnlc','模拟测试':'mncs','模拟完成':'mnwc','已上线':'ysx','':'','NA':'NA'}
+        OverallSchedule_map_info = {'正常':'zc','延期':'yq','暂停':'zt','作废':'zf','NA':'NA','':''}
+        ManpowerInput_map_info = {'人力紧张':'rljz','人力充足':'rlcz','人力不足':'rlbz','':'','NA':'NA'}
+        VersionQuality_map_info = {'质量一般':'zlyb','质量较好':'zljh','质量较差':'zljc','':'','NA':'NA'}
+        Workload_map_info = {'超签报':'cqb','正常':'zc','超采购':'ccg','':'','NA':'NA'}
+        CRType_map_info = {'正常':'zc','紧急':'jj','例行':'lx','快捷':'kj','NA':'NA'}
         PerformanceTest_map_info = {'有':'y','无':'n'}
         
         
@@ -310,27 +316,26 @@ class Report_DetailInfo(models.Model):
         f_info.close()
         sys_info = sys_info[1:]
         sys_info = [val.split("\t") for val in sys_info]
-        print request.user
         
         for node_info in sys_info:
-            test_type = node_info[6]
-            node_info[6] = test_type_map_info[test_type]
-            projectstage = node_info[7]
-            node_info[7] = ProjectStage_map_info[projectstage]
-            overallschedule = node_info[9]
-            node_info[9] = OverallSchedule_map_info[overallschedule]
-            manpowerinput = node_info[10]
-            node_info[10] = ManpowerInput_map_info[manpowerinput]
-            versionquality = node_info[11]
-            node_info[11] = VersionQuality_map_info[versionquality]
-            workload = node_info[12]
-            node_info[12] = Workload_map_info[workload]
-            crtype = node_info[13]
-            node_info[13] = CRType_map_info[crtype]
-            performancetest = node_info[14]
-            node_info[14] = PerformanceTest_map_info[performancetest]
-            
-            node_info[16] = request.user.username
+            crtype = node_info[6]
+            node_info[6] = CRType_map_info.get(crtype,"")
+            test_type = node_info[7]
+            node_info[7] = test_type_map_info.get(test_type,"")
+            projectstage = node_info[8]
+            node_info[8] = ProjectStage_map_info.get(projectstage,"")
+            overallschedule = node_info[10]
+            node_info[10] = OverallSchedule_map_info.get(overallschedule,"")
+            manpowerinput = node_info[12]
+            node_info[12] = ManpowerInput_map_info.get(manpowerinput,"")
+            versionquality = node_info[13]
+            node_info[13] = VersionQuality_map_info.get(versionquality,"")
+            workload = node_info[14]
+            node_info[14] = Workload_map_info.get(workload,"")
+            performancetest = node_info[15]
+            node_info[15] = PerformanceTest_map_info.get(performancetest,"")
+            if len(node_info[16]) == 0:
+                node_info[16] = request.user.username
             
             if len(node_info) == 17:#若是缺失后一列的
                 datestr = datetime.datetime.now().date().strftime('%Y-%m-%d') 
@@ -338,7 +343,8 @@ class Report_DetailInfo(models.Model):
             
             if len(node_info) != 18 :
                 continue
-            if len(node_info[5]) == 0:
+            if (len(node_info[5]) == 0) or  ("-" not in node_info[5]):
+
                 node_info[5] = None
             else:
                 node_info[5]=datetime.datetime.strptime(node_info[5],"%Y-%m-%d")
@@ -357,16 +363,16 @@ class Report_DetailInfo(models.Model):
                                                           Main_SysName=node_info[2],
                                                           Main_VersionNum=node_info[3]).update(ProjectName=node_info[4],
                                                                                                PlanTime=node_info[5],
-                                                                                               TestType=node_info[6],
-                                                                                               ProjectStage=node_info[7],
-                                                                                               TestRuns=node_info[8],
-                                                                                               OverallSchedule=node_info[9],
-                                                                                               ManpowerInput=node_info[10],
-                                                                                               VersionQuality=node_info[11],
-                                                                                               Workload=node_info[12],
-                                                                                               CRType = node_info[13],
-                                                                                               PerformanceTest = node_info[14],
-                                                                                               Reason=node_info[15],
+                                                                                               CRType = node_info[6],
+                                                                                               TestType=node_info[7],
+                                                                                               ProjectStage=node_info[8],
+                                                                                               TestRuns=node_info[9],
+                                                                                               OverallSchedule=node_info[10],
+                                                                                               Reason=node_info[11],
+                                                                                               ManpowerInput=node_info[12],
+                                                                                               VersionQuality=node_info[13],
+                                                                                               Workload=node_info[14],
+                                                                                               PerformanceTest = node_info[15],
                                                                                                Writter=node_info[16],
                                                                                                UpdateDate=node_info[17])
                 #conf_info_tmp.save()#更新
@@ -379,16 +385,16 @@ class Report_DetailInfo(models.Model):
                                                   Main_VersionNum=node_info[3],
                                                   ProjectName=node_info[4],
                                                   PlanTime=node_info[5],
-                                                  TestType=node_info[6],
-                                                  ProjectStage=node_info[7],
-                                                  TestRuns=node_info[8],
-                                                  OverallSchedule=node_info[9],
-                                                  ManpowerInput=node_info[10],
-                                                  VersionQuality=node_info[11],
-                                                  Workload=node_info[12],
-                                                  CRType = node_info[13],
-                                                  PerformanceTest = node_info[14],
-                                                  Reason=node_info[15],
+                                                  CRType = node_info[6],
+                                                  TestType=node_info[7],
+                                                  ProjectStage=node_info[8],
+                                                  TestRuns=node_info[9],
+                                                  OverallSchedule=node_info[10],
+                                                  Reason=node_info[11],
+                                                  ManpowerInput=node_info[12],
+                                                  VersionQuality=node_info[13],
+                                                  Workload=node_info[14],
+                                                  PerformanceTest = node_info[15],
                                                   Writter=node_info[16],
                                                   UpdateDate=node_info[17])
                     conf_info_tmp.save()#插入
@@ -409,44 +415,54 @@ class Report_DetailInfo(models.Model):
                 Main_SysName=conf_info.Main_SysName.encode("utf-8")
                 Main_VersionNum=conf_info.Main_VersionNum.encode("utf-8")
                 ProjectName=conf_info.ProjectName.encode("utf-8")
-                PlanTime=conf_info.PlanTime.encode("utf-8")
+                if conf_info.PlanTime==None:
+                    PlanTime = ""
+                else:
+                    PlanTime=conf_info.PlanTime.strftime('%Y-%m-%d').encode("utf-8")
+                
+                CRType=conf_info.CRType.encode("utf-8")
                 TestType=conf_info.TestType.encode("utf-8")
                 ProjectStage=conf_info.ProjectStage.encode("utf-8")
                 TestRuns=conf_info.TestRuns.encode("utf-8")
                 OverallSchedule=conf_info.OverallSchedule.encode("utf-8")
+                Reason=conf_info.Reason.encode("utf-8")
                 ManpowerInput=conf_info.ManpowerInput.encode("utf-8")
                 VersionQuality=conf_info.VersionQuality.encode("utf-8")
                 Workload=conf_info.Workload.encode("utf-8")
-                CRType=conf_info.CRType.encode("utf-8")
                 PerformanceTest=conf_info.PerformanceTest.encode("utf-8")
-                Reason=conf_info.Reason.encode("utf-8")
                 Writter=conf_info.Writter.encode("utf-8")
-                UpdateDate=conf_info.UpdateDate.encode("utf-8")
-                
-                if SystemName not in sys_source_node_info:
-                    sys_source_node_info[SystemName]={}
-                if VersionNum not in sys_source_node_info[SystemName]:
-                    sys_source_node_info[SystemName][VersionNum] = []
+                if conf_info.UpdateDate==None:
+                    UpdateDate = ""
+                else:
+                    UpdateDate=conf_info.UpdateDate.strftime('%Y-%m-%d').encode("utf-8")
                     
-                sys_source_node_info[SystemName][VersionNum].append('''{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}'''.format(Main_SysName,
-                                                                     Main_VersionNum,
-                                                                     ProjectName,
-                                                                     PlanTime,
-                                                                     TestType,
-                                                                     ProjectStage,
-                                                                     TestRuns,
-                                                                     OverallSchedule,
-                                                                     ManpowerInput,
-                                                                     VersionQuality,
-                                                                     Workload,
-                                                                     CRType,
-                                                                     PerformanceTest,
-                                                                     Reason,
-                                                                     Writter,
-                                                                     UpdateDate))
+                    
+                if Main_SysName not in sys_source_node_info:
+                    sys_source_node_info[Main_SysName] = {}
+                if Main_VersionNum not in sys_source_node_info[Main_SysName]:
+                    sys_source_node_info[Main_SysName][Main_VersionNum] = []
+                sys_source_node_info[Main_SysName][Main_VersionNum].append('''{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}'''.format(SystemName,
+                                                                                                                                                                             VersionNum,
+                                                                                                                                                                             ProjectName,
+                                                                                                                                                                             PlanTime,
+                                                                                                                                                                             CRType,
+                                                                                                                                                                             TestType,
+                                                                                                                                                                             ProjectStage,
+                                                                                                                                                                             TestRuns,
+                                                                                                                                                                             OverallSchedule,
+                                                                                                                                                                             Reason,
+                                                                                                                                                                             ManpowerInput,
+                                                                                                                                                                             VersionQuality,
+                                                                                                                                                                             Workload,
+                                                                                                                                                                             PerformanceTest,
+                                                                                                                                                                             Writter,
+                                                                                                                                                                             UpdateDate))
+                
+
+                
             
             except:
-                print SystemName
+                print sys_source_node_info
                        
         return sys_source_node_info
 

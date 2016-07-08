@@ -24,9 +24,9 @@
       <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="true">上传系统关系文件</a></li>
       <li role="presentation"><a href="#profile" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">上传版本配置文件</a></li>
       <li role="presentation"><a href="#profile3" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">上传数据交互信息文件</a></li>
-      <li role="presentation"><a href="#profile2" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">挖掘系统信息</a></li>
+      <!--li role="presentation"><a href="#profile2" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">挖掘系统信息</a></li-->
       
-      <li role="presentation"><a href="#profile4" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">上次系统名称文件</a></li>
+      <!--li role="presentation"><a href="#profile4" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">上次系统名称文件</a></li-->
       <li role="presentation"><a href="#profile5" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">上传测试周报</a></li>
     </ul>
     <div id="myTabContent" class="tab-content">
@@ -73,7 +73,7 @@
 	    </form>        
       </div> 
       
-      <div role="tabpanel" class="tab-pane fade" id="profile4" aria-labelledby="profile-tab">
+      <!--div role="tabpanel" class="tab-pane fade" id="profile4" aria-labelledby="profile-tab">
 	     <form action="/upload_file_Sysname/" method="post" enctype="multipart/form-data" accept-charset="utf-8">
 	        {% csrf_token %}
 	        <span class="btn btn-success fileinput-button">
@@ -86,7 +86,7 @@
 	            <span>开始上传</span>
 	        </button>
 	    </form>        
-      </div> 
+      </div--> 
       
       <div role="tabpanel" class="tab-pane fade" id="profile5" aria-labelledby="profile-tab">
 	     <form action="/upload_file_testreport/" method="post" enctype="multipart/form-data" accept-charset="utf-8">
@@ -136,9 +136,11 @@
 		<a href="/upload_file/">| 文件上传</a> |
 		<a href="/system_detail/">系统详情页</a> |
 		<a href="/version_detail/">版本详情页</a> |
+		<a href="/wiki_index/">系统百科页</a> |
 		<a href="/dataex_detail/">交互信息展示页</a> |
 		<a href="/cm_baseline/">基线展示页</a> |
 		<a href="/cm_bi_index/">报表展示页</a> |
+		<a href="/test_report_index/">测试周报页</a> |
 	</div>
 
     

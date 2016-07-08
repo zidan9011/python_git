@@ -11,7 +11,12 @@ from xadmin.layout import Main, TabHolder, Tab, Fieldset, Row, Col, AppendedText
 from xadmin.plugins.inline import Inline
 from xadmin.plugins.batch import BatchChangeAction
 import xadmin
-
+from django.utils.dateformat import time_format
+from django.conf.locale.zh_CN import formats as cn_formats
+cn_formats.DATETIME_FORMAT="Y/M/d"
+cn_formats.DATE_FORMAT="Y/M/d"
+cn_formats.SHORT_DATE_FORMAT="Y/M/d"
+cn_formats.SHORT_DATETIME_FORMAT="Y/M/d"
 
 class NameMapAdmin(object):
     list_export = ('xlsx',)
@@ -218,49 +223,67 @@ class VerConfAdmin(object):
 xadmin.site.register(VerConfInfo, VerConfAdmin)
 
 class Report_DetailAdmin(object):
-    def save_model(self, request, obj, form, change):
-        if not obj.id:
-            obj.Writter = request.user.username
-        obj.save()
-        
+    from django.utils import dateformat
+    print dateformat
+    
     list_export = ('xlsx',)
     reversion_enable = True
     actions = ['delete_selected']
     list_display = ('SystemName','VersionNum','Main_SysName','Main_VersionNum',
-                    'ProjectName','PlanTime','TestType','ProjectStage',
+                    'ProjectName','PlanTime','CRType','TestType','ProjectStage',
                     'TestRuns','OverallSchedule',
-                    'ManpowerInput','VersionQuality','Workload','CRType','PerformanceTest',
-                    'Reason','Writter',)
+                    'Reason','ManpowerInput','VersionQuality','Workload','PerformanceTest',
+                    'Writter','UpdateDate',)
     #列表页出现搜索框，参数是搜索的域
     search_fields = ('SystemName','VersionNum','Main_SysName','Main_VersionNum',
-                    'ProjectName','PlanTime','TestType','ProjectStage',
+                    'ProjectName','PlanTime','CRType','TestType','ProjectStage',
                     'TestRuns','OverallSchedule',
-                    'ManpowerInput','VersionQuality','Workload','CRType','PerformanceTest',
-                    'Reason','Writter')
+                    'Reason','ManpowerInput','VersionQuality','Workload','PerformanceTest',
+                    'Writter','UpdateDate')
     #右侧会出现过滤器，根据字段类型，过滤器显示过滤选项
     list_filter = ('SystemName','VersionNum','Main_SysName','Main_VersionNum',
-                    'ProjectName','PlanTime','TestType','ProjectStage',
+                    'ProjectName','PlanTime','CRType','TestType','ProjectStage',
                     'TestRuns','OverallSchedule',
-                    'ManpowerInput','VersionQuality','Workload','CRType','PerformanceTest',
-                    'Reason','Writter',)
+                    'Reason','ManpowerInput','VersionQuality','Workload','PerformanceTest',
+                    'Writter','UpdateDate',)
     fields = ('SystemName','VersionNum','Main_SysName','Main_VersionNum',
-                    'ProjectName','PlanTime','TestType','ProjectStage',
+                    'ProjectName','PlanTime','CRType','TestType','ProjectStage',
                     'TestRuns','OverallSchedule',
-                    'ManpowerInput','VersionQuality','Workload','CRType','PerformanceTest',
-                    'Reason','Writter','UpdateDate')
+                    'Reason','ManpowerInput','VersionQuality','Workload','PerformanceTest',
+                    'Writter','UpdateDate')
     #自然是排序所用了，减号代表降序排列
     ordering = ('SystemName','VersionNum','Main_SysName','Main_VersionNum',
-                    'ProjectName','PlanTime','TestType','ProjectStage',
+                    'ProjectName','PlanTime','CRType','TestType','ProjectStage',
                     'TestRuns','OverallSchedule',
-                    'ManpowerInput','VersionQuality','Workload','CRType','PerformanceTest',
-                    'Reason','Writter',)
+                    'Reason','ManpowerInput','VersionQuality','Workload','PerformanceTest',
+                    'Writter','UpdateDate')
     #表格列表可编辑
+    
     
     list_editable = ['SystemName','VersionNum','Main_SysName','Main_VersionNum',
                     'ProjectName','PlanTime','TestType','ProjectStage',
                     'TestRuns','OverallSchedule',
                     'ManpowerInput','VersionQuality','Workload','CRType','PerformanceTest',
                     'Reason','Writter',]
+    
+   
+    def save_models(self):
+        obj = self.new_obj
+        request = self.request
+        if len(obj.Writter)==0:
+            obj.Writter = request.user.username
+        obj.save()
+ 
+    
+    def get_actions(self, request):
+        actions = super(Report_DetailAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
+    
+    def delete_selected(self, request, obj):
+        obj.all().delete()
+        tmp_info = Report_DetailInfo()#更新Report_DetailInfo
+        tmp_info.refresh_sys_info()
 
 #注册到后台管理
 xadmin.site.register(Report_Detail, Report_DetailAdmin)

@@ -259,11 +259,12 @@ class Config_File(models.Model):
     ConfigDescription = models.CharField(max_length =2048, blank=True, verbose_name = '参数说明')
     
     def __unicode__(self):
-        return "{}".format(self.ConfigId)
+        return "{}\t{}\t{}".format(self.ConfigId,self.AppServerID,self.ConfigName)
     class Meta:
         db_table = u"cm_vrms_wiki_config_file"
         verbose_name=u"服务器配置信息"
         verbose_name_plural=u"服务器配置信息表"
+        
         
 class Log_File(models.Model):
     #记录每台服务器日志的详细信息
@@ -559,6 +560,24 @@ class Equipment_detail(models.Model):
         verbose_name=u"机房其他设备信息"
         verbose_name_plural=u"机房其他设备信息表"
     
+    
+            
+class Config_Item(models.Model):
+    #记录每台服务器配置文件中的配置项详细信息
+    ConfigItemId = models.AutoField(primary_key=True, verbose_name = '配置项ID')
+    ConfigName = models.ForeignKey(Config_File, verbose_name = '应用配置文件名')
+    Parameter = models.CharField(max_length =256, verbose_name = '配置项')
+    value = models.CharField(max_length =256, verbose_name = '配置值')
+    bl1 = models.BooleanField(verbose_name = '同一版本不同环境是否相同')
+    bl2 = models.BooleanField(verbose_name = '不同版本相同环境是否相同')
+    ConfigDescription = models.CharField(max_length =2048, blank=True, verbose_name = '参数说明')
+    
+    def __unicode__(self):
+        return "{}".format(self.ConfigItemId)
+    class Meta:
+        db_table = u"cm_vrms_wiki_config_item"
+        verbose_name=u"服务器配置项信息"
+        verbose_name_plural=u"服务器配置项信息表"
 
     
     

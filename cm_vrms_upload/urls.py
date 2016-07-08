@@ -82,8 +82,10 @@ urlpatterns = patterns('',
     (r'^bi_human*', bi_human),
     (r'^update_db_from_work_bi/$', update_db_from_work_bi),
     
+     
     (r'^get_version_info_from_work_bi/$', get_version_info_from_work_bi),
     #(r'^get_version_info_from_work_bi/$', insert_into_version),
+    
     
     (r'^get_updatetime_from_db/$', get_updatetime_from_db),
 	
@@ -92,8 +94,9 @@ urlpatterns = patterns('',
     (r'^show_middleware/$',show_middleware),
     (r'^middleware_detail_*',middleware_detail),
     
+    
     (r'^test_report_index',test_report_index),
-    (r'^test_report_node',test_report_node),
+    (r'^test_report_node_*',test_report_node),
     (r'^test_report_bar',test_report_bar),
     (r'^test_report_charts',test_report_charts),
     

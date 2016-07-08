@@ -5,7 +5,20 @@
 </head>
 <body>
     <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-    <div id="main" style="height:620px"></div>
+     <div style = "margin: 0; font-size: 11px; text-align: right; color: #487858;">
+		<a href="/test_report_charts/">统计信息</a> |
+	</div>
+    <!--div id="main" style="height:620px"></div-->
+    
+     <div class="row"> 
+	    <div class="span9">
+	    	<div id="main" style="height:600px;width:1300px"></div>
+		</div> 
+		
+		<div class="span5">
+			<div id="main1" style="height:{{len_num}}px;float:none;"></div>
+		</div> 
+	</div> 
 
 	<link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui.min.css">
 	<script src="{{ STATIC_URL }}js/jquery.min.js"></script>
@@ -64,9 +77,10 @@
         
         var option = {
     title : {
-        text: '外汇交易系统变更关系关联图',
-        x:'right',
-        y:'bottom'
+        text: '变更关系关联图',
+        subtext:'升级联测--圆形,无影响联测--矩形,未回复--菱形',
+        x:'center',
+        y:'top'
     },
     tooltip : {
         trigger: 'item',
@@ -83,10 +97,11 @@
         x: 'left',
         orient : 'vertical',
         data:[
-		'主系统',
-		'项目正常',
-		'项目延期',
-		'项目暂停'
+		'正常',
+		'延期',
+		'暂停',
+		'作废',
+		'NA'
 		]
     },
     series : [
@@ -96,17 +111,11 @@
             ribbonType: false,
            
             categories : [
-                {
-                    name: '主系统',
-                    itemStyle: {
-                        normal: {
-                            color : '#FFFF00'
-                        }
-                    }
-                },
+                
+                    
                 
                 {
-                    name: '项目正常',
+                    name: '正常',
                     itemStyle: {
                         normal: {
                             color : '#00CD00'
@@ -114,7 +123,7 @@
                     }
                 },
                 {
-                    name: '项目延期',
+                    name: '延期',
                     itemStyle: {
                         normal: {
                             color : '#FF0000'
@@ -122,7 +131,7 @@
                     }
                 },
                 {
-                    name: '项目暂停',
+                    name: '暂停',
                     itemStyle: {
                         normal: {
                             color : '#828282'
@@ -130,6 +139,24 @@
                     }
                     
                 },
+                {
+                    name: '作废',
+                    itemStyle: {
+                        normal: {
+                            color : '#8B5A00'
+                        }
+                    }
+                    
+                },
+                 {
+                    name: 'NA',
+                    itemStyle: {
+                        normal: {
+                            color : '#FFFF00'
+                        }
+                    }
+                    
+                }
                
 				
             ],
@@ -145,6 +172,7 @@
                         brushType : 'both',
                         borderColor : 'rgba(255,215,0,0.4)',
                         borderWidth : 2
+                      
                     },
                     linkStyle: {
                         type: 'line'
@@ -162,50 +190,25 @@
                 }
             },
             useWorker: false,
-            minRadius : 15,
-            maxRadius : 35,
+            ribbonType:false,
+            minRadius : 30,
+            maxRadius : 45,
             gravity: 1.1,
-            scaling: 1.6,
+            scaling: 1.5,
             roam: 'move',
+            {% autoescape off %}
             nodes:[
-                {category:0, name: '外汇交易系统V1.8.5.0', value : 30, label: '外汇交易系统V1.8.5.0'},
-            	{category:1, name: 'C-SwapV1.3.0.0\n升级联测', value : 25}, 
-            	{category:2, name: 'CIMV1.9.0.0\n升级联测', value : 25},
-            	{category:1, name: 'IMIXV4.2.77.0\n升级联测', value : 25},
-            	{category:1, name: '交易后V2.3.4.8\n升级联测', value : 25},
-				{category:2, name: '基准系统V1.3.0.0\n无影响联测', value : 20}, 
-            	{category:2, name: '大屏展示系统V3.4.1.2\n无影响联测', value : 20},
-            	{category:2, name: '本币CSTPV4.2.77.0\n无影响联测', value : 20,symbol:'star'},
-            	{category:3, name: 'CMDRV2.3.4.8\n无影响联测', value : 20},
-            	
+	            {% for node in node_info %}
+					{{ node }}
+	            {% endfor %}            
             ],
            links : [
-           			{source : '外汇交易系统V1.8.5.0', target : 'C-SwapV1.3.0.0\n升级联测', weight :5},
-           			{source : '外汇交易系统V1.8.5.0', target : 'CIMV1.9.0.0\n升级联测', weight :5},
-           			{source : '外汇交易系统V1.8.5.0', target : 'IMIXV4.2.77.0\n升级联测', weight :5},
-           			{source : '外汇交易系统V1.8.5.0', target : '交易后V2.3.4.8\n升级联测', weight :5},
-           			{source : '外汇交易系统V1.8.5.0', target : '基准系统V1.3.0.0\n无影响联测', weight :2},
-           			{source : '外汇交易系统V1.8.5.0', target : '大屏展示系统V3.4.1.2\n无影响联测', weight :2},
-           			{source : '外汇交易系统V1.8.5.0', target : '本币CSTPV4.2.77.0\n无影响联测', weight :2},
-           			{source : '外汇交易系统V1.8.5.0', target : 'CMDRV2.3.4.8\n无影响联测', weight: 2},
+	            {% for link in link_info %}
+					{{ link }}
+	            {% endfor %}            
            		
             ],
-             markPoint : {
-                symbol: 'pin',
-                symbolSize:10,
-                large:true,
-	            effect : {
-                    show: true,
-                    type: 'scale',
-                    loop:true,
-                    color : '#FF0000',
-                    scaleSize :5,
-                    shadowBlur :10
-                },
-                data : [
-                    {name: '交易后V2.3.4.8\n升级联测', value: 10}
-                ]
-            }
+            {% endautoescape %}
         }
     ]
 };
@@ -216,21 +219,29 @@
 		
 var ecConfig = require('echarts/config');
 
-
+var dialog_tabel_info = {
+	{% autoescape off %}
+	{% for table_info in node_table_info_list %}
+		{{table_info}}
+	{% endfor %}
+	{% endautoescape %}
+};
 
 function eConsole(param) {
 	var lineName = param.name//辨别当前点中的边
 	if (typeof lineName == 'undefined'){
 		return;
 	} 	
+	if (typeof param.value.target == 'string'){
+		return;
+	} 	
 
 		
 	tabel_str = "<tr><th>目前项目阶段</th><td>模拟流程</td><th>项目质量</th><td>质量一般</td></tr><tr><th>项目测试工作量投入情况</th><td>超签报工作量</td><th>人力投入情况</th><td>人力充足</td></tr><tr><th >具体原因</th><td colspan=3>因为项目计划拖长导致测试工作量超出签报工作量，已和各方确认在1.1版本的签报补足工作量。</td></tr>"
 					
-
+	tabel_str = dialog_tabel_info[lineName]
 	
-	var lineFrom = param.value.source;
-	var lineTarget = param.value.target;
+	var lineTarget = param.name;
 	document.getElementById('dialog').innerHTML = 
 	"<table  border='1' >"+
 	"<tr><th colspan='18'>"+lineTarget+"</th></tr>"+
@@ -241,7 +252,7 @@ function eConsole(param) {
 	
 	
 }
-
+		
 		myChart.on(ecConfig.EVENT.CLICK, eConsole);
 		myChart.on(ecConfig.EVENT.DBLCLICK, eConsole);
 		//myChart.on(ecConfig.EVENT.HOVER, eConsole);
@@ -256,12 +267,147 @@ function eConsole(param) {
 		
 		
     </script>
+    
+    
+     <script type="text/javascript">
+       
+        require.config({
+            paths: {
+                echarts: '{{ STATIC_URL }}js/build/dist'
+            }
+        });
+        
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar' // 使用力导向布局图就加载force模块，按需加载
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart1 = ec.init(document.getElementById('main1')); 
+		
+        
+        var option1 = {
+            title:{ text: '项目目前阶段'},
+			tooltip : {
+				formatter: function (params,ticket,callback) {
+					//console.log(params)
+					var res = params[0].name;
+					for (var i = 0, l = params.length; i < l; i++) {
+						res += '<br/>' + params[i].seriesName;
+						res += ' : ' 
+						res += ['','测试准备','UAT1测试','UAT1完成','验收流程','验收测试','模拟流程','模拟测试','模拟完成','已上线'][parseInt(params[i].value)];
+					}
+					setTimeout(function (){
+						// 仅为了模拟异步回调
+						callback(ticket, res);
+					}, 10)
+					return 'loading';
+				},
+			 trigger: 'axis',
+			 axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+				type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+				}
+			},
+			legend: {
+				data:['项目阶段']
+			},
+			toolbox: {
+				show : true,
+				feature : {
+					saveAsImage : {show: true}
+				}
+			},
+			calculable : true,
+			xAxis : [
+				{
+					type : 'value',
+					splitNumber:11,
+					axisTick : {show: true, interval:0},
+					axisLabel : {
+						show:true,
+						margin: 8,
+						formatter: function (value){return ['    ','测试准备','UAT1测试','UAT1完成','验收流程','验收测试','模拟流程','模拟测试','模拟完成','已上线'][value];},
+						textStyle: {
+							color: 'blue',
+							fontFamily: 'sans-serif',
+							fontSize: 8,
+							fontStyle: 'italic',
+							fontWeight: 'bold'
+						}
+						
+					}
+				}
+			],
+			yAxis : [
+				{
+					type : 'category',
+					axisTick : {show: false},
+					show: false,
+					data : [
+						{% for node in node_projectstage_node_info %}
+							'{{ node }}',
+						{% endfor %} 
+					]
+				}
+			],
+			series : [
+				{
+					name:'项目阶段',
+					type:'bar',
+					barWidth:30,
+					itemStyle: {
+						normal: {
+							label: {
+								show: true,
+								position: 'insideBottom',
+								formatter: '{b} '
+							}
+						}
+					},
+					
+					data:[
+						{% for node_val in node_projectstage_node_val %}
+							'{{ node_val }}',
+						{% endfor %} 
+					]
+				}
+			]
+		};
+
+        // 为echarts对象加载数据 
+        myChart1.setOption(option1); 
+		
+		
+var ecConfig = require('echarts/config');
+
+
+
+		myChart1.on(ecConfig.EVENT.CLICK, eConsole);
+		myChart1.on(ecConfig.EVENT.DBLCLICK, eConsole);
+		//myChart1.on(ecConfig.EVENT.HOVER, eConsole);
+		myChart1.on(ecConfig.EVENT.DATA_ZOOM, eConsole);
+		myChart1.on(ecConfig.EVENT.LEGEND_SELECTED, eConsole);
+		myChart1.on(ecConfig.EVENT.MAGIC_TYPE_CHANGED, eConsole);
+		myChart1.on(ecConfig.EVENT.DATA_VIEW_CHANGED, eConsole);
+
+		
+		}
+		);
+		
+		
+    </script>
+    
+    
     <div style = "margin: 0; font-size: 11px; text-align: right; color: #487858;">
 		<a href="/upload_file/">| 文件上传</a> |
 		<a href="/system_detail/">系统详情页</a> |
 		<a href="/version_detail/">版本详情页</a> |
+		<a href="/wiki_index/">系统百科页</a> |
 		<a href="/dataex_detail/">交互信息展示页</a> |
 		<a href="/cm_baseline/">基线展示页</a> |
 		<a href="/cm_bi_index/">报表展示页</a> |
+		<a href="/test_report_index/">测试周报页</a> |
 	</div>
 </body>

@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = '@_ame5azplg5=t7ji6n%7cul&$7)gef1w7av@ezpeh7t2is7un'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = True
 
@@ -113,13 +113,14 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 #LANGUAGE_CODE = 'zh-hans'
+DATE_FORMAT = 'Y-m-d'
 LANGUAGE_CODE = 'zh_CN'
 
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+USE_L10N = False
 
 USE_TZ = True
 

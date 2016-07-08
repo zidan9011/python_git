@@ -48,6 +48,7 @@ h4,h5 {color: SlateBlue}
         <li><a href="#LB_Member" tabindex="-1" data-toggle="tab">应用服务器组员信息</a></li>
         <li><a href="#CM_Users" tabindex="-1" data-toggle="tab">系统用户信息</a></li> 
         <li><a href="#Config_File" tabindex="-1" data-toggle="tab">重要配置信息</a></li> 
+        <li><a href="#Config_Item" tabindex="-1" data-toggle="tab">配置项信息</a></li>
         <li><a href="#Log_File" tabindex="-1" data-toggle="tab">日志信息</a></li> 
         <li><a href="#Server_Process_Pool" tabindex="-1" data-toggle="tab">进程信息</a></li> 
         <li><a href="#Software" tabindex="-1" data-toggle="tab">软件信息</a></li> 
@@ -82,6 +83,7 @@ h4,h5 {color: SlateBlue}
       {{table_content_LB}}
       {{table_content_LB_member}}
       {{table_content5}}
+      {{table_content_conf_item}}
       {{table_content6}}
       {{table_content7}}
       {{table_content8}}
@@ -373,6 +375,28 @@ h4,h5 {color: SlateBlue}
                                 },
                                 {
                                     name: '重要配置信息',
+                                    symbol: 'circle',
+                                    symbolSize: 20,
+                                    itemStyle: {
+                                        normal: {
+                                            color: '#1C86EE',
+                                            label: {
+                                                show: true,
+                                                position: 'right'
+                                            },
+                                            
+                                        },
+                                        emphasis: {
+                                            label: {
+                                                show: false
+                                            },
+                                            borderWidth: 0
+                                        }
+                                    }
+                                    
+                                },
+                                {
+                                    name: '配置项信息',
                                     symbol: 'circle',
                                     symbolSize: 20,
                                     itemStyle: {
@@ -855,9 +879,14 @@ $("#CM_Application").addClass("active");
 	
     </script> 
   <div style="margin: 0; font-size: 11px; text-align: right; color: #487858;"> 
-   <a href="/system_detail/">系统详情页</a> | 
-   <a href="/version_detail/">版本详情页</a> | 
-   <a href="/cm_baseline/">基线展示页</a> | 
+   <a href="/upload_file/">| 文件上传</a> |
+		<a href="/system_detail/">系统详情页</a> |
+		<a href="/version_detail/">版本详情页</a> |
+		<a href="/wiki_index/">系统百科页</a> |
+		<a href="/dataex_detail/">交互信息展示页</a> |
+		<a href="/cm_baseline/">基线展示页</a> |
+		<a href="/cm_bi_index/">报表展示页</a> |
+		<a href="/test_report_index/">测试周报页</a> |
   </div> 
  </body>
 </html>

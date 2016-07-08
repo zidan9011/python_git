@@ -130,6 +130,7 @@ def application_tree(request):
     table_content_LB_member,match_val_list_LB_Member = get_content(LB_Member,"AppServerID",match_val_list3)
     table_content4,match_val_list4 = get_content(CM_Users,"AppServerID",match_val_list3)
     table_content5,match_val_list5 = get_content(Config_File,"AppServerID",match_val_list3)
+    table_content_conf_item,match_val_list__conf_item = get_content(Config_Item,"ConfigId",match_val_list5)
     table_content6,match_val_list6 = get_content(Log_File,"AppServerID",match_val_list3)
     table_content7,match_val_list7 = get_content(Server_Process_Pool,"AppServerID",match_val_list3)
     table_content8,match_val_list8 = get_content(Software,"AppServerID",match_val_list3)
@@ -179,6 +180,7 @@ def application_tree(request):
     c["table_content3"] = table_content3
     c["table_content4"] = table_content4
     c["table_content5"] = table_content5
+    c["table_content_conf_item"] = table_content_conf_item
     c["table_content6"] = table_content6
     c["table_content7"] = table_content7
     c["table_content8"] = table_content8

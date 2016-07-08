@@ -17,7 +17,7 @@ class Envi_Detail(models.Model):
     def __unicode__(self):
         return "{}\t{}\t{}".format(self.AppID,self.AppName,self.EnviName)
     class Meta:
-        db_table = u"cm_middleware_Envi_Detail"
+        db_table = u"cm_middleware_envi_detail"
         verbose_name=u"系统环境信息表"
         verbose_name_plural=u"系统环境信息表"
     
@@ -30,6 +30,6 @@ class Envi_Relation(models.Model):
     def __unicode__(self):
         return "{}\t{}".format(self.AppID_Source,self.AppID_Target)
     class Meta:
-        db_table = u"cm_middleware_Envi_Relation"
+        db_table = u"cm_middleware_envi_relation"
         verbose_name=u"系统各环境关联关系表"
         verbose_name_plural=u"系统各环境关联关系表"

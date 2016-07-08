@@ -26,7 +26,6 @@ encoding//fileupload/models.py=utf-8
 encoding//fileupload/serialize.py=utf-8
 encoding//fileupload/templates/login.html=UTF-8
 encoding//fileupload/templates/upload_form.html=UTF-8
-encoding//fileupload/urls.py=utf-8
 encoding//fileupload/views.py=utf-8
 encoding//test_report/__init__.py=utf-8
 encoding//test_report/adminx.py=utf-8

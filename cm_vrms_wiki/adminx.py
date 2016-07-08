@@ -272,6 +272,35 @@ class Config_FileAdmin(object):
 #将Author模块和管理类绑定在一起，注册到后台管理
 xadmin.site.register(Config_File, Config_FileAdmin)
 
+
+class Config_ItemAdmin(object):
+    
+    #列表页，列表顶部显示的字段名称
+    list_display = ('ConfigItemId', 'ConfigName', 
+                    'Parameter', 'value',
+                    'bl1','bl2','ConfigDescription')
+    #列表页出现搜索框，参数是搜索的域
+    
+    #右侧会出现过滤器，根据字段类型，过滤器显示过滤选项
+    list_filter = ('ConfigItemId', 'ConfigName', 
+                    'Parameter', 'value',
+                    'bl1','bl2')
+    fields = ('ConfigItemId', 'ConfigName', 
+                    'Parameter', 'value',
+                    'bl1','bl2','ConfigDescription')
+    #自然是排序所用了，减号代表降序排列
+    ordering = ('ConfigItemId', 'ConfigName', 
+                    'Parameter',)
+    #表格列表可编辑
+    
+    list_editable = ['ConfigItemId', 'ConfigName', 
+                    'Parameter', 'value',
+                    'bl1','bl2','ConfigDescription']
+    reversion_enable = True
+       
+#将Author模块和管理类绑定在一起，注册到后台管理
+xadmin.site.register(Config_Item, Config_ItemAdmin)
+
 class Log_FileAdmin(object):
     
     #列表页，列表顶部显示的字段名称

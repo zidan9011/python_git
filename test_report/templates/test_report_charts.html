@@ -21,11 +21,11 @@
      <table width="620" border="0" align="center" cellpadding="0" cellspacing="0">
     <tr>
     <th scope="col">
-    <form action="/bi_human/" method="get">
+    <!--form action="/bi_human/" method="get">
             <input id="datepicker-example1" type="text" name="query1" value=""/>
             <input id="datepicker-example9" type="text" name="query2" value=""/>
             <input type="submit" value="按时间搜索">
-    </form>
+    </form-->
     </tr>
     </table>
 	<div class="row"> 
@@ -98,7 +98,9 @@
         {
             type : 'category',
             splitLine :{show:false},
-            data : ['延期','正常','暂停']
+            data : [{% for name in overallschedule_namedata %}
+					'{{ name }}',
+	               {% endfor %} ]
         }
     ],
     yAxis : [
@@ -112,7 +114,10 @@
             name:'项目进度状态',
             type:'bar',
             itemStyle : { normal: {label : {show: true, position: 'inside'}}},
-            data:[11,105,22]
+            data:[{% for num in overallschedule_data %}
+					{{ num }},
+	               {% endfor %}
+	             ]
             
         }
     ]
@@ -139,7 +144,9 @@ option1 = {
         {
             type : 'category',
             splitLine :{show:false},
-            data : ['质量较差','质量一般','质量较好']
+            data : [{% for name in versionquality_namedata %}
+					'{{ name }}',
+	               {% endfor %} ]
         }
     ],
     yAxis : [
@@ -153,7 +160,10 @@ option1 = {
             name:'质量情况',
             type:'bar',
             itemStyle : { normal: {label : {show: true, position: 'inside'}}},
-            data:[12,25,35]
+            data:[ {% for num in versionquality_data %}
+					{{ num }},
+	               {% endfor %}            
+	            ]
             
         }
     ]
@@ -180,7 +190,9 @@ option2 = {
         {
             type : 'category',
             splitLine :{show:false},
-            data : ['人力不足','人力紧张','人力充足']
+            data : [{% for name in manpowerinput_namedata %}
+					'{{ name }}',
+	               {% endfor %} ]
         }
     ],
     yAxis : [
@@ -194,8 +206,10 @@ option2 = {
             name:'人力情况',
             type:'bar',
             itemStyle : { normal: {label : {show: true, position: 'inside'}}},
-            data:[8,69,50]
-            
+            data:[{% for num in manpowerinput_data %}
+					{{ num }},
+	               {% endfor %}            
+	            ]
         }
     ]
 };
@@ -222,7 +236,9 @@ option3 = {
         {
             type : 'category',
              splitLine :{show:false},
-            data : ['超签报工作量','正常']
+            data : [{% for name in workload_namedata %}
+					'{{ name }}',
+	               {% endfor %} ]
         }
     ],
     yAxis : [
@@ -236,7 +252,10 @@ option3 = {
             name:'工作量情况',
             type:'bar',
             itemStyle : { normal: {label : {show: true, position: 'inside'}}},
-            data:[12,102]
+            data:[{% for num in workload_data %}
+					{{ num }},
+	               {% endfor %}            
+	            ]
             
         }
     ]
@@ -264,7 +283,9 @@ option5 = {
         {
             type : 'category',
             splitLine :{show:false},
-            data : ['需求分析','用例设计','UAT1阶段','验收流程','验收阶段','模拟流程','模拟阶段','生产上线']
+            data : [{% for name in projectstage_namedata %}
+					'{{ name }}',
+	               {% endfor %} ]
         }
     ],
     yAxis : [
@@ -278,7 +299,10 @@ option5 = {
             name:'项目阶段情况',
             type:'bar',
             itemStyle : { normal: {label : {show: true, position: 'inside'}}},
-            data:[5,5,53,9,2,32,12,5,15]
+            data:[{% for num in projectstage_numdata %}
+					{{ num }},
+	               {% endfor %}            
+	            ]
             
         }
     ]
@@ -291,7 +315,7 @@ option5 = {
 		myChart3.setOption(option3);
 		myChart5.setOption(option5);
 		
-		myChart.on(ecConfig.EVENT.CLICK, eConsole);
+		//myChart.on(ecConfig.EVENT.CLICK, eConsole);
 		myChart.on(ecConfig.EVENT.DBLCLICK, eConsole);
 		//myChart.on(ecConfig.EVENT.HOVER, eConsole);
 		//myChart.on(ecConfig.EVENT.DATA_ZOOM, eConsole);
@@ -306,4 +330,15 @@ option5 = {
 	
 	
     </script>
+    
+    <div style = "margin: 0; font-size: 11px; text-align: right; color: #487858;">
+		<a href="/upload_file/">| 文件上传</a> |
+		<a href="/system_detail/">系统详情页</a> |
+		<a href="/version_detail/">版本详情页</a> |
+		<a href="/wiki_index/">系统百科页</a> |
+		<a href="/dataex_detail/">交互信息展示页</a> |
+		<a href="/cm_baseline/">基线展示页</a> |
+		<a href="/cm_bi_index/">报表展示页</a> |
+		<a href="/test_report_index/">测试周报页</a> |
+	</div>
 </body>
