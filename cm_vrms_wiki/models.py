@@ -178,9 +178,10 @@ class Appserver(models.Model):
     Remark = models.CharField(max_length=1024,blank=True,choices= EnvType_CHOICE,verbose_name = '环境名称',help_text='描述系统环境:UAT1，UAT2等')
     #UpdateTime = models.DateField(default = datetime.date.today(), verbose_name = '更新时间')
     UpdateTime = models.DateField( verbose_name = '更新时间')
+   
     
     def __unicode__(self):
-        return "{}\t{}".format(self.AppServerID,self.HostName)
+        return "{}\t{}\t{}".format(self.AppServerID,self.HostName,self.AppID)
     class Meta:
         #unique_together = ("HostName", "ServiceIP")
         db_table = u"cm_vrms_wiki_appserver"
@@ -578,6 +579,20 @@ class Config_Item(models.Model):
         db_table = u"cm_vrms_wiki_config_item"
         verbose_name=u"服务器配置项信息"
         verbose_name_plural=u"服务器配置项信息表"
+        
+
+class ImageStore(models.Model):
+    
+    AppID = models.ForeignKey(CM_Application,  verbose_name = '应用系统ID')
+    name = models.CharField(max_length=150,null=True)
+    img = models.ImageField(upload_to='img')
+    
+    def __unicode__(self):
+        return "{}".format(self.name)
+    class Meta:
+        db_table = u"cm_vrms_wiki_image_store"
+        verbose_name=u"服务器架构图"
+        verbose_name_plural=u"服务器架构图表"
 
     
     

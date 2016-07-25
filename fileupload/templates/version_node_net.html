@@ -350,9 +350,9 @@ function eConsole(param) {
 			lineName = tmp_list[1]+" - "+tmp_list[0]
 		}
 		var s_t_info = dialog_tabel_info[lineName].split("	")
-		var lineFrom = lineName.split(" - ")[0];
+		var lineFrom = s_t_info[5];
 		//var lineTarget = param.value.target;
-		var lineTarget = lineName.split(" - ")[1];
+		var lineTarget = s_t_info[6];
 		document.getElementById('dialog').innerHTML = "<p>{{conf_node_info}}</p>"+
 		"<p>传输依赖备注:"+s_t_info[3]+"</p>"+
 		"<p>数据交互备注:"+s_t_info[4]+"</p>"+

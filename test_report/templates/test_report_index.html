@@ -23,6 +23,22 @@
 	</div>
     <table width="620" border="0" align="center" cellpadding="0" cellspacing="0">
     <tr>
+		<div class="btn-group">
+		   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+		      <span class="caret"></span>
+		      <span class="sr-only">选择时间段</span>
+		   </button>
+		   <ul class="dropdown-menu" role="menu">
+		      <li><a href="#" onclick="set_period(0)">本周</a></li>
+		      <li><a href="#" onclick="set_period(1)">上周</a></li>
+		      <li><a href="#" onclick="set_period(2)">本月</a></li>
+		      <li><a href="#" onclick="set_period(3)">上月</a></li>
+		      <li><a href="#" onclick="set_period(4)">本年</a></li>		      
+		      <li><a href="#" onclick="set_period(5)">全部</a></li>
+		   </ul>
+		</div>
+    </tr>
+    <tr>
     <th scope="col">
     <form action="/test_report_index/" method="get">
             <input id="datepicker-example1" type="text" name="query1" value=""/>
@@ -60,6 +76,116 @@
 		<a href="/cm_bi_index/">报表展示页</a> |
 		<a href="/test_report_index/">测试周报页</a> |
 	</div>
+
+
+<script type="text/javascript">
+    Date.prototype.format = function(format){ 
+var o = { 
+"M+" : this.getMonth()+1, //month 
+"d+" : this.getDate(), //day 
+"h+" : this.getHours(), //hour 
+"m+" : this.getMinutes(), //minute 
+"s+" : this.getSeconds(), //second 
+"q+" : Math.floor((this.getMonth()+3)/3), //quarter 
+"S" : this.getMilliseconds() //millisecond 
+} 
+
+if(/(y+)/.test(format)) { 
+format = format.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length)); 
+} 
+
+for(var k in o) { 
+if(new RegExp("("+ k +")").test(format)) { 
+format = format.replace(RegExp.$1, RegExp.$1.length==1 ? o[k] : ("00"+ o[k]).substr((""+ o[k]).length)); 
+} 
+} 
+return format; 
+} 
     
+    
+	$(document).ready(function(){
+		$(".need_hide").hide();//默认隐藏div，或者在样式表中添加.text{display:none}，推荐使用后者
+		$(".need_hide").click(function(){
+			$(this).slideToggle("fast");
+		});
+		$(".show_hide").click(function(){
+			$(this).parent().next(".need_hide").slideToggle("fast");
+		})
+	});
+	
+	function get_date_str(need_day){
+		//return need_day.toLocaleDateString().replace(/\//g,"-")
+		return need_day.format('yyyy-MM-dd')
+	}
+	function getThisWeek(){
+		//获取当前星期的第一天和最后一天
+	    var today = new Date();
+	    //判别当前是星期几,考虑-1;周一变成1;周天变成-1
+	    week_day = today.getDay()-1;
+	    if(week_day<0){
+	    	week_day = 6;	
+	    }    
+	    var week_start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - week_day);
+	    var week_end = new Date(today.getFullYear(), today.getMonth(), today.getDate() - week_day + 6);
+	    return [week_start,week_end]
+	}
+	function getLastWeek(){
+		//获取上个星期的第一天和最后一天
+		week_start = getThisWeek()[0]
+		last_week_start = new Date(week_start.getFullYear(), week_start.getMonth(), week_start.getDate() - 7);
+		last_week_end = new Date(week_start.getFullYear(), week_start.getMonth(), week_start.getDate() - 1);
+	    return [last_week_start,last_week_end]
+	}	
+	function getThisMonth(){
+		//获取该月的第一天和最后一天
+		var today = new Date();
+		this_month_start = new Date(today.getFullYear(), today.getMonth(), 1);
+		this_month_end = new Date(today.getFullYear(), today.getMonth()+1, 0);
+	    return [this_month_start,this_month_end]
+	}	
+	function getLastMonth(){
+		//获取上月的第一天和最后一天
+		var today = new Date();
+		last_month_start = new Date(today.getFullYear(), today.getMonth()-1, 1);
+		last_month_end = new Date(today.getFullYear(), today.getMonth(), 0);
+	    return [last_month_start,last_month_end]
+	}	
+	function getThisYear(){
+		//获取今年的第一天和最后一天
+		var today = new Date();
+		this_year_start = new Date(today.getFullYear(), 0, 1);
+		this_year_end = new Date(today.getFullYear(), 11, 31);
+	    return [this_year_start,this_year_end]
+	}		
+	function set_period(type){
+		//默认为10年到当前所有时间
+		var period = [new Date(2010,0,1),new Date(9999,11,31)]
+		if(type == 0){
+			period = getThisWeek();
+		}
+		else if(type == 1){
+			period = getLastWeek();
+		}
+		else if(type == 2){
+			period = getThisMonth();
+		}
+		else if(type == 3){
+			period = getLastMonth();
+		}
+		else if(type == 4){
+			period = getThisYear();
+		}
+		
+		$("#datepicker-example1").val(get_date_str(period[0]))
+	    $("#datepicker-example9").val(get_date_str(period[1]))
+	    //提交表单
+	    $("[type=submit]").click()
+	    
+	}
+	
+
+</script>
+
+
 </body>
 {% endautoescape %}

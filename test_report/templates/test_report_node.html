@@ -12,7 +12,7 @@
     
      <div class="row"> 
 	    <div class="span9">
-	    	<div id="main" style="height:600px;width:1300px"></div>
+	    	<div id="main" style="height:{{node_height}}px;width:1300px"></div>
 		</div> 
 		
 		<div class="span5">
@@ -194,7 +194,7 @@
             minRadius : 30,
             maxRadius : 45,
             gravity: 1.1,
-            scaling: 1.5,
+            scaling: 1.6,
             roam: 'move',
             {% autoescape off %}
             nodes:[
@@ -323,7 +323,7 @@ function eConsole(param) {
 			xAxis : [
 				{
 					type : 'value',
-					splitNumber:11,
+					splitNumber:9,
 					axisTick : {show: true, interval:0},
 					axisLabel : {
 						show:true,

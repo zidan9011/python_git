@@ -209,7 +209,7 @@ def get_dict_map(info_map,info_set,info_key):
 def get_project_map():
     """获取所有映射到主项目群的project_id,产出 project-项目群名 的映射关系"""
     project_list = CmVrmsBaselineProjects.objects.all()#project的信息,获取应用到每个项目群的映射关系
-    need_check_set = set([272,273,274,275,276,277,278,280,433,27,28,30,31,32,33,34,35,36])
+    need_check_set = set([272,273,274,275,276,277,278,280,433,27,28,30,31,32,33,34,35,36,3229])
     project_child = {}
     project_name = {}
     group_dict = {}#存放每个need_check_set对应的所有子id集合
@@ -311,6 +311,8 @@ def update_db_from_work(request):
         if app_name in NAME_MAP:
             app_name = NAME_MAP[app_name]
         publish_version_num_str = issue_one[7]#此处需要对版本进行验证
+        if publish_version_num_str == "无":#如果版本号这一关不符合规范
+            publish_version_num_str="V0.0.0.0"
         version_matchs = re.findall(r"[\.\d]+",publish_version_num_str)
         publish_version_num = ""
         if len(version_matchs)>0:
@@ -324,6 +326,7 @@ def update_db_from_work(request):
             if len(nums)>4:
                 nums = nums[0:4]
                 publish_version_num = "V{}.{}.{}.{}".format(*nums)
+        
         if publish_version_num == "":#如果版本号这一关不符合规范
             continue
         update_date = issue_one[13]
@@ -438,6 +441,8 @@ def update_db_from_work_bi(request):
         if app_name in NAME_MAP:
             app_name = NAME_MAP[app_name]
         publish_version_num_str = issue_one[7]#此处需要对版本进行验证
+        if publish_version_num_str == "无":#如果版本号这一关不符合规范
+            publish_version_num_str="V0.0.0.0"
         version_matchs = re.findall(r"[\.\d]+",publish_version_num_str)
         publish_version_num = ""
         if len(version_matchs)>0:
@@ -451,6 +456,8 @@ def update_db_from_work_bi(request):
             if len(nums)>4:
                 nums = nums[0:4]
                 publish_version_num = "V{}.{}.{}.{}".format(*nums)
+        if publish_version_num == "无":#如果版本号这一关不符合规范
+            publish_version_num="V0.0.0.0"
         if publish_version_num == "":#如果版本号这一关不符合规范
             continue
         update_date = issue_one[13]

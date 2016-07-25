@@ -9,6 +9,8 @@ import xlrd
 import datetime
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
+
+
 def singleton(cls, *args, **kw):
     '''单例实现'''  
     instances = {}  
@@ -29,7 +31,7 @@ def convert_xlsx_csv(xlsx_path,csv_path):
         line_values = sh.row_values(rownum)
         line_types = sh.row_types(rownum)
         for i in range(0,len(line_types)):
-            if line_types[i] == 3:#格式化string字符串，加星号是format的一种写法
+            if line_types[i] == 3:
                 try:
                 #line_values[i] = "{}-{}-{}".format(*xlrd.xldate_as_tuple(line_values[i],wb.datemode))
                     year,month,day=xlrd.xldate_as_tuple(line_values[i],wb.datemode)[:3]
@@ -40,9 +42,13 @@ def convert_xlsx_csv(xlsx_path,csv_path):
                 
         line_values = [str(val) for val in line_values]
         line_str = "\t".join(line_values)
+        line_str = line_str.replace("\r\n", "")
+        line_str = line_str.replace("\n", "")
+        line_str = line_str.replace("(", "（")
+        line_str = line_str.replace(")", "）")
         line_str = line_str.encode("utf-8")
         your_csv_file.write(line_str+"\n")
-    your_csv_file.close() 
+    your_csv_file.close()
     
 
 def convert_csv_csv(file_path,csv_path):#转gbk的csv为utf-8的
@@ -184,6 +190,8 @@ class SysNameInfo(models.Model):
                 continue
 
             try:
+                node_info[0]=node_info[0].replace("(","（")
+                node_info[0]=node_info[0].replace(")","）")
                 conf_info_tmp = SysName_Info.objects.get(SysName=node_info[0],map_sysname=node_info[1])
                 
         
@@ -218,11 +226,18 @@ class SysNameInfo(models.Model):
                        
         return sys_source_node_info
 
-
+name_info = SysName_Info.objects.all()
 '''测试管理模块表信息模型'''   
 class Report_Detail(models.Model):
+    
+    name_map={}
+    for val in name_info:
+        raw_name=val.SysName.encode("utf-8")
+        map_name=val.map_sysname.encode("utf-8")
+        name_map[map_name]=raw_name
+    Name_CHOICE = tuple(sorted(name_map.iteritems(), key = lambda asd:asd[0]))
     TestType_CHOICES = (('zxt','主系统'),('sjlc','升级联测'),('wyxlc','无影响联测'),('whf','未回复'))
-    ProjectStage_CHOICES = (('cszb','测试准备'),('uat1cs','UAT1测试'),('uat1wc','UAT1完成'),('yslc','验收流程'),('yslc','验收流程'),('yscs','验收测试'),('mnlc','模拟流程'),('mncs','模拟测试'),('mnjd','模拟阶段'),('mnwc','模拟完成'),('ysx','已上线'),('NA','NA'))
+    ProjectStage_CHOICES = (('cszb','测试准备'),('uat1cs','UAT1测试'),('uat1wc','UAT1完成'),('yslc','验收流程'),('yslc','验收流程'),('yscs','验收测试'),('mnlc','模拟流程'),('mncs','模拟测试'),('mnwc','模拟完成'),('ysx','已上线'),('NA','NA'))
     OverallSchedule_CHOICES = (('zc','正常'),('yq','延期'),('zt','暂停'),('zf','作废'),('NA','NA'))
     ManpowerInput_CHOICES = (('rljz','人力紧张'),('rlcz','人力充足'),('rlbz','人力不足'),('NA','NA'))
     VersionQuality_CHOICES = (('zlyb','质量一般'),('zljh','质量较好'),('zljc','质量较差'),('NA','NA'))
@@ -231,9 +246,9 @@ class Report_Detail(models.Model):
     CRType_CHOICES =(('zc','正常'),('jj','紧急'),('lx','例行'),('kj','快捷'),('NA','NA'))
     PerformanceTest_CHOICES =(('y','有'),('n','无'))
     
-    SystemName = models.CharField(max_length=128,verbose_name = '系统名称')
+    SystemName = models.CharField(max_length=128,choices=Name_CHOICE,verbose_name = '系统名称')
     VersionNum = models.CharField(max_length=16,verbose_name = '版本号')
-    Main_SysName = models.CharField(max_length=128,verbose_name = '主系统名称')
+    Main_SysName = models.CharField(max_length=128,choices=Name_CHOICE,verbose_name = '主系统名称')
     Main_VersionNum = models.CharField(max_length=16,verbose_name='主系统版本号')
     ProjectName = models.CharField(max_length=128,blank=True,verbose_name='项目名称')
     PlanTime = models.DateField(blank = True,verbose_name = '生产上线日期')
@@ -242,11 +257,11 @@ class Report_Detail(models.Model):
     ProjectStage = models.CharField(max_length=32, choices=ProjectStage_CHOICES, verbose_name = '目前项目阶段')
     TestRuns = models.CharField(max_length=32,choices=TestRuns_CHOICES,blank=True,verbose_name='测试轮次')
     OverallSchedule = models.CharField(max_length=32,choices=OverallSchedule_CHOICES,verbose_name='项目整体进度')
-    Reason = models.CharField(max_length=2048,blank=True,verbose_name = '原因说明')
+    Reason = models.TextField(max_length=2048,blank=True,verbose_name = '原因说明')
     ManpowerInput = models.CharField(max_length=32,choices=ManpowerInput_CHOICES,verbose_name = '人力投入情况')
     VersionQuality = models.CharField(max_length=32,choices=VersionQuality_CHOICES,verbose_name = '版本质量')
     Workload = models.CharField(max_length=32,choices=Workload_CHOICES,verbose_name = '工作量情况')
-    PerformanceTest = models.CharField(max_length=32,choices=PerformanceTest_CHOICES,blank=True,verbose_name = '性能测试')
+    PerformanceTest = models.CharField(max_length=32,choices=PerformanceTest_CHOICES,verbose_name = '性能测试')
     Writter = models.CharField(max_length=32,blank=True,verbose_name = '测试负责人')
     UpdateDate = models.DateField(default = datetime.datetime.now().date(),blank=True,verbose_name='填写日期')
     
@@ -266,6 +281,7 @@ class Report_Detail(models.Model):
         return "{}".format(self.SystemName)
     class Meta:
         db_table = u"test_report_Report_Detail"
+        unique_together = ("SystemName", "VersionNum","Main_SysName","Main_VersionNum")
         verbose_name=u"测试周报信息"
         verbose_name_plural=u"测试周报信息表"
         
@@ -301,14 +317,19 @@ class Report_DetailInfo(models.Model):
         
     def write_conf_info_to_db(self,request,file_path):
         '''将信息从文件更新到数据库中'''
-        test_type_map_info = {'主系统':'zxt','升级联测':'sjlc','无影响联测':'wyxlc','未回复':'whf','':''}
-        ProjectStage_map_info = {'测试准备':'cszb','UAT1测试':'uat1cs','UAT1完成':'uat1wc','验收流程':'yslc','验收测试':'yscs','模拟流程':'mnlc','模拟测试':'mncs','模拟完成':'mnwc','已上线':'ysx','':'','NA':'NA'}
-        OverallSchedule_map_info = {'正常':'zc','延期':'yq','暂停':'zt','作废':'zf','NA':'NA','':''}
-        ManpowerInput_map_info = {'人力紧张':'rljz','人力充足':'rlcz','人力不足':'rlbz','':'','NA':'NA'}
-        VersionQuality_map_info = {'质量一般':'zlyb','质量较好':'zljh','质量较差':'zljc','':'','NA':'NA'}
-        Workload_map_info = {'超签报':'cqb','正常':'zc','超采购':'ccg','':'','NA':'NA'}
-        CRType_map_info = {'正常':'zc','紧急':'jj','例行':'lx','快捷':'kj','NA':'NA'}
-        PerformanceTest_map_info = {'有':'y','无':'n'}
+        name_map_dict={}
+        for val in name_info:
+            raw_name=val.SysName.encode("utf-8")
+            map_name=val.map_sysname.encode("utf-8")
+            name_map_dict[raw_name]=map_name
+        test_type_map_info = {'主系统':'zxt','升级联测':'sjlc','无影响联测':'wyxlc','未回复':'whf','空':''}
+        ProjectStage_map_info = {'测试准备':'cszb','UAT1测试':'uat1cs','UAT1完成':'uat1wc','验收流程':'yslc','验收测试':'yscs','模拟流程':'mnlc','模拟测试':'mncs','模拟完成':'mnwc','已上线':'ysx','空':'','NA':'NA'}
+        OverallSchedule_map_info = {'正常':'zc','延期':'yq','暂停':'zt','作废':'zf','NA':'NA','空':''}
+        ManpowerInput_map_info = {'人力紧张':'rljz','人力充足':'rlcz','人力不足':'rlbz','空':'','NA':'NA'}
+        VersionQuality_map_info = {'质量一般':'zlyb','质量较好':'zljh','质量较差':'zljc','空':'','NA':'NA'}
+        Workload_map_info = {'超签报':'cqb','正常':'zc','超采购':'ccg','空':'','NA':'NA'}
+        CRType_map_info = {'正常':'zc','紧急':'jj','例行':'lx','快捷':'kj','空':'','NA':'NA'}
+        PerformanceTest_map_info = {'有':'y','无':'n','空':''}
         
         
         f_info = open(file_path)
@@ -318,6 +339,10 @@ class Report_DetailInfo(models.Model):
         sys_info = [val.split("\t") for val in sys_info]
         
         for node_info in sys_info:
+            systemname = node_info[0]
+            node_info[0]=name_map_dict.get(systemname,"")
+            main_sysName = node_info[2]
+            node_info[2]=name_map_dict.get(main_sysName,"")
             crtype = node_info[6]
             node_info[6] = CRType_map_info.get(crtype,"")
             test_type = node_info[7]
@@ -334,8 +359,11 @@ class Report_DetailInfo(models.Model):
             node_info[14] = Workload_map_info.get(workload,"")
             performancetest = node_info[15]
             node_info[15] = PerformanceTest_map_info.get(performancetest,"")
+            if len(node_info) ==16:
+                namestr = request.user.first_name+request.user.last_name
+                node_info.append(namestr)
             if len(node_info[16]) == 0:
-                node_info[16] = request.user.username
+                node_info[16] = request.user.first_name+request.user.last_name
             
             if len(node_info) == 17:#若是缺失后一列的
                 datestr = datetime.datetime.now().date().strftime('%Y-%m-%d') 

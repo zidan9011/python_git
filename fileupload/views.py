@@ -516,8 +516,9 @@ def version_node_net(request):
                 #下面的操作 对备注的每一个传输依赖node都需要进行
                 edge_filter.add(tmp_source_node+" - "+taget_node)
                 edge_filter.add(taget_node+" - "+tmp_source_node)
-                source_target_node_info[tmp_source_node+" - "+tmp_comm_node] = target_source_info[taget_node][tmp_source_node]#存放弹框的信息
-                source_target_node_info[tmp_comm_node+" - "+taget_node] = target_source_info[taget_node][tmp_source_node]#存放弹框的信息
+                append_str = "\t{}\t{}".format("".join(tmp_source_node.split()),"".join(taget_node.split()))
+                source_target_node_info[tmp_source_node+" - "+tmp_comm_node] = target_source_info[taget_node][tmp_source_node]+append_str#存放弹框的信息
+                source_target_node_info[tmp_comm_node+" - "+taget_node] = target_source_info[taget_node][tmp_source_node]+append_str#存放弹框的信息
                 weight = 1
                 need_sync = (target_source_info[taget_node][tmp_source_node].split("\t")[2]=="Y")
                 need_test = (target_source_info[taget_node][tmp_source_node].split("\t")[1]=="Y")

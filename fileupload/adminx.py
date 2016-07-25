@@ -264,14 +264,14 @@ class Report_DetailAdmin(object):
                     'ProjectName','PlanTime','TestType','ProjectStage',
                     'TestRuns','OverallSchedule',
                     'ManpowerInput','VersionQuality','Workload','CRType','PerformanceTest',
-                    'Reason','Writter',]
+                    'Reason','Writter','UpdateDate',]
     
    
     def save_models(self):
         obj = self.new_obj
         request = self.request
         if len(obj.Writter)==0:
-            obj.Writter = request.user.username
+            obj.Writter = request.user.first_name+request.user.last_name
         obj.save()
  
     

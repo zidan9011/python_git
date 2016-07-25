@@ -113,7 +113,7 @@
         {
             name:'项目进度状态',
             type:'bar',
-            itemStyle : { normal: {label : {show: true, position: 'inside'}}},
+            itemStyle : { normal: {label : {show: true, position: 'top'}}},
             data:[{% for num in overallschedule_data %}
 					{{ num }},
 	               {% endfor %}
@@ -159,7 +159,7 @@ option1 = {
         {
             name:'质量情况',
             type:'bar',
-            itemStyle : { normal: {label : {show: true, position: 'inside'}}},
+            itemStyle : { normal: {label : {show: true, position: 'top'}}},
             data:[ {% for num in versionquality_data %}
 					{{ num }},
 	               {% endfor %}            
@@ -205,7 +205,7 @@ option2 = {
         {
             name:'人力情况',
             type:'bar',
-            itemStyle : { normal: {label : {show: true, position: 'inside'}}},
+            itemStyle : { normal: {label : {show: true, position: 'top'}}},
             data:[{% for num in manpowerinput_data %}
 					{{ num }},
 	               {% endfor %}            
@@ -251,7 +251,7 @@ option3 = {
         {
             name:'工作量情况',
             type:'bar',
-            itemStyle : { normal: {label : {show: true, position: 'inside'}}},
+            itemStyle : { normal: {label : {show: true, position: 'top'}}},
             data:[{% for num in workload_data %}
 					{{ num }},
 	               {% endfor %}            
@@ -298,7 +298,7 @@ option5 = {
         {
             name:'项目阶段情况',
             type:'bar',
-            itemStyle : { normal: {label : {show: true, position: 'inside'}}},
+            itemStyle : { normal: {label : {show: true, position: 'top'}}},
             data:[{% for num in projectstage_numdata %}
 					{{ num }},
 	               {% endfor %}            

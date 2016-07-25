@@ -28,6 +28,7 @@ urlpatterns = patterns('',
 
     url(r'^$', lambda x: HttpResponseRedirect('/system_detail/')),
     url(r'^upload/', include('fileupload.urls')),
+    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/media/','show_indexes': True }),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
@@ -99,6 +100,7 @@ urlpatterns = patterns('',
     (r'^test_report_node_*',test_report_node),
     (r'^test_report_bar',test_report_bar),
     (r'^test_report_charts',test_report_charts),
+    (r'^show_items',show_items),
     
     
     

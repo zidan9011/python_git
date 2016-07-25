@@ -147,6 +147,30 @@ class AppserverAdmin(object):
 #将Author模块和管理类绑定在一起，注册到后台管理
 xadmin.site.register(Appserver, AppserverAdmin)
 
+class ImageStoreAdmin(object):
+    
+    #列表页，列表顶部显示的字段名称
+    list_display = ('AppID', 'name', 
+                    'img')
+    #列表页出现搜索框，参数是搜索的域
+  
+    #右侧会出现过滤器，根据字段类型，过滤器显示过滤选项
+    list_filter = ('AppID', 'name', 
+                    'img')
+    fields = ('AppID', 'name', 
+                    'img')
+    #自然是排序所用了，减号代表降序排列
+    ordering = ('AppID', 'name', )
+    #表格列表可编辑
+    
+    list_editable = ['AppID', 'name', 
+                    'img']
+    reversion_enable = True
+       
+#将Author模块和管理类绑定在一起，注册到后台管理
+xadmin.site.register(ImageStore, ImageStoreAdmin)
+
+
 class MountAdmin(object):
     list_display = ('MountID', 'StorageDeviceId', 
                     'AppServerID', 'MountPath')

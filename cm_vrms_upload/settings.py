@@ -131,10 +131,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
+
 #STATICFILES_DIRS = ('/static/',)
 #STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static').replace('\\','/')
 MEDIA_ROOT = os.path.abspath(os.path.dirname(__file__)) + '/media/'
-
+MEDIA_ROOT =  '/media/'
 
 
 LOGIN_URL = '/login/'

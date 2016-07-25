@@ -17,6 +17,7 @@ from .models import *
 import MySQLdb
 from django.db import connection,transaction
 from fileupload.models import SystemInfo,VersionInfo,SysConfInfo,VerConfInfo,DataExInfo
+from django.core.files.base import ContentFile
 
 key_node = ["外汇交易系统","本币交易系统","X-Swap"]
 
@@ -75,6 +76,8 @@ def as_table(obj_list):
             if attr_name[-3:] =="_id":#为了展示foreign key的 verbose_name而非id
                 attr_name = attr_name[:-3]
             inner_val = str(getattr(obj,attr_name))
+            if "img" in attr_name:
+                inner_val = "<a class='fancybox' href='/media/{}'><img src='/media/{}'></a>".format(inner_val,inner_val)
             #如果存在choice项的话,将值换成choice中的对应值
             if len(obj_tmp._meta.fields[i].choices)>0:
                 for k in range(0,len(obj_tmp._meta.fields[i].choices)):
@@ -125,12 +128,13 @@ def application_tree(request):
     table_content1,macth_val_list1 = get_content(CM_Application,"ChineseName",[request_node_name])
     table_content2,macth_val_list2 = get_content(CM_Application_Maintainer,"AppID",macth_val_list1)
     table_content3,match_val_list3 = get_content(Appserver,"AppID",macth_val_list1)
+    table_content_img,match_val_list_img = get_content(ImageStore,"AppID",macth_val_list1)
     table_content_mount,match_val_list_mount = get_content(Mount,"AppServerID",match_val_list3)
     table_content_LB,match_val_list_LB = get_content(LB,"AppID",macth_val_list1)
     table_content_LB_member,match_val_list_LB_Member = get_content(LB_Member,"AppServerID",match_val_list3)
     table_content4,match_val_list4 = get_content(CM_Users,"AppServerID",match_val_list3)
     table_content5,match_val_list5 = get_content(Config_File,"AppServerID",match_val_list3)
-    table_content_conf_item,match_val_list__conf_item = get_content(Config_Item,"ConfigId",match_val_list5)
+    table_content_conf_item,match_val_list__conf_item = get_content(Config_Item,"ConfigName",match_val_list5)
     table_content6,match_val_list6 = get_content(Log_File,"AppServerID",match_val_list3)
     table_content7,match_val_list7 = get_content(Server_Process_Pool,"AppServerID",match_val_list3)
     table_content8,match_val_list8 = get_content(Software,"AppServerID",match_val_list3)
@@ -204,6 +208,7 @@ def application_tree(request):
     c["table_content_LB"] = table_content_LB
     c["table_content_LB_member"] = table_content_LB_member
     c["table_content_License"] = table_content_License
+    c["table_content_img"] = table_content_img
 
     out_path = "application_tree"    
     return render_to_response(out_path+'.html',context_instance=c)
@@ -240,3 +245,8 @@ def alert_info(request):
         c["table_content"] = as_table_lic(need_alert_lists)
  
     return render_to_response(out_path+'.html',context_instance=c)
+
+
+
+        
+
