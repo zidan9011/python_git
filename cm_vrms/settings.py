@@ -52,6 +52,7 @@ INSTALLED_APPS = (
     'crispy_forms', 
     'reversion',
     'django_crontab',
+    'modelclone',
     
 )
 MIDDLEWARE_CLASSES = (

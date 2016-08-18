@@ -120,6 +120,51 @@ def get_content(model_object,foreign_col,foreign_val_list):
         table_content = as_table(val_list)
     #返回所得字段,以及查询得到的元素
     return "{}{}{}".format(div_upper, table_content, div_end),val_list
+
+def get_overview_info(ChineseName):
+    cursor = connection.cursor()
+    need_sql = "select a.ChineseName,a.EnglishName,b.DevPM,b.DevCompanyPM,b.TestPM,b.TestLD,b.CMA,b.CMB,c.Remark,c.ServiceIP ,c.LogicHostname from cm_vrms_wiki_cm_application a,cm_vrms_wiki_cm_application_maintainer b,cm_vrms_wiki_appserver c where a.AppID = b.AppID_id and a.AppID = c.AppID_id and ChineseName = '"+ChineseName+"' "
+    cursor.execute(need_sql)
+    overview_info = cursor.fetchall()
+    table_upper = '''<div class='tab-pane fade' id='CM_Overview'><table class='table table-bordered table-striped'> <thead><tbody>'''
+    table_title = "<th>系统名称</th><th>英文简称</th><th>项目经理</th><th>开发联系人</th><th>第三方测试负责人</th><th>测试组长</th><th>UAT环境负责人A</th><th>UAT环境负责人B</th><th>环境类别</th><th>IP地址</th><th>逻辑主机名</th>"
+    out_str = ""
+    need_out_dict = {}
+    for val in overview_info:
+        ChineseName,EnglishName,DevPM,DevCompanyPM,TestPM,TestLD,CMA,CMB,Remark,ServiceIP,LogicHostname = val
+        key = "\t".join(val[:-3])
+        if key not in need_out_dict:
+            need_out_dict[key] = {}
+        if Remark not in need_out_dict[key]:
+            need_out_dict[key][Remark] = []
+        need_out_dict[key][Remark].append([ServiceIP,LogicHostname])
+
+    for key in need_out_dict:
+        value_dict = need_out_dict[key]
+        value_list = []
+        for remark in value_dict:
+            serviceIP_logicHostname_info = value_dict[remark]
+            serveice_str = "\n".join([str(val[0]) for val in serviceIP_logicHostname_info])
+            logicHostname_str = "\n".join([str(val[1]) for val in serviceIP_logicHostname_info])
+            value_list.append([remark,serveice_str,logicHostname_str])
+
+        for i in range(0,len(value_list)):
+            if i == 0:
+                key_fileds = key.split("\t")
+                row_span = len(value_list)
+                td_str = "<td style='vertical-align: inherit;' rowspan='"+str(row_span)+"'>{}</td>"
+                format_str =  "<tr>"+td_str*len(key_fileds)+"<td>{}</td>"*len(value_list[i])+"</tr>"
+                tmp_out_list = key_fileds+value_list[i]
+                out_str += format_str.format(*tmp_out_list)
+            else:
+                format_str =  "<tr>"+"<td>{}</td>"*len(value_list[i])+"</tr>"
+                out_str += format_str.format(*value_list[i])
+        #format_str =  "<tr>"+"<td>{}</td>"*len(val)+"</tr>"
+        #out_str += format_str.format(*val)
+    #该项目版本历次升级信息的详情展示
+    out_str = out_str.encode("utf-8")
+    tabel_end = "</tbody> </table></div>"
+    return "{}{}{}{}".format(table_upper, table_title, out_str, tabel_end) 
         
 def application_tree(request):
     #返回树状图
@@ -173,6 +218,8 @@ def application_tree(request):
     table_content22,match_val_list22 = get_content(NetDevice_detail,"DeviceID",match_val_list19)
     table_content23,match_val_list23 = get_content(Equipment_detail,"DeviceID",match_val_list19)
     
+    table_overview=get_overview_info(request_node_name)
+    
     
     
     c = Context({'STATIC_URL': '/static/'})
@@ -209,6 +256,7 @@ def application_tree(request):
     c["table_content_LB_member"] = table_content_LB_member
     c["table_content_License"] = table_content_License
     c["table_content_img"] = table_content_img
+    c["table_overview"] = table_overview
 
     out_path = "application_tree"    
     return render_to_response(out_path+'.html',context_instance=c)

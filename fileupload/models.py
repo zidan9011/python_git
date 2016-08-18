@@ -247,9 +247,9 @@ class Report_Detail(models.Model):
     PerformanceTest_CHOICES =(('y','有'),('n','无'))
     
     SystemName = models.CharField(max_length=128,choices=Name_CHOICE,verbose_name = '系统名称')
-    VersionNum = models.CharField(max_length=16,verbose_name = '版本号')
+    VersionNum = models.CharField(max_length=64,verbose_name = '版本号')
     Main_SysName = models.CharField(max_length=128,choices=Name_CHOICE,verbose_name = '主系统名称')
-    Main_VersionNum = models.CharField(max_length=16,verbose_name='主系统版本号')
+    Main_VersionNum = models.CharField(max_length=64,verbose_name='主系统版本号')
     ProjectName = models.CharField(max_length=128,blank=True,verbose_name='项目名称')
     PlanTime = models.DateField(blank = True,verbose_name = '生产上线日期')
     CRType = models.CharField(max_length=32,choices=CRType_CHOICES,verbose_name = '变更类型')

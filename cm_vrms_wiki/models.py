@@ -28,8 +28,8 @@ class CM_Application(models.Model):
     
     #EnvDesType_CHOICE = (('UAT1','UAT1'),('UAT2','UAT2'),('UAT3','UAT3'),('MEMB','MEMB'),('peixun','培训'))
     AppID = models.AutoField(primary_key=True, verbose_name = '应用系统ID')
-    Category = models.CharField(max_length=64, verbose_name = '系统分类',help_text='系统大类： 央行、交易后、数据处理等')
-    ChineseName = models.CharField(max_length=128, verbose_name = '系统中文名')
+    Category = models.CharField(max_length=64, verbose_name = '系统分类')
+    ChineseName = models.CharField(max_length=128, verbose_name = '系统中文名',unique=True)
     
     EnglishName = models.CharField(max_length=64, verbose_name = '系统英文名')
     
@@ -165,6 +165,7 @@ class Appserver(models.Model):
     DeviceID = models.ForeignKey(Device,blank=True,null = True, verbose_name = '物理机编号')
     CluserID = models.ForeignKey(Cluser,blank=True,null = True, verbose_name = '集群名称')
     HostName = models.CharField(max_length=32, verbose_name = '主机名')
+    LogicHostname = models.CharField(max_length=32,blank=True, verbose_name = '逻辑主机名')
     OsName = models.CharField(max_length=32, verbose_name = '操作系统')
     OSVersion = models.CharField(max_length=32, verbose_name = '操作系统版本')
     CpuSpeed = models.CharField(max_length=32, verbose_name = 'CPU主频')
@@ -506,7 +507,7 @@ class server_detail(models.Model):
     ServerId = models.AutoField(primary_key=True, verbose_name = '服务器ID')
     DeviceID = models.ForeignKey(Device, verbose_name = '物理机编号')
     ServerName = models.CharField(max_length=64, verbose_name = '设备名')
-    DeviceSN = models.CharField(max_length=64, verbose_name = '设备序列号')
+    DeviceSN = models.CharField(max_length=64, verbose_name = '设备序列号',unique=True)
     Server_type = models.CharField(max_length=64, choices=CPU_TYPE_CHOICES,verbose_name = '服务器类型')
     CPU_TYPE = models.CharField(max_length=32,  verbose_name = 'cpu型号')
     CPU_FREQUENCY = models.CharField(max_length=32, verbose_name = 'cpu核心频率')
@@ -586,7 +587,6 @@ class ImageStore(models.Model):
     AppID = models.ForeignKey(CM_Application,  verbose_name = '应用系统ID')
     name = models.CharField(max_length=150,null=True)
     img = models.ImageField(upload_to='img')
-    
     def __unicode__(self):
         return "{}".format(self.name)
     class Meta:

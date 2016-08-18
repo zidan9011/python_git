@@ -14,7 +14,7 @@
   <style>
 h4,h5 {color: SlateBlue}
 #main {
-    height: 1200px;
+    height: 1400px;
     overflow: hidden;
     padding : 10px;
     margin-bottom: 10px;
@@ -33,12 +33,13 @@ h4,h5 {color: SlateBlue}
    <div class="span8"> 
     <div id="main"></div> 
    </div> 
-   <div class="span7" style="float: right;"> 
+   <div class="span9" style="float: right;"> 
     <div class="bs-docs-section"> 
      <h1 id="support" class="page-header" color="blue">{{source_name}}百科页面</h1> 
      <ul id="myTab" class="nav nav-tabs"> 
       <li class="dropdown"> <a href="#app" id="myTabDrop1" class="dropdown-toggle" data-toggle="dropdown">应用系统信息 <b class="caret"></b> </a> 
        <ul class="dropdown-menu" role="menu" aria-labelledby="myTabDrop1"> 
+        
         <li><a href="#CM_Application" tabindex="-1" data-toggle="tab">应用系统配置信息</a></li> 
         <li><a href="#ImageStore" tabindex="-1" data-toggle="tab">服务器架构图</a></li> 
         <li><a href="#CM_Application_Maintainer" tabindex="-1" data-toggle="tab">应用配置人员相关信息</a></li> 
@@ -78,6 +79,7 @@ h4,h5 {color: SlateBlue}
        </ul> </li> 
      </ul> 
      <div id="myTabContent" class="tab-content"> 
+      {{table_overview}}
       {{table_content1}}
       {{table_content2}}
       {{table_content3}}
@@ -212,6 +214,7 @@ h4,h5 {color: SlateBlue}
                             },
                             symbolSize: [60, 60],
                             children: [
+                            
                                 {
                                     name: '应用系统配置信息',
                                     symbol: 'circle',
@@ -901,8 +904,8 @@ function eConsole(param) {
 		myChart.on(ecConfig.EVENT.DATA_VIEW_CHANGED, eConsole);
 		}
 		);
-$("#CM_Application").removeClass("fade")
-$("#CM_Application").addClass("active");	
+$("#CM_Overview").removeClass("fade")
+$("#CM_Overview").addClass("active");	
 $(document).ready(function () {
         $( ".fancybox").fancybox({
 'autoScale': 'true',

@@ -107,7 +107,7 @@ class AppserverAdmin(object):
    
     #列表页，列表顶部显示的字段名称
     list_display = ('AppServerID','DeviceID', 'CluserID',
-              'AppID', 'HostName', 'OsName', 
+              'AppID', 'HostName','LogicHostname', 'OsName', 
               'OSVersion', 'CpuSpeed', 'CpuNum',
               'MemorySize', 'DiskSize', 
                'ServerIP', 'ServiceIP',
@@ -116,13 +116,13 @@ class AppserverAdmin(object):
    
     #右侧会出现过滤器，根据字段类型，过滤器显示过滤选项
     list_filter = ('AppServerID','DeviceID', 'CluserID',
-              'AppID', 'HostName', 'OsName', 
+              'AppID', 'HostName','LogicHostname', 'OsName', 
               'OSVersion', 'CpuSpeed', 'CpuNum',
               'MemorySize', 'DiskSize', 
                'ServerIP', 'ServiceIP',
               'LBIP','Usage','Remark','UpdateTime')
     fields = ('AppServerID','DeviceID', 'CluserID',
-              'AppID', 'HostName', 'OsName', 
+              'AppID', 'HostName','LogicHostname', 'OsName', 
               'OSVersion', 'CpuSpeed', 'CpuNum',
               'MemorySize', 'DiskSize', 
                'ServerIP', 'ServiceIP',

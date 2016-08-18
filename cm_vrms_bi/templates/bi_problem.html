@@ -18,12 +18,12 @@
    
     <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
     <div class="row"> 
-	    <div class="span8">
+	    <div class="span10">
 	    		<form action="/bi_problem/" method="get">
 			            <input id="datepicker-example11" type="text" name="query" value=""/>
 			            <input type="submit" value="按时间搜索">
 			    </form>
-	    	<div id="main" style="height:600px;width:850px"></div>
+	    	<div id="main" style="height:600px;width:950px"></div>
 	    	
 		</div> 
 		<div class="span5" style="float:right;">
@@ -104,6 +104,7 @@
     xAxis : [
         {
             type : 'category',
+            axisLabel : {interval:0},
             data:[
 				{% for sys_name in need_list %}
 					'{{ sys_name }}',

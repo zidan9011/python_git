@@ -11,6 +11,7 @@ from xadmin.layout import Main, TabHolder, Tab, Fieldset, Row, Col, AppendedText
 from xadmin.plugins.inline import Inline
 from xadmin.plugins.batch import BatchChangeAction
 import xadmin
+import modelclone
 from django.utils.dateformat import time_format
 from django.conf.locale.zh_CN import formats as cn_formats
 cn_formats.DATETIME_FORMAT="Y/M/d"
@@ -223,11 +224,10 @@ class VerConfAdmin(object):
 xadmin.site.register(VerConfInfo, VerConfAdmin)
 
 class Report_DetailAdmin(object):
-    from django.utils import dateformat
-    print dateformat
     
     list_export = ('xlsx',)
     reversion_enable = True
+    save_as = True
     actions = ['delete_selected']
     list_display = ('SystemName','VersionNum','Main_SysName','Main_VersionNum',
                     'ProjectName','PlanTime','CRType','TestType','ProjectStage',

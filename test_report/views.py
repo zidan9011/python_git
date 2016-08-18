@@ -55,8 +55,8 @@ def test_report_index(request):
     str_need_date_time_start = ""
     str_need_date_time_end = ""   
     try:
-        str_need_date_time_start = request.GET["query1"].encode("utf-8")#获取搜索框中的时间
-        str_need_date_time_end = request.GET["query2"].encode("utf-8")#获取搜索框中的时间
+        str_need_date_time_start = request.GET["query1"].encode("utf-8")#获取搜索框1中的时间
+        str_need_date_time_end = request.GET["query2"].encode("utf-8")#获取搜索框2中的时间
     except:
         
         str_need_date_time_start = ( datetime.datetime.now() + datetime.timedelta(0 - datetime.datetime.now().weekday())).strftime("%Y-%m-%d")
@@ -65,11 +65,11 @@ def test_report_index(request):
         
     cursor1 = connection.cursor() 
     cursor2 = connection.cursor() 
-    cursor1.execute("select tb2.PlanTime,tb1.Main_SysName,tb1.Main_VersionNum,tb2.OverallSchedule,tb2.ProjectStage, count(case when tb1.TestType='sjlc' then tb1.TestType end) AS testtype1, count(case when tb1.TestType='wyxlc' then tb1.TestType end) AS testtype2 from test_report_report_detail tb1  LEFT JOIN test_report_report_detail tb2 ON tb1.Main_SysName=tb2.Main_SysName and tb1.Main_VersionNum=tb2.Main_VersionNum where tb2.TestType='zxt' GROUP BY tb1.Main_SysName,tb1.Main_VersionNum HAVING   PlanTime BETWEEN '"+str_need_date_time_start+"' and '"+str_need_date_time_end+"' order by tb2.PlanTime ;")
+    cursor1.execute("select tb2.PlanTime,tb1.Main_SysName,tb1.Main_VersionNum,tb1.ProjectName,tb2.OverallSchedule,tb2.ProjectStage, count(case when tb1.TestType='sjlc' then tb1.TestType end) AS testtype1, count(case when tb1.TestType='wyxlc' then tb1.TestType end) AS testtype2 from test_report_report_detail tb1  LEFT JOIN test_report_report_detail tb2 ON tb1.Main_SysName=tb2.Main_SysName and tb1.Main_VersionNum=tb2.Main_VersionNum where tb2.TestType='zxt' GROUP BY tb1.Main_SysName,tb1.Main_VersionNum HAVING   PlanTime BETWEEN '"+str_need_date_time_start+"' and '"+str_need_date_time_end+"' order by tb2.PlanTime ;")
     report_result = cursor1.fetchall()
     need_out_list = ""
     for val in report_result:
-        PlanTime,Main_SysName,Main_VersionNum,OverallSchedule,projectStage,testtype1,testtype2 = val
+        PlanTime,Main_SysName,Main_VersionNum,ProjectName,OverallSchedule,projectStage,testtype1,testtype2 = val
         Main_SysName = word_name_map.get(Main_SysName,"")
         Main_SysName_ver=Main_SysName+Main_VersionNum
         projectStage=word_projectStage_map.get(projectStage,"")
@@ -84,7 +84,7 @@ def test_report_index(request):
             tab_color = ''
             
         
-        need_out_list+="<tr style='{}' class='show_hide'><td>{}</td><td><a href='/test_report_node_{}/'>{}</a></td><td>{}</td><td>{}</td><td>{}个</td><td>{}个</td></tr>".format(tab_color,PlanTime,Main_SysName_ver,Main_SysName_ver,OverallSchedule,projectStage,testtype1,testtype2)
+        need_out_list+="<tr style='{}' class='show_hide'><td>{}</td><td><a href='/test_report_node_{}/'>{}</a></td><td>{}</td><td>{}</td><td>{}</td><td>{}个</td><td>{}个</td></tr>".format(tab_color,PlanTime,Main_SysName_ver,Main_SysName_ver,ProjectName,OverallSchedule,projectStage,testtype1,testtype2)
         
         try:
             sys_name,sys_version = Main_SysName_ver.split("V")
@@ -101,11 +101,12 @@ def test_report_index(request):
                 if PlanTime==None:
                     PlanTime=""
                 tab_color = "active"
-                Main_SysName_ver = SystemName+VersionNum
+                SysName_ver = SystemName+VersionNum
                 OverallSchedule = word_overallschedule_map.get(OverallSchedule,"")
+                ProjectName = ""
                 testtype1 = ""
                 testtype2 = ""
-                need_out_list+="<tr class='{}'><td>{}</td><td><a href='/test_report_node_{}/'>{}</a></td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(tab_color,PlanTime,Main_SysName_ver,Main_SysName_ver,OverallSchedule,projectStage,TestType,testtype2)
+                need_out_list+="<tr class='{}'><td>{}</td><td><a href='/test_report_node_{}/'>{}</a></td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(tab_color,PlanTime,SysName_ver,SysName_ver,ProjectName,OverallSchedule,projectStage,TestType,testtype2)
             need_out_list += "</tbody>"
         except:
             print Main_SysName_ver

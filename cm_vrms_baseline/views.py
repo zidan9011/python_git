@@ -311,7 +311,7 @@ def update_db_from_work(request):
         if app_name in NAME_MAP:
             app_name = NAME_MAP[app_name]
         publish_version_num_str = issue_one[7]#此处需要对版本进行验证
-        if publish_version_num_str == "无":#如果版本号这一关不符合规范
+        if (publish_version_num_str == "无" or publish_version_num_str == "") :#如果版本号这一关不符合规范
             publish_version_num_str="V0.0.0.0"
         version_matchs = re.findall(r"[\.\d]+",publish_version_num_str)
         publish_version_num = ""
@@ -441,7 +441,7 @@ def update_db_from_work_bi(request):
         if app_name in NAME_MAP:
             app_name = NAME_MAP[app_name]
         publish_version_num_str = issue_one[7]#此处需要对版本进行验证
-        if publish_version_num_str == "无":#如果版本号这一关不符合规范
+        if (publish_version_num_str == "无" or publish_version_num_str == "" ):#如果版本号这一关不符合规范
             publish_version_num_str="V0.0.0.0"
         version_matchs = re.findall(r"[\.\d]+",publish_version_num_str)
         publish_version_num = ""

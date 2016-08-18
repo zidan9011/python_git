@@ -248,7 +248,7 @@ def get_problem_info(project_name,last_month_first,this_month_last):
 
 
 def bi_problem(request):
-    need_list = [u'本币项目群',u'外汇项目群',u'数据平台项目群',u'信息项目群',u'交易后项目群',u'央行项目群',u'基础设施项目群',u'SWAP项目群']
+    need_list = [u'本币项目群',u'外汇项目群',u'数据平台项目群',u'信息项目群',u'交易后项目群',u'央行项目群',u'基础设施项目群',u'SWAP项目群',u'互联网项目群']
     c = Context({'STATIC_URL': '/static/'})
     out_path = "bi_problem"  
     str_need_date_time = ""
