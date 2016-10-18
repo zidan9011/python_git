@@ -57,6 +57,9 @@ def test_report_index(request):
     try:
         str_need_date_time_start = request.GET["query1"].encode("utf-8")#获取搜索框1中的时间
         str_need_date_time_end = request.GET["query2"].encode("utf-8")#获取搜索框2中的时间
+        if str_need_date_time_start == "":
+            str_need_date_time_start = ( datetime.datetime.now() + datetime.timedelta(0 - datetime.datetime.now().weekday())).strftime("%Y-%m-%d")
+            
     except:
         
         str_need_date_time_start = ( datetime.datetime.now() + datetime.timedelta(0 - datetime.datetime.now().weekday())).strftime("%Y-%m-%d")
@@ -65,7 +68,7 @@ def test_report_index(request):
         
     cursor1 = connection.cursor() 
     cursor2 = connection.cursor() 
-    cursor1.execute("select tb2.PlanTime,tb1.Main_SysName,tb1.Main_VersionNum,tb1.ProjectName,tb2.OverallSchedule,tb2.ProjectStage, count(case when tb1.TestType='sjlc' then tb1.TestType end) AS testtype1, count(case when tb1.TestType='wyxlc' then tb1.TestType end) AS testtype2 from test_report_report_detail tb1  LEFT JOIN test_report_report_detail tb2 ON tb1.Main_SysName=tb2.Main_SysName and tb1.Main_VersionNum=tb2.Main_VersionNum where tb2.TestType='zxt' GROUP BY tb1.Main_SysName,tb1.Main_VersionNum HAVING   PlanTime BETWEEN '"+str_need_date_time_start+"' and '"+str_need_date_time_end+"' order by tb2.PlanTime ;")
+    cursor1.execute("select tb2.PlanTime,tb1.Main_SysName,tb1.Main_VersionNum,tb2.ProjectName,tb2.OverallSchedule,tb2.ProjectStage, count(case when tb1.TestType='sjlc' then tb1.TestType end) AS testtype1, count(case when tb1.TestType='wyxlc' then tb1.TestType end) AS testtype2 from test_report_report_detail tb1  LEFT JOIN test_report_report_detail tb2 ON tb1.Main_SysName=tb2.Main_SysName and tb1.Main_VersionNum=tb2.Main_VersionNum where tb2.TestType='zxt' GROUP BY tb1.Main_SysName,tb1.Main_VersionNum HAVING   PlanTime BETWEEN '"+str_need_date_time_start+"' and '"+str_need_date_time_end+"' order by tb2.PlanTime ;")
     report_result = cursor1.fetchall()
     need_out_list = ""
     for val in report_result:
@@ -77,7 +80,7 @@ def test_report_index(request):
         if OverallSchedule=='正常':
             tab_color='background-color:#B4EEB4'
         elif OverallSchedule=='暂停':
-            tab_color = ''
+            tab_color = 'background-color:#C4C4C4'
         elif OverallSchedule=='延期':
             tab_color = 'background-color:#FF7256'
         else :
@@ -90,7 +93,7 @@ def test_report_index(request):
             sys_name,sys_version = Main_SysName_ver.split("V")
             sys_name=name_map_info.get(sys_name.encode("utf-8"),"")
             sys_version = "V"+sys_version
-            cursor2.execute("select SystemName,VersionNum,ProjectName,PlanTime,OverallSchedule,TestType,ProjectStage from test_report_report_detail where Main_SysName = '"+sys_name+"' and Main_VersionNum='"+sys_version+"' and TestType!='zxt'")
+            cursor2.execute("select SystemName,VersionNum,ProjectName,PlanTime,OverallSchedule,TestType,ProjectStage from test_report_report_detail where Main_SysName = '"+sys_name+"' and Main_VersionNum='"+sys_version+"' and TestType!='zxt' order by SystemName")
             new_report_result = cursor2.fetchall()
             need_out_list += "<tbody class='need_hide'>"
             for tmp_val in new_report_result:
@@ -106,7 +109,7 @@ def test_report_index(request):
                 ProjectName = ""
                 testtype1 = ""
                 testtype2 = ""
-                need_out_list+="<tr class='{}'><td>{}</td><td><a href='/test_report_node_{}/'>{}</a></td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(tab_color,PlanTime,SysName_ver,SysName_ver,ProjectName,OverallSchedule,projectStage,TestType,testtype2)
+                need_out_list+="<tr class='{}'><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(tab_color,PlanTime,SysName_ver,ProjectName,OverallSchedule,projectStage,TestType,testtype2)
             need_out_list += "</tbody>"
         except:
             print Main_SysName_ver
@@ -123,7 +126,6 @@ def test_report_node(request):
     out_path = "test_report_node" 
     request_node_name_version = request.path[:-1].replace("/test_report_node_","").encode("utf-8")
     try:
-        print request_node_name_version
         request_node_name = request_node_name_version.split("V")[0]
         request_node_name = name_map_info.get(request_node_name,"")
         request_node_version = "V"+request_node_name_version.split("V")[1]
@@ -202,7 +204,7 @@ def test_report_node(request):
     c["node_projectstage_node_val"] = node_projectstage_node_val
     c["len_num"]=len_num
     c["node_height"] = node_height
-    
+    c["source_node_info"] = source_node_info
     return render_to_response(out_path+'.html',context_instance=c)
 
 

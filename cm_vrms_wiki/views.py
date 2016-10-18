@@ -123,16 +123,19 @@ def get_content(model_object,foreign_col,foreign_val_list):
 
 def get_overview_info(ChineseName):
     cursor = connection.cursor()
-    need_sql = "select a.ChineseName,a.EnglishName,b.DevPM,b.DevCompanyPM,b.TestPM,b.TestLD,b.CMA,b.CMB,c.Remark,c.ServiceIP ,c.LogicHostname from cm_vrms_wiki_cm_application a,cm_vrms_wiki_cm_application_maintainer b,cm_vrms_wiki_appserver c where a.AppID = b.AppID_id and a.AppID = c.AppID_id and ChineseName = '"+ChineseName+"' "
+    need_sql = "select a.ChineseName,a.EnglishName,b.DevPM,b.DevCompanyPM,b.TestPM,b.TestLD,b.CMA,b.CMB,c.Remark,c.Remark1,c.ServiceIP ,c.LogicHostname from cm_vrms_wiki_cm_application a,cm_vrms_wiki_cm_application_maintainer b,cm_vrms_wiki_appserver c where a.AppID = b.AppID_id and a.AppID = c.AppID_id and ChineseName = '"+ChineseName+"' "
     cursor.execute(need_sql)
     overview_info = cursor.fetchall()
     table_upper = '''<div class='tab-pane fade' id='CM_Overview'><table class='table table-bordered table-striped'> <thead><tbody>'''
-    table_title = "<th>系统名称</th><th>英文简称</th><th>项目经理</th><th>开发联系人</th><th>第三方测试负责人</th><th>测试组长</th><th>UAT环境负责人A</th><th>UAT环境负责人B</th><th>环境类别</th><th>IP地址</th><th>逻辑主机名</th>"
+    table_title = "<th>系统名称</th><th>英文简称</th><th>项目经理</th><th>开发联系人</th><th>第三方测试负责人</th><th>测试组长</th><th>UAT环境负责人A</th><th>UAT环境负责人B</th><th>环境类别及版本</th><th>IP地址</th><th>逻辑主机名</th>"
     out_str = ""
     need_out_dict = {}
     for val in overview_info:
-        ChineseName,EnglishName,DevPM,DevCompanyPM,TestPM,TestLD,CMA,CMB,Remark,ServiceIP,LogicHostname = val
-        key = "\t".join(val[:-3])
+        ChineseName,EnglishName,DevPM,DevCompanyPM,TestPM,TestLD,CMA,CMB,Remark,Remark1,ServiceIP,LogicHostname = val
+        if Remark1 ==None:
+            Remark1 = ""
+        key = "\t".join(val[:-4])
+        Remark = Remark+Remark1
         if key not in need_out_dict:
             need_out_dict[key] = {}
         if Remark not in need_out_dict[key]:
@@ -144,8 +147,8 @@ def get_overview_info(ChineseName):
         value_list = []
         for remark in value_dict:
             serviceIP_logicHostname_info = value_dict[remark]
-            serveice_str = "\n".join([str(val[0]) for val in serviceIP_logicHostname_info])
-            logicHostname_str = "\n".join([str(val[1]) for val in serviceIP_logicHostname_info])
+            serveice_str = "</br>".join([str(val[0]) for val in serviceIP_logicHostname_info])
+            logicHostname_str = "</br>".join([str(val[1]) for val in serviceIP_logicHostname_info])
             value_list.append([remark,serveice_str,logicHostname_str])
 
         for i in range(0,len(value_list)):
@@ -153,7 +156,7 @@ def get_overview_info(ChineseName):
                 key_fileds = key.split("\t")
                 row_span = len(value_list)
                 td_str = "<td style='vertical-align: inherit;' rowspan='"+str(row_span)+"'>{}</td>"
-                format_str =  "<tr>"+td_str*len(key_fileds)+"<td>{}</td>"*len(value_list[i])+"</tr>"
+                format_str =  "<tr>"+td_str*len(key_fileds)+"<td  style='vertical-align: inherit'>{}</td>"*len(value_list[i])+"</tr>"
                 tmp_out_list = key_fileds+value_list[i]
                 out_str += format_str.format(*tmp_out_list)
             else:

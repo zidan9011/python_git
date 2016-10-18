@@ -252,7 +252,7 @@ class Report_Detail(models.Model):
     Main_VersionNum = models.CharField(max_length=64,verbose_name='主系统版本号')
     ProjectName = models.CharField(max_length=128,blank=True,verbose_name='项目名称')
     PlanTime = models.DateField(blank = True,verbose_name = '生产上线日期')
-    CRType = models.CharField(max_length=32,choices=CRType_CHOICES,verbose_name = '变更类型')
+    CRType = models.CharField(max_length=32,choices=CRType_CHOICES,verbose_name = '变更类型',default ='zc')
     TestType = models.CharField(max_length=32, choices=TestType_CHOICES, verbose_name = '联测类别')
     ProjectStage = models.CharField(max_length=32, choices=ProjectStage_CHOICES, verbose_name = '目前项目阶段')
     TestRuns = models.CharField(max_length=32,choices=TestRuns_CHOICES,blank=True,verbose_name='测试轮次')
@@ -360,10 +360,10 @@ class Report_DetailInfo(models.Model):
             performancetest = node_info[15]
             node_info[15] = PerformanceTest_map_info.get(performancetest,"")
             if len(node_info) ==16:
-                namestr = request.user.first_name+request.user.last_name
+                namestr = request.user.last_name+request.user.first_name
                 node_info.append(namestr)
             if len(node_info[16]) == 0:
-                node_info[16] = request.user.first_name+request.user.last_name
+                node_info[16] = request.user.last_name+request.user.first_name
             
             if len(node_info) == 17:#若是缺失后一列的
                 datestr = datetime.datetime.now().date().strftime('%Y-%m-%d') 

@@ -119,56 +119,18 @@
         }
     ]
 };
+myChart.setOption(option); 
 var ecConfig = require('echarts/config');
-function focus(param) {
-    var data = param.data;
-    var links = option.series[0].links;
-    var nodes = option.series[0].nodes;
-    if (
-        data.source != null
-        && data.target != null
-    ) { //点击的是边
-        var sourceNode = nodes.filter(function (n) {return n.name == data.source})[0];
-        var targetNode = nodes.filter(function (n) {return n.name == data.target})[0];
-        console.log("选中了边 " + sourceNode.name + ' -> ' + targetNode.name + ' (' + data.weight + ')');
-    } else { // 点击的是点
-        console.log("选中了" + data.name + '(' + data.value + ')');
-    }
+function eConsole(param) {
+	var nodeName = param.name;
+	nodeName = nodeName.replace("\t","|");
+	window.location.href='/{{jump_to}}_'+nodeName+'/';
 }
-myChart.on(ecConfig.EVENT.CLICK, focus)
-
-myChart.on(ecConfig.EVENT.FORCE_LAYOUT_END, function () {
-    console.log(myChart.chart.force.getPosition());
-});
       
 		
-/*
-// -------全局通用
-REFRESH: 'refresh',
-RESTORE: 'restore',
-RESIZE: 'resize',
-CLICK: 'click',
-DBLCLICK: 'dblclick',
-HOVER: 'hover',
-MOUSEOUT: 'mouseout',
-// -------业务交互逻辑
-DATA_CHANGED: 'dataChanged',
-DATA_ZOOM: 'dataZoom',
-DATA_RANGE: 'dataRange',
-DATA_RANGE_HOVERLINK: 'dataRangeHoverLink',
-LEGEND_SELECTED: 'legendSelected',
-LEGEND_HOVERLINK: 'legendHoverLink',
-MAP_SELECTED: 'mapSelected',
-PIE_SELECTED: 'pieSelected',
-MAGIC_TYPE_CHANGED: 'magicTypeChanged',
-DATA_VIEW_CHANGED: 'dataViewChanged',
-TIMELINE_CHANGED: 'timelineChanged',
-MAP_ROAM: 'mapRoam',
-*/
 		
 		
-		myChart.setOption(option);
-		myChart.on(ecConfig.EVENT.CLICK, eConsole);
+		//myChart.on(ecConfig.EVENT.CLICK, eConsole);
 		myChart.on(ecConfig.EVENT.DBLCLICK, eConsole);
 		//myChart.on(ecConfig.EVENT.HOVER, eConsole);
 		myChart.on(ecConfig.EVENT.DATA_ZOOM, eConsole);

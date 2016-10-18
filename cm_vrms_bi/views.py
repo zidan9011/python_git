@@ -85,14 +85,14 @@ def cm_bi_index(request):
     cursor3.execute("SELECT COUNT(id) FROM `cm_vrms_baseline_errors` where status_id !=5 and UpdateDate BETWEEN '"+this_month_first+"' and '"+this_month_last+"' and problem_type LIKE 'B%';")
     count_Pro_B = cursor3.fetchall()
     cursor5 = connection.cursor()
-    cursor5.execute("SELECT COUNT(CaSystemName) FROM `cq_uatst` where submitdate BETWEEN '"+this_month_first+" 00:00:00' and '"+this_month_last+" 23:59:59' ;")
+    cursor5.execute("SELECT COUNT(CaSystemName) FROM `cq_uatst` where State!='Rejected' and  submitdate BETWEEN '"+this_month_first+" 00:00:00' and '"+this_month_last+" 23:59:59' ;")
     count_envi_Pro = cursor5.fetchall()
     c['count_total_result'] = count_total[0][0]
     c['count_A_pro'] = count_Pro_A[0][0]
     c['count_B_pro'] = count_Pro_B[0][0]
     c['count_envi_Pro'] = count_envi_Pro[0][0]
     cursor4 = connection.cursor()
-    cursor4.execute("select AppName,AppVersion,version_num FROM `cm_vrms_baseline_cm_baseline_info` where UpdateDate between '"+this_month_first+"' and '"+this_month_last+"' and version_num >=4 ORDER BY UpdateDate;")
+    cursor4.execute("select AppName,AppVersion,version_num FROM `cm_vrms_baseline_cm_baseline_info` where UpdateDate between '"+this_month_first+"' and '"+this_month_last+"' and version_num >=4 and update_type = '升级' ORDER BY UpdateDate;")
     count_sys = cursor4.fetchall()
 
     sys_up_count_dict = {}
@@ -340,7 +340,7 @@ def bi_problem(request):
 
 def get_envi_prob_info(casystemname,this_month_first,this_month_last):
     cursor = connection.cursor()
-    need_sql = "select id,subsystemname,versionNo,testenv,casystemname,submitdate,bugtype_1,bugtype_2,bugtype_3,severity,rate,impactnum,impatstart,impatend,state,headline,description,defecttype,resolution,ITIL_ID,submitter,principal,owner_old,analysisresult,check_date,assign_date,open_date,planstart,planfinish,actualstart,actualfinish,Resolve_date,validate_date,close_date,prjno,prjname  FROM `cq_uatst` where casystemname = '"+casystemname+"' and submitdate between '"+this_month_first+" 00:00:00' and '"+this_month_last+" 23:59:59' ORDER BY submitdate;" 
+    need_sql = "select id,subsystemname,versionNo,testenv,casystemname,submitdate,bugtype_1,bugtype_2,bugtype_3,severity,rate,impactnum,impatstart,impatend,state,headline,description,defecttype,resolution,ITIL_ID,submitter,principal,owner_old,analysisresult,check_date,assign_date,open_date,planstart,planfinish,actualstart,actualfinish,Resolve_date,validate_date,close_date,prjno,prjname  FROM `cq_uatst` where State!='Rejected' and casystemname = '"+casystemname+"' and submitdate between '"+this_month_first+" 00:00:00' and '"+this_month_last+" 23:59:59' ORDER BY submitdate;" 
     cursor.execute(need_sql)
     count_currentnum = cursor.fetchall()
     out_str = ""
@@ -370,12 +370,12 @@ def get_envi_problem_num(count_currentnum):
 
 def get_envi_down_ration(this_month_first,this_month_last,last_month_first,last_month_last):
     cursor1 = connection.cursor() 
-    cursor1.execute("SELECT bugtype_1,COUNT(id) FROM cq_uatst where submitdate BETWEEN '"+this_month_first+" 00:00:00' and '"+this_month_last+" 23:59:59'  group by bugtype_1 order by bugtype_1;")
+    cursor1.execute("SELECT bugtype_1,COUNT(id) FROM cq_uatst where State!='Rejected' and submitdate BETWEEN '"+this_month_first+" 00:00:00' and '"+this_month_last+" 23:59:59'  group by bugtype_1 order by bugtype_1;")
     count_currentnum = cursor1.fetchall()
     current_info_join = get_envi_problem_num(count_currentnum)#int list,三种错误类型的排序
 
     cursor2 = connection.cursor() 
-    cursor2.execute("SELECT bugtype_1,COUNT(id) FROM cq_uatst where submitdate BETWEEN '"+last_month_first+" 00:00:00' and '"+last_month_last+" 23:59:59'  group by bugtype_1 order by bugtype_1;")
+    cursor2.execute("SELECT bugtype_1,COUNT(id) FROM cq_uatst where State!='Rejected' and submitdate BETWEEN '"+last_month_first+" 00:00:00' and '"+last_month_last+" 23:59:59'  group by bugtype_1 order by bugtype_1;")
     
     count_lastnum = cursor2.fetchall()
     last_info_join = get_envi_problem_num(count_lastnum)
@@ -412,12 +412,12 @@ def bi_envi_prob(request):
 
     #当月问题统计
     cursor1 = connection.cursor() 
-    cursor1.execute("SELECT CaSystemName,COUNT(CaSystemName) num FROM `cq_uatst` where submitdate BETWEEN '"+this_month_first+" 00:00:00' and '"+this_month_last+" 23:59:59' group by CaSystemName order by num DESC;")
+    cursor1.execute("SELECT CaSystemName,COUNT(CaSystemName) num FROM `cq_uatst` where State!='Rejected' and submitdate BETWEEN '"+this_month_first+" 00:00:00' and '"+this_month_last+" 23:59:59' group by CaSystemName order by num DESC;")
     count_currentnum = cursor1.fetchall()
     systemname_count_this = [[val[0],int(val[1])] for val in count_currentnum]#按照由大到小排序
     #上月问题统计
     cursor2 = connection.cursor() 
-    cursor2.execute("SELECT CaSystemName,COUNT(CaSystemName) num FROM `cq_uatst` where submitdate BETWEEN '"+last_month_first+" 00:00:00' and '"+last_month_last+" 23:59:59' group by CaSystemName order by num DESC;")
+    cursor2.execute("SELECT CaSystemName,COUNT(CaSystemName) num FROM `cq_uatst` where State!='Rejected' and submitdate BETWEEN '"+last_month_first+" 00:00:00' and '"+last_month_last+" 23:59:59' group by CaSystemName order by num DESC;")
     count_lastnum = cursor2.fetchall()
     systemname_count_last = dict([[val[0],int(val[1])] for val in count_lastnum])#方便本月信息在其内查找    
     down_rate_out_str = ""  

@@ -52,7 +52,7 @@ class CM_Application(models.Model):
     
      
     def __unicode__(self):
-        return "{}\t{}\t{}".format(self.AppID,self.ChineseName,self.UATVersion)
+        return "{}\t{}".format(self.AppID,self.ChineseName)
  
     class Meta:
         db_table = u"cm_vrms_wiki_cm_application"
@@ -158,7 +158,7 @@ class storage_detail(models.Model):
    
 class Appserver(models.Model):
     #记录每个服务器的资源信息
-    EnvType_CHOICE = (('ST','ST'),('UAT1','UAT1'),('UAT2','UAT2'),('UAT3','UAT3'),('MEMB','MEMB'),('peixun','培训'))
+    EnvType_CHOICE = (('ST','ST'),('UAT-A','UAT-A'),('UAT-B','UAT-B'),('UAT-C','UAT-C'),('MEMB','MEMB'),('peixun','培训'))
     Usage_CHOICES = (('application','应用'),('db','数据库'),('app&db','应用&数据库'))
     AppServerID = models.AutoField(primary_key=True, verbose_name = '服务器编号')
     AppID = models.ForeignKey(CM_Application,blank=True,null = True, verbose_name = '应用系统ID')
@@ -176,7 +176,8 @@ class Appserver(models.Model):
     ServiceIP = models.CharField(max_length=32, verbose_name = '服务IP')
     ServerIP = models.CharField(max_length=32, verbose_name = '虚拟化集群/宿主IP')
     Usage = models.CharField(max_length=32,blank=True, choices=Usage_CHOICES, verbose_name = '功能说明')
-    Remark = models.CharField(max_length=1024,blank=True,choices= EnvType_CHOICE,verbose_name = '环境名称',help_text='描述系统环境:UAT1，UAT2等')
+    Remark = models.CharField(max_length=1024,blank=True,choices= EnvType_CHOICE,verbose_name = '环境名称',help_text='描述系统环境:UATA，UATB等')
+    Remark1 = models.CharField(max_length=1024,blank=True,verbose_name = 'UAT版本',help_text='当前环境UAT版本号')
     #UpdateTime = models.DateField(default = datetime.date.today(), verbose_name = '更新时间')
     UpdateTime = models.DateField( verbose_name = '更新时间')
    

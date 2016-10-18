@@ -34,6 +34,7 @@ class CM_ApplicationAdmin(object):
     
     #列表页，列表顶部显示的字段名称
     #show_detail_fields = ['AppID', 'Category','ChineseName']
+    save_as = True
     list_display = ('AppID', 
                     'Category', 'ChineseName', 'EnglishName', 
                      'UATVersion', 'ServiceType',
@@ -70,6 +71,7 @@ xadmin.site.register(CM_Application, CM_ApplicationAdmin)
 
 class CM_Application_MaintainerAdmin(object):
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('ID', 'AppID', 
                     'DeptName', 'CMA', 'CMB', 
                     'DeilverA', 'DeilverB', 'DevPM',
@@ -106,12 +108,13 @@ xadmin.site.register(CM_Application_Maintainer, CM_Application_MaintainerAdmin)
 class AppserverAdmin(object):
    
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('AppServerID','DeviceID', 'CluserID',
               'AppID', 'HostName','LogicHostname', 'OsName', 
               'OSVersion', 'CpuSpeed', 'CpuNum',
               'MemorySize', 'DiskSize', 
                'ServerIP', 'ServiceIP',
-              'LBIP','Usage','Remark','UpdateTime')
+              'LBIP','Usage','Remark','Remark1','UpdateTime')
     #列表页出现搜索框，参数是搜索的域
    
     #右侧会出现过滤器，根据字段类型，过滤器显示过滤选项
@@ -126,7 +129,7 @@ class AppserverAdmin(object):
               'OSVersion', 'CpuSpeed', 'CpuNum',
               'MemorySize', 'DiskSize', 
                'ServerIP', 'ServiceIP',
-              'LBIP','Usage','Remark','UpdateTime')
+              'LBIP','Usage','Remark','Remark1','UpdateTime')
     #自然是排序所用了，减号代表降序排列
     
     #filter_horizontal = ('StorageDeviceId',)
@@ -150,6 +153,7 @@ xadmin.site.register(Appserver, AppserverAdmin)
 class ImageStoreAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('AppID', 'name', 
                     'img')
     #列表页出现搜索框，参数是搜索的域
@@ -172,6 +176,7 @@ xadmin.site.register(ImageStore, ImageStoreAdmin)
 
 
 class MountAdmin(object):
+    save_as = True
     list_display = ('MountID', 'StorageDeviceId', 
                     'AppServerID', 'MountPath')
     #列表页出现搜索框，参数是搜索的域
@@ -197,6 +202,7 @@ xadmin.site.register(Mount, MountAdmin)
 
 class LBAdmin(object):
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('LBID', 'AppID', 
                     'LBName', 'LBIP')
     #列表页出现搜索框，参数是搜索的域
@@ -220,6 +226,7 @@ xadmin.site.register(LB, LBAdmin)
 
 class LB_MemberAdmin(object):
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('LBID', 'AppID', 
                     'AppServerID','AppServerIP')
     #列表页出现搜索框，参数是搜索的域
@@ -245,6 +252,7 @@ xadmin.site.register(LB_Member, LB_MemberAdmin)
 class CM_UsersAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('UserID', 'AppServerID', 
                     'UserName','UserType', 'ExpirationDate', 'PGroupName', 
                     'SGroupName')
@@ -273,6 +281,7 @@ xadmin.site.register(CM_Users, CM_UsersAdmin)
 class Config_FileAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('ConfigId', 'AppServerID', 
                     'ConfigName', 'UserID',
                     'ConfigDescription')
@@ -300,6 +309,7 @@ xadmin.site.register(Config_File, Config_FileAdmin)
 class Config_ItemAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('ConfigItemId', 'ConfigName', 
                     'Parameter', 'value',
                     'bl1','bl2','ConfigDescription')
@@ -328,6 +338,7 @@ xadmin.site.register(Config_Item, Config_ItemAdmin)
 class Log_FileAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('LogId', 'AppServerID', 
                     'UserID', 'LogPath', 'LogDescription',
                     'LifeCycle')
@@ -352,6 +363,7 @@ xadmin.site.register(Log_File, Log_FileAdmin)
 class Server_Process_PoolAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('ProcessId', 'AppServerID', 
                     'UserID', 'ProcessName', 'Port',
                     'Function')
@@ -377,6 +389,7 @@ xadmin.site.register(Server_Process_Pool, Server_Process_PoolAdmin)
 class SoftwareAdmin(object):
    
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('SoftwareID', 'AppServerID', 
                     'SoftwareType', 'SoftwareName', 'InstallPath',
                     'Version')
@@ -401,6 +414,7 @@ xadmin.site.register(Software, SoftwareAdmin)
 class WeblogicAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('WeblogicID', 'SoftwareID', 
                     'ConsoleContexPath', 'ConsoleUserName', 'DomianName',
                     'DomainPath', 'WeblogicServerName', 'Listener',
@@ -432,6 +446,7 @@ xadmin.site.register(Weblogic, WeblogicAdmin)
 class Weblogic_JdbcAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('JdbcID', 'WeblogicID', 
                     'JDBCType', 'JNDIName', 'JDBCUrl',
                     'Driver')
@@ -458,6 +473,7 @@ xadmin.site.register(Weblogic_Jdbc, Weblogic_JdbcAdmin)
 class Weblogic_ServerAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('ServerID', 'WeblogicID', 
                     'WeblogicServerName', 'Listener',
                     'SSLListener')
@@ -484,6 +500,7 @@ xadmin.site.register(Weblogic_Server, Weblogic_ServerAdmin)
 class Weblogic_Jdbc_MapAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('ServerID', 'JdbcID')
     #列表页出现搜索框，参数是搜索的域
    
@@ -502,6 +519,7 @@ xadmin.site.register(Weblogic_Jdbc_Map, Weblogic_Jdbc_MapAdmin)
 class Weblogic_AppAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('AppID', 'ServerID',
                     'AppName', 'DeployPath', 'DeployType',
                     'Description')
@@ -525,6 +543,7 @@ xadmin.site.register(Weblogic_App, Weblogic_AppAdmin)
 
 class LicenseAdmin(object):
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('LicenseID', 'AppID',
                     'AppServerID', 'Software', 'Version',
                     'DueDate', 'Company',
@@ -555,6 +574,7 @@ xadmin.site.register(License, LicenseAdmin)
 class DBAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('DBID', 'SoftwareID',
                     'INSTANCE_NAME', 'DBName', 'DataFile',
                     'LogFile', 'Port',
@@ -585,6 +605,7 @@ xadmin.site.register(DB, DBAdmin)
 class MQAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('MQID', 'SoftwareID',
                     'QueueManager', 'QLocal', 'QRemote',
                     'Chanel', 'Port')
@@ -611,6 +632,7 @@ xadmin.site.register(MQ, MQAdmin)
 class TomcatAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('TomcatID', 'SoftwareID',
                     'Port', 'SSLPort', 'DocmentRoot')
     #列表页出现搜索框，参数是搜索的域
@@ -632,6 +654,7 @@ xadmin.site.register(Tomcat, TomcatAdmin)
 class ApacheAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('ApacheID', 'SoftwareID',
                     'Port', 'SSLPort', 'DocmentRoot')
     #列表页出现搜索框，参数是搜索的域
@@ -654,6 +677,7 @@ xadmin.site.register(Apache, ApacheAdmin)
 class OtherAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('OtherID', 'SoftwareID',
                     'Description')
     #列表页出现搜索框，参数是搜索的域
@@ -674,6 +698,7 @@ xadmin.site.register(Other, OtherAdmin)
 class CluserAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('CluserID','VCenter',  'CluserName')
     #列表页出现搜索框，参数是搜索的域
    
@@ -694,6 +719,7 @@ xadmin.site.register(Cluser, CluserAdmin)
 class DeviceAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('DeviceID','DeviceSN',  'MANUFACTURER', 
                     'CATEGORY', 'PURCHASE_DATE',  'maintainerA', 'maintainerB',
                     'DISTRICT', 'ROOM', 'CABINET',
@@ -725,6 +751,7 @@ xadmin.site.register(Device, DeviceAdmin)
 class server_detailAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('ServerId', 'DeviceID', 
                     'ServerName', 'DeviceSN', 'Server_type', 
                     'CPU_TYPE', 'CPU_FREQUENCY', 'CPU_NUM',
@@ -761,6 +788,7 @@ xadmin.site.register(server_detail, server_detailAdmin)
 class storage_detailAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('StorageId', 'DeviceID', 
                     'STORAGE_NAME', 'DeviceSN', 'Firmware', 
                     'Ctlr_NUM', 'DISK_TYPE', 'DISK_Capacity',
@@ -793,6 +821,7 @@ class NetDevice_detailAdmin(object):
     
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('NetDeviceId', 'DeviceID', 
                     'DeviceSN', 'NetDeviceType', 'MANAGE_IP', 
                     'IOS_VERSION')
@@ -821,6 +850,7 @@ xadmin.site.register(NetDevice_detail, NetDevice_detailAdmin)
 class Equipment_detailAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    save_as = True
     list_display = ('EquipmentId', 'DeviceID', 
                     'DeviceSN', 'Description')
     #列表页出现搜索框，参数是搜索的域

@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     'cm_vrms_baseline',
 	'cm_middleware',
     'test_report',
+    'cm_vrms_uat_info',
     
     'xadmin',
     'crispy_forms', 
@@ -116,7 +117,7 @@ DATABASES = {
 DATE_FORMAT = 'Y-m-d'
 LANGUAGE_CODE = 'zh_CN'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 

@@ -270,8 +270,8 @@ class Report_DetailAdmin(object):
     def save_models(self):
         obj = self.new_obj
         request = self.request
-        if len(obj.Writter)==0:
-            obj.Writter = request.user.first_name+request.user.last_name
+        obj.Writter = request.user.last_name+request.user.first_name
+        obj.UpdateDate = datetime.datetime.now().date()
         obj.save()
  
     

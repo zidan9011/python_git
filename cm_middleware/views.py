@@ -34,7 +34,7 @@ IMIX_node = "IMIX"
 def update_table_from_wiki(request):
     '''由Appserver表'''
     '''AppServerID,ChineseName,remark,serviceip,port,service_name'''
-    appserver_info_list = Appserver.objects.all()#appserver所有信息
+    appserver_info_list = Appserver.objects.all().order_by('AppID_id','ServiceIP')#appserver所有信息
     #Envi_Detail.objects.all().delete()
  
     need_data_dict = {}
