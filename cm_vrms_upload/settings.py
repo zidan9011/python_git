@@ -102,7 +102,7 @@ WSGI_APPLICATION = 'cm_vrms_upload.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cm_vrms_test',
+        'NAME': 'cm_vrms',
         'USER' :'root',
         'PASSWORD' : 'root',
         'HOST' :'127.0.0.1',
