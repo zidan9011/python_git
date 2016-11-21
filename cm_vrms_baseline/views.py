@@ -23,6 +23,7 @@ import re
 import time
 from  fileupload.models import NamemapInfo,VerConfInfo,SystemInfo,convert_name
 from django.db import connection,transaction
+from cm_vrms_wiki.models import *
 NAME_MAP = NamemapInfo().namemap_info
 '''
 NAME_MAP = {"本币":"本币交易系统",
@@ -228,7 +229,7 @@ def get_project_map():
             group_dict[child_id] = project_name[id]
     return group_dict
 
-def update_db_from_work(request):
+def update_db_data():
     '''由issue表和conf表和user表,更新CM_BaseLine_Subject_Info表'''
     #{4:"工作类别",35:"开始时间",36:"计划完成时间",68:"升级类别",69:"补丁号",70:"升级前版本号",71:"发布版本号",72:"上线版本号",73:"升级审批人",74:"升级环境（一级）",75:"环境分类（二级）",76:"环境分类（三级）",77:"升级日期",78:"变更内容-部署升级",79:"升级方式",80:"是否有数据库变更",81:"客户端内容",82:"基线号",83:"升级步骤手册页数",88:"工作量（人天）",84:"问题原因",87:"问题分类-升级问题",229:"升级原因"}
     CM_BaseLine_Subject_Info.objects.all().delete()#首先全部删除该表
@@ -236,10 +237,9 @@ def update_db_from_work(request):
     CmVrmsBaselineErrors.objects.all().delete()#首先全部删除该表  
     id_val_map = [4,35,36,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,88,84,87,229]
     issue_info_list = CmVrmsBaselineIssues.objects.all()#issue所有信息
-    customvalues_list = CmVrmsBaselineCustomValues.objects.all()#issue_id,type_id,value的所有信息
+    customvalues_list = CmVrmsBaselineCustomValues.objects.values('customized_id', 'custom_field_id', 'value')#issue_id,type_id,value的所有信息
     user_list = CmVrmsBaselineUsers.objects.all()#issue_id,type_id,value的所有信息
     group_dict = get_project_map()#映射字典,给定一个id,返回其对应的项目群
-    
     
     issue_dict = {}
     custom_value_dict = {}
@@ -249,16 +249,15 @@ def update_db_from_work(request):
         subject=issue_info.subject.encode("utf-8")
         issue_dict[id] = [issue_info.id,subject,issue_info.assigned_to_id,issue_info.project_id,issue_info.status_id]
     for customvalue in customvalues_list:
-        customized_id=customvalue.customized_id
-        custom_field_id=customvalue.custom_field_id
-        value = ""
-        if customvalue.value:
-            value=customvalue.value.encode("utf-8")
+        customized_id = customvalue['customized_id']
+        custom_field_id = customvalue['custom_field_id']
         if customized_id not in custom_value_dict:
             custom_value_dict[customized_id] = {}
-        custom_value_dict[customized_id][custom_field_id] = value
+        if customvalue['value']:
+            custom_value_dict[customized_id][custom_field_id] = customvalue['value'].encode('utf-8')
     for user in user_list:
         user_dict[user.id]=user.lastname+user.firstname
+
     for issue_id in issue_dict:
         raw_id,subject,assigned_to_id,project_id,status_id = issue_dict[issue_id]
         issue_one = [subject]#一共22列,这是第一列
@@ -266,8 +265,8 @@ def update_db_from_work(request):
         issue_2 = status_id
         username=user_dict.get(assigned_to_id)
         groupname = group_dict.get(project_id,"未知")
-        for type in id_val_map:
-            type_value = custom_value_dict[issue_id].get(type,"")
+        for typeC in id_val_map:
+            type_value = custom_value_dict[issue_id].get(typeC,"")
             issue_one.append(type_value)
         issue_one.append(username)
         issue_one.append(groupname)
@@ -279,7 +278,10 @@ def update_db_from_work(request):
                                                     update_method = issue_one[15],db_changed = issue_one[16],client_content = issue_one[17],
                                                     base_line_num = issue_one[18],update_book_num = issue_one[19],work_num = issue_one[20],problem_source = issue_one[21],
                                                     problem_type = issue_one[22], update_reason =issue_one[23], author_name = issue_one[24], project = issue_one[25])
-        subject_info_tmp.save()#插入     
+        try:
+            subject_info_tmp.save()#插入     
+        except:
+            pass
         '''error数据表插入'''   
         if(len(issue_one[22])>0):#若存在问题
             base_error_tmp = CmVrmsBaselineErrors(raw_id =issue_1,status_id=issue_2,subject = issue_one[0],UpdateDate = issue_one[2],
@@ -299,7 +301,6 @@ def update_db_from_work(request):
             continue#这些情况不需要考虑
         if ('升级' not in update_type) and ('版本同步' not in update_type) and ('模拟发布' not in update_type):
             continue
-
         
         
         app_name = subject.split("V")[0].split("v")[0].strip()
@@ -311,8 +312,9 @@ def update_db_from_work(request):
         if app_name in NAME_MAP:
             app_name = NAME_MAP[app_name]
         publish_version_num_str = issue_one[7]#此处需要对版本进行验证
-        if (publish_version_num_str == "无" or publish_version_num_str == "") :#如果版本号这一关不符合规范
+        if (publish_version_num_str=="无" or publish_version_num_str==""):
             publish_version_num_str="V0.0.0.0"
+        
         version_matchs = re.findall(r"[\.\d]+",publish_version_num_str)
         publish_version_num = ""
         if len(version_matchs)>0:
@@ -326,21 +328,13 @@ def update_db_from_work(request):
             if len(nums)>4:
                 nums = nums[0:4]
                 publish_version_num = "V{}.{}.{}.{}".format(*nums)
-        
         if publish_version_num == "":#如果版本号这一关不符合规范
             continue
         update_date = issue_one[13]
         base_line_num = issue_one[18]
         update_book_num = issue_one[19]
         work_num = issue_one[20]
-        """
-        base_info_tmp = CM_BaseLine_Info(AppName = app_name,AppVersion = publish_version_num,
-                                         UpdateDate=update_date,BaseLine = base_line_num,
-                                        PageNumber = update_book_num,UppradeTime = work_num,
-                                        version_num = issue_one[5],environment_fir = issue_one[10],
-                                        UpgradeMan = issue_one[23], project = issue_one[24],
-                                        problem_type = issue_one[22], problem_source = issue_one[21])
-        """
+
         base_info_tmp = CM_BaseLine_Info(raw_id =issue_1,status_id=issue_2,AppName = app_name,AppVersion = publish_version_num,
                                          UpdateDate=update_date,BaseLine = base_line_num,
                                         PageNumber = update_book_num,UppradeTime = work_num,
@@ -351,142 +345,16 @@ def update_db_from_work(request):
         try:
             base_info_tmp.save()
         except:
-            pass
-        
-       
-                        
-        
+            pass 
+
+    #update_version_from_info()  #update version
+
+def update_db_from_work(request):
+    update_db_data()
     return HttpResponseRedirect('/cm_baseline/')#重定向
 
-
 def update_db_from_work_bi(request):
-    '''由issue表和conf表和user表,更新CM_BaseLine_Subject_Info表'''
-    #{4:"工作类别",35:"开始时间",36:"计划完成时间",68:"升级类别",69:"补丁号",70:"升级前版本号",71:"发布版本号",72:"上线版本号",73:"升级审批人",74:"升级环境（一级）",75:"环境分类（二级）",76:"环境分类（三级）",77:"升级日期",78:"变更内容-部署升级",79:"升级方式",80:"是否有数据库变更",81:"客户端内容",82:"基线号",83:"升级步骤手册页数",88:"工作量（人天）",84:"问题原因",87:"问题分类-升级问题",229:"升级原因"}
-    CM_BaseLine_Subject_Info.objects.all().delete()#首先全部删除该表
-    CM_BaseLine_Info.objects.all().delete()#首先全部删除该表
-    CmVrmsBaselineErrors.objects.all().delete()#首先全部删除该表  
-    id_val_map = [4,35,36,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,88,84,87,229]
-    issue_info_list = CmVrmsBaselineIssues.objects.all()#issue所有信息
-    customvalues_list = CmVrmsBaselineCustomValues.objects.all()#issue_id,type_id,value的所有信息
-    user_list = CmVrmsBaselineUsers.objects.all()#issue_id,type_id,value的所有信息
-    group_dict = get_project_map()#映射字典,给定一个id,返回其对应的项目群
-    
-    
-    issue_dict = {}
-    custom_value_dict = {}
-    user_dict = {}
-    for issue_info in issue_info_list:
-        id=issue_info.id
-        subject=issue_info.subject.encode("utf-8")
-        issue_dict[id] = [issue_info.id,subject,issue_info.assigned_to_id,issue_info.project_id,issue_info.status_id]
-    for customvalue in customvalues_list:
-        customized_id=customvalue.customized_id
-        custom_field_id=customvalue.custom_field_id
-        value = ""
-        if customvalue.value:
-            value=customvalue.value.encode("utf-8")
-        if customized_id not in custom_value_dict:
-            custom_value_dict[customized_id] = {}
-        custom_value_dict[customized_id][custom_field_id] = value
-    for user in user_list:
-        user_dict[user.id]=user.lastname+user.firstname
-    for issue_id in issue_dict:
-        raw_id,subject,assigned_to_id,project_id,status_id = issue_dict[issue_id]
-        issue_one = [subject]#一共22列,这是第一列
-        issue_1 =raw_id
-        issue_2 = status_id
-        username=user_dict.get(assigned_to_id)
-        groupname = group_dict.get(project_id,"未知")
-        for type in id_val_map:
-            type_value = custom_value_dict[issue_id].get(type,"")
-            issue_one.append(type_value)
-        issue_one.append(username)
-        issue_one.append(groupname)
-        subject_info_tmp = CM_BaseLine_Subject_Info(raw_id =issue_1,status_id=issue_2,subject = issue_one[0],work_type = issue_one[1],start_time = issue_one[2],
-                                                    due_time = issue_one[3],update_type = issue_one[4],version_num = issue_one[5],
-                                                    old_version_num = issue_one[6],publish_version_num = issue_one[7],online_version_num = issue_one[8],
-                                                    approve_person = issue_one[9],environment_fir = issue_one[10],environment_sec = issue_one[11],
-                                                    environment_thi = issue_one[12],update_date = issue_one[13],change_content = issue_one[14],
-                                                    update_method = issue_one[15],db_changed = issue_one[16],client_content = issue_one[17],
-                                                    base_line_num = issue_one[18],update_book_num = issue_one[19],work_num = issue_one[20],problem_source = issue_one[21],
-                                                    problem_type = issue_one[22], update_reason =issue_one[23], author_name = issue_one[24], project = issue_one[25])
-        subject_info_tmp.save()#插入     
-        '''error数据表插入'''   
-        if(len(issue_one[22])>0):#若存在问题
-            base_error_tmp = CmVrmsBaselineErrors(raw_id =issue_1,status_id=issue_2,subject = issue_one[0],UpdateDate = issue_one[2],
-                                                    author_name = issue_one[24], project = issue_one[25],
-                                                    problem_type = issue_one[22], problem_source = issue_one[21])
-        try:
-            base_error_tmp.save()
-        except:
-            pass             
-        
-        '''base_info数据表插入'''   
-        environment_fir = issue_one[10]
-        update_type = issue_one[4]
-        if ("V" not in subject) and ("v" not in subject):
-            continue
-        if ('UAT' not in environment_fir) and ('模拟' not in environment_fir):
-            continue#这些情况不需要考虑
-        if ('升级' not in update_type) and ('版本同步' not in update_type) and ('模拟发布' not in update_type):
-            continue
-
-        
-        
-        app_name = subject.split("V")[0].split("v")[0].strip()
-        app_name = app_name.strip("\\")
-        NAME_MAP = NamemapInfo().namemap_info
-        if len(app_name) < 2:
-            continue
-        if app_name in NAME_MAP:
-            app_name = NAME_MAP[app_name]
-        publish_version_num_str = issue_one[7]#此处需要对版本进行验证
-        if (publish_version_num_str == "无" or publish_version_num_str == "" ):#如果版本号这一关不符合规范
-            publish_version_num_str="V0.0.0.0"
-        version_matchs = re.findall(r"[\.\d]+",publish_version_num_str)
-        publish_version_num = ""
-        if len(version_matchs)>0:
-            nums = version_matchs[0].split(".")
-            if len(nums) == 2:
-                nums.append("0")
-            if len(nums) == 3:
-                nums.append("0")
-            if len(nums) == 4:
-                publish_version_num = "V{}.{}.{}.{}".format(*nums)
-            if len(nums)>4:
-                nums = nums[0:4]
-                publish_version_num = "V{}.{}.{}.{}".format(*nums)
-        if publish_version_num == "无":#如果版本号这一关不符合规范
-            publish_version_num="V0.0.0.0"
-        if publish_version_num == "":#如果版本号这一关不符合规范
-            continue
-        update_date = issue_one[13]
-        base_line_num = issue_one[18]
-        update_book_num = issue_one[19]
-        work_num = issue_one[20]
-        """
-        base_info_tmp = CM_BaseLine_Info(AppName = app_name,AppVersion = publish_version_num,
-                                         UpdateDate=update_date,BaseLine = base_line_num,
-                                        PageNumber = update_book_num,UppradeTime = work_num,
-                                        version_num = issue_one[5],environment_fir = issue_one[10],
-                                        UpgradeMan = issue_one[23], project = issue_one[24],
-                                        problem_type = issue_one[22], problem_source = issue_one[21])
-        """
-        base_info_tmp = CM_BaseLine_Info(raw_id =issue_1,status_id=issue_2,AppName = app_name,AppVersion = publish_version_num,
-                                         UpdateDate=update_date,BaseLine = base_line_num,
-                                        PageNumber = update_book_num,UppradeTime = work_num,
-                                        version_num = issue_one[5],environment_fir = issue_one[10],
-                                        UpgradeMan = issue_one[24], project = issue_one[25],update_reason = issue_one[23],
-                                        problem_type = issue_one[22], problem_source = issue_one[21],update_type = issue_one[4])
-        
-        try:
-            base_info_tmp.save()
-        except:
-            pass
-        
-       
-                        
-        
+    update_db_data() 
     return HttpResponseRedirect('/cm_bi_index/')#重定向
 
 
@@ -728,5 +596,38 @@ def get_updatetime_from_db(request):
     cursor1.execute("INSERT INTO  update_time (AppName,AppVersion,UpdateDate,environment_fir) select AppName,AppVersion,min(UpdateDate),environment_fir from cm_vrms_baseline_cm_baseline_info GROUP BY AppName,AppVersion")
     return HttpResponseRedirect('/version_detail/')#重定向
     
-        
  
+'''
+cm_vrms_wiki_appserver表内将AppServer的version设置为最新
+此函数依赖于update_db_from_work执行之后
+'''
+def update_version_from_info():
+    id_name_dict = {}
+    '''id_name_dict 格式{ChineseName:AppID}}'''
+    objs = CM_Application.objects.all()
+    for obj in objs:
+        id_name_dict[obj.ChineseName] = obj.AppID
+
+    envir_values = CM_BaseLine_Info.objects.values_list('environment_fir').distinct()
+    id_verion_dict = {}
+    '''id_verion_dict 格式{环境:{appid:version}}'''
+    for envir in envir_values:
+        envir_value = envir[0]
+        id_verion_dict[envir_value] = {}
+        for cName,aId in id_name_dict.items():
+            try:
+                obj = CM_BaseLine_Info.objects.filter(AppName = cName).filter(environment_fir = envir_value).order_by('-UpdateDate')[0]
+            except:
+                obj = None
+            if obj:
+                id_verion_dict[envir_value][aId] = obj.AppVersion
+
+    del id_name_dict
+
+    for envir in id_verion_dict:
+        en_objs = Appserver.objects.filter(Remark = envir)
+        for aId,version in id_verion_dict[envir].iteritems():
+            try :
+                en_objs.filter(AppID = aId).update(Remark1 = version)
+            except:
+                pass

@@ -6,20 +6,20 @@ from .models import Picture
 from .response import JSONResponse, response_mimetype
 from .serialize import serialize
 from django.db import connection,transaction
-from django.http import HttpResponse,HttpResponseRedirect  
+from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.template import Context
 from .models import *
 from fileupload.login_form import LoginForm,ChangepwdForm
-from django.shortcuts import render_to_response,render,get_object_or_404  
-from django.contrib.auth.models import User  
+from django.shortcuts import render_to_response,render,get_object_or_404
+from django.contrib.auth.models import User
 from django.contrib import auth
 from django.contrib import messages
 from django.forms.formsets import formset_factory
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.decorators import login_required
-from bootstrap_toolkit.widgets import BootstrapUneditableInput 
+from bootstrap_toolkit.widgets import BootstrapUneditableInput
 from get_legend_info import Legend_Info_System,DataEX_Legend_Info_System
 from django.http import JsonResponse,StreamingHttpResponse
 from data_mine import sycn_sys_ver_info
@@ -45,7 +45,7 @@ sycn_sys_ver_info(system_info,base_version_info)#初始化时协同
 
 
 def hello(request):
-    
+
     return HttpResponse("Hello world")
 
 def test_form(request):
@@ -56,7 +56,7 @@ def show_form(request):
         message = 'You searched for: %r' % request.GET['q']
     else:
         message = 'You submitted an empty form.'
-    return HttpResponse(message) 
+    return HttpResponse(message)
 def system_detail(request):
     '''系统详情'''
     s_info = system_info.sys_info
@@ -186,7 +186,7 @@ def system_node_detail(request):
     '''显示sys节点的内容system_node_detail'''
     s_info = system_info.sys_info
     request_node_name = request.path[:-1].replace("/system_node_detail_","").encode("utf-8")
-    
+
     node_info = {}
     if request_node_name in s_info:
         for target in s_info[request_node_name]:
@@ -208,11 +208,11 @@ def system_node_detail(request):
     full_legend,full_category,legend_node_info = legend_info.get_legend_list()
     c["legend_list"] = full_legend
     '''categories信息'''
-    c["category_list"] =  full_category                          
+    c["category_list"] =  full_category
     '''更详细的node信息'''
     #构造所有的node信息,方便category_index查找
-    c["node_category_list"] =  legend_node_info                    
-        
+    c["node_category_list"] =  legend_node_info
+
     return render_to_response('sys_node_detail.html',context_instance=c)
 
 def version_node_detail(request):
@@ -270,7 +270,7 @@ def convert_info_table(source_target_node_info):#'{{source_info}} - {{taget}}':'
         result += "<tr><th>{}</th><th>{}</th><th>{}</th><th>{}</th></tr>".format(source,target,s_t_info[0],s_t_info[3])
     result += "</table>"
     return result
-        
+
 
 
 def version_node_net_old(request):
@@ -297,7 +297,7 @@ def version_node_net_old(request):
     #数据流,关联系统是否联测  ,关联系统是否升级 ,depend_detail,data_interaction_detail
     c = Context({'STATIC_URL': '/static/'})
     source_node = request_node_name+"\t"+request_node_version
-    
+
     target_source_info = {}#目标系统-源系统-[info_list]
     for node_name in node_info:
         for version in node_info[node_name]:
@@ -342,7 +342,7 @@ def version_node_net_old(request):
             all_node_list[first_relation[0]].append(taget_node)
         else:
             all_node_list[min([val[0] for val in add_list])].append(taget_node)#存放到优先级最高(put_type最小)的list
-    
+
     pair_list = []#{source : '{{source_info}}', target : '{{ target }}', weight : 6},
     edge_filter = set()#记录那些边能有,如果已经出现过,就不要再添加进去
     source_target_node_info = {}#'{{source_info}} - {{taget}}':'{{s_t_info}}',
@@ -362,23 +362,23 @@ def version_node_net_old(request):
                 weight = '4'
             else:
                 weight = '1'
-            
+
             data_flow = target_source_info[taget_node][tmp_source_node].split("\t")[0]
             if data_flow == "->":
                 tmp_out_str = "{source : '"+tmp_source_node+"', target : '"+taget_node+"', weight : "+weight+"},"
-                pair_list.append(tmp_out_str)                
+                pair_list.append(tmp_out_str)
             elif data_flow == "<-":
                 tmp_out_str = "{source : '"+taget_node+"', target : '"+tmp_source_node+"', weight : "+weight+"},"
                 pair_list.append(tmp_out_str)
             elif data_flow =="<->":
                 tmp_out_str1 = "{source : '"+tmp_source_node+"', target : '"+taget_node+"', weight : "+weight+"},"
-                pair_list.append(tmp_out_str1)                
+                pair_list.append(tmp_out_str1)
                 tmp_out_str2 = "{source : '"+taget_node+"', target : '"+tmp_source_node+"', weight : "+weight+"},"
-                pair_list.append(tmp_out_str2)    
+                pair_list.append(tmp_out_str2)
             else:
                 tmp_out_str = "{source : '"+tmp_source_node+"', target : '"+taget_node+"', weight : "+weight+"},"
-                pair_list.append(tmp_out_str)                
-            
+                pair_list.append(tmp_out_str)
+
     c["source_info"] = source_node#源点
     c["target_need_sync"] = all_node_list[0]
     c["target_need_test"] = all_node_list[1]
@@ -389,8 +389,8 @@ def version_node_net_old(request):
     c["source_target_info"] = source_target_node_info
     c["table_content"] = convert_info_table(source_target_node_info)
     c["source_download_info"] = request_node_name+"|"+request_node_version
-    return render_to_response('version_node_net.html',context_instance=c)  
-    
+    return render_to_response('version_node_net.html',context_instance=c)
+
 def get_update_time_table_info(all_need_list):
     cursor = connection.cursor()
     return_str = ""
@@ -398,11 +398,11 @@ def get_update_time_table_info(all_need_list):
         sysname,version = need_node_info.split("\t")
         if len(version) == 0:
             continue
-        need_sql = "select AppName,AppVersion,UpdateDate,environment_fir from update_time where AppName='"+sysname+"' and AppVersion='"+version+"';" 
+        need_sql = "select AppName,AppVersion,UpdateDate,environment_fir from update_time where AppName='"+sysname+"' and AppVersion='"+version+"';"
         cursor.execute(need_sql)
         count_currentnum = cursor.fetchall()
         uat_time = ""
-        moni_time = ""    
+        moni_time = ""
         for val in count_currentnum:
             AppName,AppVersion,UpdateDate,environment_fir = val
             if u"模拟环境" in environment_fir:
@@ -414,8 +414,8 @@ def get_update_time_table_info(all_need_list):
         out_str = format_str.format(*out_list)
         #该项目版本历次升级信息的详情展示
         return_str += out_str.encode("utf-8")
-    return return_str 
-  
+    return return_str
+
 
 def version_node_net(request):
     '''显示网状图'''
@@ -441,7 +441,7 @@ def version_node_net(request):
     #数据流,关联系统是否联测  ,关联系统是否升级 ,depend_detail,data_interaction_detail
     c = Context({'STATIC_URL': '/static/'})
     source_node = request_node_name+"\t"+request_node_version
-    
+
     target_source_info = {}#目标系统-源系统-[info_list]
     for node_name in node_info:
         for version in node_info[node_name]:
@@ -456,13 +456,13 @@ def version_node_net(request):
     others_list = []
     all_node_list = [sync_node_list,test_node_list,others_list]
     for taget_node in target_source_info:
-        add_list = [] 
+        add_list = []
         for tmp_source_node in target_source_info[taget_node]:
             put_type = 2#默认其他
             priority = 1#默认为二级关系
             need_sync = (target_source_info[taget_node][tmp_source_node].split("\t")[2]=="Y")
             need_test = (target_source_info[taget_node][tmp_source_node].split("\t")[1]=="Y")
-            
+
             if need_sync:
                 put_type = 0
             elif need_test:
@@ -479,7 +479,7 @@ def version_node_net(request):
             all_node_list[first_relation[0]].append(taget_node)
         else:
             all_node_list[min([val[0] for val in add_list])].append(taget_node)#存放到优先级最高(put_type最小)的list
-    
+
     pair_list = []#{source : '{{source_info}}', target : '{{ target }}', weight : 6},
     edge_filter = set()#记录那些边能有,如果已经出现过,就不要再添加进去
     source_target_node_info = {}#'{{source_info}} - {{taget}}':'{{s_t_info}}',
@@ -496,7 +496,7 @@ def version_node_net(request):
             for tmp_node_relation_str in tmp_comm_node_list:
                 tmp_node_relation = tmp_node_relation_str.split("(")
                 tmp_comm_node = ""
-                tmp_comm_relation = ""#与主节点的关系 
+                tmp_comm_relation = ""#与主节点的关系
                 if len(tmp_node_relation) == 2:
                     tmp_comm_node,tmp_comm_relation = tmp_node_relation
                 else:
@@ -509,10 +509,10 @@ def version_node_net(request):
                 else:
                     comm_i[tmp_comm_node] = comm_i.get(tmp_comm_node,-1) + 1#至少开始从0开始计数
                     #形成  n个空格  + ETL + n个空格  的形式
-                    tmp_comm_node = comm_i[tmp_comm_node] * " " + tmp_comm_node + comm_i[tmp_comm_node] * " " 
+                    tmp_comm_node = comm_i[tmp_comm_node] * " " + tmp_comm_node + comm_i[tmp_comm_node] * " "
                     if len(comm_node.get(tmp_comm_node,"").strip()) == 0:
                         comm_node[tmp_comm_node] = tmp_comm_relation
-                
+
                 #下面的操作 对备注的每一个传输依赖node都需要进行
                 edge_filter.add(tmp_source_node+" - "+taget_node)
                 edge_filter.add(taget_node+" - "+tmp_source_node)
@@ -529,12 +529,12 @@ def version_node_net(request):
                 else:
                     weight = '2'
                     comm_node[tmp_comm_node] = "其他"#此处的node表明，自己本身不是同步or联测，且关联的节点也不是同步or联测
-                
+
                 data_flow = target_source_info[taget_node][tmp_source_node].split("\t")[0]
-                
+
                 if data_flow == "->":
                     tmp_out_str = "{source : '"+tmp_source_node+"', target : '"+tmp_comm_node+"', weight : "+weight+"},"
-                    pair_list.append(tmp_out_str)                
+                    pair_list.append(tmp_out_str)
                     tmp_out_str = "{source : '"+tmp_comm_node+"', target : '"+taget_node+"', weight : "+weight+"},"
                     pair_list.append(tmp_out_str)
                 elif data_flow == "<-":
@@ -546,17 +546,17 @@ def version_node_net(request):
                     tmp_out_str1 = "{source : '"+tmp_source_node+"', target : '"+tmp_comm_node+"', weight : "+weight+"},"
                     pair_list.append(tmp_out_str1)
                     tmp_out_str1 = "{source : '"+tmp_comm_node+"', target : '"+taget_node+"', weight : "+weight+"},"
-                    pair_list.append(tmp_out_str1)                
+                    pair_list.append(tmp_out_str1)
                     tmp_out_str2 = "{source : '"+taget_node+"', target : '"+tmp_comm_node+"', weight : "+weight+"},"
                     pair_list.append(tmp_out_str2)
                     tmp_out_str2 = "{source : '"+tmp_comm_node+"', target : '"+tmp_source_node+"', weight : "+weight+"},"
-                    pair_list.append(tmp_out_str2)    
+                    pair_list.append(tmp_out_str2)
                 else:
                     tmp_out_str = "{source : '"+tmp_source_node+"', target : '"+tmp_comm_node+"', weight : "+weight+"},"
                     pair_list.append(tmp_out_str)
                     tmp_out_str = "{source : '"+tmp_comm_node+"', target : '"+taget_node+"', weight : "+weight+"},"
-                    pair_list.append(tmp_out_str)                
-                
+                    pair_list.append(tmp_out_str)
+
     c["source_info"] = source_node#源点
     c["target_need_sync"] = all_node_list[0]
     c["target_need_test"] = all_node_list[1]
@@ -566,19 +566,19 @@ def version_node_net(request):
     c["comm_node_others_true"] = [val for val in comm_node if "其他" in comm_node[val]]
     c["comm_node_need_test"] = [val for val in comm_node if "联测" in comm_node[val]]
     c["comm_node_need_sync"] = [val for val in comm_node if "同步" in comm_node[val]]
-    
+
     c["pair_list"] = pair_list#连线
     out_title = "版本"
     c["out_title"] = out_title#指示接下来跳转的位置
     c["source_target_info"] = source_target_node_info
     c["table_content"] = convert_info_table(source_target_node_info)
     c["source_download_info"] = request_node_name+"|"+request_node_version
-    
+
     all_need_list = [source_node] + sum(all_node_list,[])
     c["out_str"] = get_update_time_table_info(all_need_list)
-    
-    return render_to_response('version_node_net.html',context_instance=c)  
- 
+
+    return render_to_response('version_node_net.html',context_instance=c)
+
 
 def version_node_detail_csv(request):#输出csv文件
     '''显示version节点的内容version_node_detail'''
@@ -600,7 +600,7 @@ def version_node_detail_csv(request):#输出csv文件
         #request.path = "/version_detail/"
         #return version_detail(request)
         return HttpResponseRedirect('/version_detail/')#重定向到版本页之初
-    
+
     response = HttpResponse(content_type='text/csv')
     # force download.
     out_name = request_node_name_version.replace("|","")
@@ -615,7 +615,7 @@ def version_node_detail_csv(request):#输出csv文件
         for version in node_info[node_name]:
             version_w = version.decode("utf-8").encode("gbk")
             tmp_info = node_info[node_name][version].decode("utf-8").encode("gbk")
-            main_up_sys_data_flow,main_relevant_con_if_test,main_relevant_con_if_sync,depend_detail,data_interaction_detail =tmp_info.split("\t") 
+            main_up_sys_data_flow,main_relevant_con_if_test,main_relevant_con_if_sync,depend_detail,data_interaction_detail =tmp_info.split("\t")
             writer.writerow([request_node_name_w,request_node_version_w,main_up_sys_data_flow,"",node_name_w,version_w,main_relevant_con_if_test,main_relevant_con_if_sync,depend_detail,data_interaction_detail])
     return response
 
@@ -640,7 +640,7 @@ def version_net_detail_csv(request):#输出csv文件
         #request.path = "/version_detail/"
         #return version_detail(request)
         return HttpResponseRedirect('/version_detail/')#重定向到版本页之初
-    
+
     response = HttpResponse(content_type='text/csv')
     # force download.
     out_name = request_node_name_version.replace("|","")
@@ -652,7 +652,7 @@ def version_net_detail_csv(request):#输出csv文件
             if target_node not in target_source_info:
                 target_source_info[target_node] = {}
             target_source_info[target_node][source_node] = node_info[node_name][version]#将两者之间的关系信息保存下来
-            
+
     edge_filter = set()#记录那些边能有,如果已经出现过,就不要再添加进去
     source_target_node_info = {}#'{{source_info}} - {{taget}}':'{{s_t_info}}',
     for taget_node in target_source_info:
@@ -676,10 +676,10 @@ def version_net_detail_csv(request):#输出csv文件
         target_node_name_w = target_node_name.decode("utf-8").encode("gbk")
         target_node_version_w = target_node_version.decode("utf-8").encode("gbk")
         tmp_info = source_target_node_info[source_target_node_name_version].decode("utf-8").encode("gbk")
-        main_up_sys_data_flow,main_relevant_con_if_test,main_relevant_con_if_sync,depend_detail,data_interaction_detail =tmp_info.split("\t") 
+        main_up_sys_data_flow,main_relevant_con_if_test,main_relevant_con_if_sync,depend_detail,data_interaction_detail =tmp_info.split("\t")
         writer.writerow([source_node_name_w,source_node_version_w,main_up_sys_data_flow,"",target_node_name_w,target_node_version_w,main_relevant_con_if_test,main_relevant_con_if_sync,depend_detail,data_interaction_detail])
     return response
-    
+
 
 def version_net_detail_csv_old(request):#输出csv文件
     '''显示version节点的网状内容version_node_detail'''
@@ -702,7 +702,7 @@ def version_net_detail_csv_old(request):#输出csv文件
         #request.path = "/version_detail/"
         #return version_detail(request)
         return HttpResponseRedirect('/version_detail/')#重定向到版本页之初
-    
+
     response = HttpResponse(content_type='text/csv')
     # force download.
     out_name = request_node_name_version.replace("|","")
@@ -747,34 +747,31 @@ def version_net_detail_csv_old(request):#输出csv文件
         target_node_name_w = target_node_name.decode("utf-8").encode("gbk")
         target_node_version_w = target_node_version.decode("utf-8").encode("gbk")
         tmp_info = source_target_node_info[source_target_node_name_version].decode("utf-8").encode("gbk")
-        main_up_sys_data_flow,main_relevant_con_if_test,main_relevant_con_if_sync,depend_detail,data_interaction_detail =tmp_info.split("\t") 
+        main_up_sys_data_flow,main_relevant_con_if_test,main_relevant_con_if_sync,depend_detail,data_interaction_detail =tmp_info.split("\t")
         writer.writerow([source_node_name_w,source_node_version_w,main_up_sys_data_flow,"",target_node_name_w,target_node_version_w,main_relevant_con_if_test,main_relevant_con_if_sync,depend_detail,data_interaction_detail])
     return response
 
-@login_required(login_url='/login/')     
+@login_required(login_url='/login/')
 def upload_file(request):
-    from django import forms
-    class UploadFileForm(forms.Form):
-        title = forms.CharField(max_length=1000000)
-        file = forms.FileField()
     if request.method == "POST":
+        upload_state = False#文件上传成功标志
         try:
-            handle_uploaded_file(request.FILES['t_file'])
+            upload_state = handle_uploaded_file(request.FILES['t_file'])
         except:
             c = Context({'STATIC_URL': '/static/'})
             c["message"] = "请上传文件"
             c["alert_cont"] = "upload_file_system"
             return render_to_response('alert_and_jump.html',context_instance=c)
-    
-        if handle_uploaded_file(request.FILES['t_file']):#如果上传成功
+
+        if upload_state:
             file_conf = request.FILES['t_file'].name
             #file_conf = file_conf.replace(".xlsx","")
-            if "system" in request.path:#若更新系统文件                
-                system_info.update_conf_from_file(request,filename=file_conf)#file_conf = system_conf                
+            if "system" in request.path:#若更新系统文件
+                system_info.update_conf_from_file(request,filename=file_conf)#file_conf = system_conf
                 #return system_detail(request)#输出系统页面
 
                 return HttpResponseRedirect('/system_detail/')#重定向
-            elif "version" in request.path:            
+            elif "version" in request.path:
                 check_list = version_info.update_conf_from_file(request,filename=file_conf)#file_conf = version_conf
                 if check_list:#若有出错的行,则输出
                     c = Context({'STATIC_URL': '/static/'})
@@ -796,7 +793,7 @@ def upload_file(request):
                     return HttpResponseRedirect('/dataex_detail/')#重定向
             elif "Sysname" in request.path:
                 check_list = SysName_info.update_conf_from_file(request,filename=file_conf)#file_conf = version_conf
-                if check_list:#若有出错的行,则输出
+                if check_list:#若有出错的行,则输出（不可能有错，函数没有返回值，始终返回None）
                     c = Context({'STATIC_URL': '/static/'})
                     c["if_check_list"] = True
                     c["check_list"] = check_list
@@ -804,7 +801,7 @@ def upload_file(request):
                 else:
                     #return version_detail(request)#输出系统页面
                     return HttpResponseRedirect('/test_report_index/')#重定向
-                
+
             elif "testreport" in request.path:
                 check_list = testreport_info.update_conf_from_file(request,filename=file_conf)#file_conf = version_conf
                 if check_list:#若有出错的行,则输出
@@ -814,18 +811,20 @@ def upload_file(request):
                     return render_to_response('upload_form.html',context_instance=c)
                 else:
                     #return version_detail(request)#输出系统页面
-                    return HttpResponseRedirect('/test_report_index/')#重定向                
-            
+                    return HttpResponseRedirect('/test_report_index/')#重定向
+
     c = RequestContext(request)
     c['STATIC_URL'] = '/static/'
     return render_to_response('upload_form.html',context_instance=c)
 
 
 def handle_uploaded_file(f):#将文件上传到指定位置
-    file_path = os.getcwd()
-    f_path = file_path+"\\cm_vrms_upload\\media\\pictures\\"+f.name
+    file_path = os.getcwd() + '\\cm_vrms_upload\\media\\pictures'
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
+    f_path = file_path+"\\"+f.name
+
     with open(f_path, 'wb+') as info:
-        print f.name
         for chunk in f.chunks():
             info.write(chunk)
     return True
@@ -867,7 +866,7 @@ def dataex_node_detail(request):
     '''显示dataex节点的内容dataex_node_detail'''
     s_info = dataex_info.sys_info
     request_node_name = request.path[:-1].replace("/dataex_node_detail_","").encode("utf-8")
-    
+
     node_info = {}
     if request_node_name in s_info:
         for target in s_info[request_node_name]:
@@ -889,11 +888,11 @@ def dataex_node_detail(request):
     full_legend,full_category,legend_node_info = legend_info.get_legend_list()
     c["legend_list"] = full_legend
     '''categories信息'''
-    c["category_list"] =  full_category                          
+    c["category_list"] =  full_category
     '''更详细的node信息'''
     #构造所有的node信息,方便category_index查找
-    c["node_category_list"] =  legend_node_info                    
-        
+    c["node_category_list"] =  legend_node_info
+
     return render_to_response('dataex_node_detail.html',context_instance=c)
 
 

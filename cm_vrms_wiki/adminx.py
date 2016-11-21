@@ -6,6 +6,7 @@ from django.contrib.admin.sites import AdminSite
 from django.utils.translation import ugettext as _, ugettext_lazy
 
 from xadmin import views
+from xadmin.plugins.actions import DeleteSelectedAction
 from xadmin.layout import Main, TabHolder, Tab, Fieldset, Row, Col, AppendedText, Side
 from xadmin.plugins.inline import Inline
 from xadmin.plugins.batch import BatchChangeAction
@@ -14,7 +15,7 @@ import xadmin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from reversion.models import Revision, Version
-
+from .wikiManager import WikiManager
 
 class MainDashboard(object):
     '''widgets 小插件'''
@@ -30,10 +31,15 @@ class MainDashboard(object):
     ]
 xadmin.site.register(views.website.IndexView, MainDashboard)
 
+class SelectedAction(DeleteSelectedAction):
+    def delete_models(self, queryset):
+        super(SelectedAction, self).delete_models(queryset)
+        WikiManager().set_changed(True)
+
 class CM_ApplicationAdmin(object):
-    
     #列表页，列表顶部显示的字段名称
     #show_detail_fields = ['AppID', 'Category','ChineseName']
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('AppID', 
                     'Category', 'ChineseName', 'EnglishName', 
@@ -65,12 +71,14 @@ class CM_ApplicationAdmin(object):
                     'Status', 'LaunchDate', 'UatRelease',
                     'ProdRelease',]
     reversion_enable = True
+
 #将Author模块和管理类绑定在一起，注册到后台管理
 xadmin.site.register(CM_Application, CM_ApplicationAdmin)
 
 
 class CM_Application_MaintainerAdmin(object):
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('ID', 'AppID', 
                     'DeptName', 'CMA', 'CMB', 
@@ -108,6 +116,7 @@ xadmin.site.register(CM_Application_Maintainer, CM_Application_MaintainerAdmin)
 class AppserverAdmin(object):
    
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('AppServerID','DeviceID', 'CluserID',
               'AppID', 'HostName','LogicHostname', 'OsName', 
@@ -153,6 +162,7 @@ xadmin.site.register(Appserver, AppserverAdmin)
 class ImageStoreAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('AppID', 'name', 
                     'img')
@@ -176,6 +186,7 @@ xadmin.site.register(ImageStore, ImageStoreAdmin)
 
 
 class MountAdmin(object):
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('MountID', 'StorageDeviceId', 
                     'AppServerID', 'MountPath')
@@ -202,6 +213,7 @@ xadmin.site.register(Mount, MountAdmin)
 
 class LBAdmin(object):
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('LBID', 'AppID', 
                     'LBName', 'LBIP')
@@ -226,6 +238,7 @@ xadmin.site.register(LB, LBAdmin)
 
 class LB_MemberAdmin(object):
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('LBID', 'AppID', 
                     'AppServerID','AppServerIP')
@@ -252,6 +265,7 @@ xadmin.site.register(LB_Member, LB_MemberAdmin)
 class CM_UsersAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('UserID', 'AppServerID', 
                     'UserName','UserType', 'ExpirationDate', 'PGroupName', 
@@ -281,6 +295,7 @@ xadmin.site.register(CM_Users, CM_UsersAdmin)
 class Config_FileAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('ConfigId', 'AppServerID', 
                     'ConfigName', 'UserID',
@@ -309,6 +324,7 @@ xadmin.site.register(Config_File, Config_FileAdmin)
 class Config_ItemAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('ConfigItemId', 'ConfigName', 
                     'Parameter', 'value',
@@ -338,6 +354,7 @@ xadmin.site.register(Config_Item, Config_ItemAdmin)
 class Log_FileAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('LogId', 'AppServerID', 
                     'UserID', 'LogPath', 'LogDescription',
@@ -363,6 +380,7 @@ xadmin.site.register(Log_File, Log_FileAdmin)
 class Server_Process_PoolAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('ProcessId', 'AppServerID', 
                     'UserID', 'ProcessName', 'Port',
@@ -389,6 +407,7 @@ xadmin.site.register(Server_Process_Pool, Server_Process_PoolAdmin)
 class SoftwareAdmin(object):
    
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('SoftwareID', 'AppServerID', 
                     'SoftwareType', 'SoftwareName', 'InstallPath',
@@ -414,6 +433,7 @@ xadmin.site.register(Software, SoftwareAdmin)
 class WeblogicAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('WeblogicID', 'SoftwareID', 
                     'ConsoleContexPath', 'ConsoleUserName', 'DomianName',
@@ -446,6 +466,7 @@ xadmin.site.register(Weblogic, WeblogicAdmin)
 class Weblogic_JdbcAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('JdbcID', 'WeblogicID', 
                     'JDBCType', 'JNDIName', 'JDBCUrl',
@@ -473,6 +494,7 @@ xadmin.site.register(Weblogic_Jdbc, Weblogic_JdbcAdmin)
 class Weblogic_ServerAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('ServerID', 'WeblogicID', 
                     'WeblogicServerName', 'Listener',
@@ -500,6 +522,7 @@ xadmin.site.register(Weblogic_Server, Weblogic_ServerAdmin)
 class Weblogic_Jdbc_MapAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('ServerID', 'JdbcID')
     #列表页出现搜索框，参数是搜索的域
@@ -519,6 +542,7 @@ xadmin.site.register(Weblogic_Jdbc_Map, Weblogic_Jdbc_MapAdmin)
 class Weblogic_AppAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('AppID', 'ServerID',
                     'AppName', 'DeployPath', 'DeployType',
@@ -543,6 +567,7 @@ xadmin.site.register(Weblogic_App, Weblogic_AppAdmin)
 
 class LicenseAdmin(object):
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('LicenseID', 'AppID',
                     'AppServerID', 'Software', 'Version',
@@ -574,6 +599,7 @@ xadmin.site.register(License, LicenseAdmin)
 class DBAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('DBID', 'SoftwareID',
                     'INSTANCE_NAME', 'DBName', 'DataFile',
@@ -605,6 +631,7 @@ xadmin.site.register(DB, DBAdmin)
 class MQAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('MQID', 'SoftwareID',
                     'QueueManager', 'QLocal', 'QRemote',
@@ -632,6 +659,7 @@ xadmin.site.register(MQ, MQAdmin)
 class TomcatAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('TomcatID', 'SoftwareID',
                     'Port', 'SSLPort', 'DocmentRoot')
@@ -654,6 +682,7 @@ xadmin.site.register(Tomcat, TomcatAdmin)
 class ApacheAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('ApacheID', 'SoftwareID',
                     'Port', 'SSLPort', 'DocmentRoot')
@@ -677,6 +706,7 @@ xadmin.site.register(Apache, ApacheAdmin)
 class OtherAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('OtherID', 'SoftwareID',
                     'Description')
@@ -698,6 +728,7 @@ xadmin.site.register(Other, OtherAdmin)
 class CluserAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('CluserID','VCenter',  'CluserName')
     #列表页出现搜索框，参数是搜索的域
@@ -719,6 +750,7 @@ xadmin.site.register(Cluser, CluserAdmin)
 class DeviceAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('DeviceID','DeviceSN',  'MANUFACTURER', 
                     'CATEGORY', 'PURCHASE_DATE',  'maintainerA', 'maintainerB',
@@ -751,6 +783,7 @@ xadmin.site.register(Device, DeviceAdmin)
 class server_detailAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('ServerId', 'DeviceID', 
                     'ServerName', 'DeviceSN', 'Server_type', 
@@ -788,6 +821,7 @@ xadmin.site.register(server_detail, server_detailAdmin)
 class storage_detailAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('StorageId', 'DeviceID', 
                     'STORAGE_NAME', 'DeviceSN', 'Firmware', 
@@ -818,9 +852,9 @@ class storage_detailAdmin(object):
 xadmin.site.register(storage_detail, storage_detailAdmin)
 
 class NetDevice_detailAdmin(object):
-    
-    
+
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('NetDeviceId', 'DeviceID', 
                     'DeviceSN', 'NetDeviceType', 'MANAGE_IP', 
@@ -850,6 +884,7 @@ xadmin.site.register(NetDevice_detail, NetDevice_detailAdmin)
 class Equipment_detailAdmin(object):
     
     #列表页，列表顶部显示的字段名称
+    actions = [SelectedAction, ]
     save_as = True
     list_display = ('EquipmentId', 'DeviceID', 
                     'DeviceSN', 'Description')

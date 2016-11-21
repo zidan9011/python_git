@@ -4,24 +4,16 @@ from django.core.exceptions import ValidationError
 import os
 import sys
 import datetime
+from .wikiManager import WikiManager
+#from .sigleton import singleton
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-def singleton(cls, *args, **kw):
-    '''单例实现'''  
-    instances = {}  
-    def _singleton():  
-        if cls not in instances:  
-            instances[cls] = cls(*args, **kw)  
-        return instances[cls]  
-    return _singleton  
+wiki_manager = WikiManager()
 
 
-
-# Create your models here.
 class CM_Application(models.Model):
-     #记录每个应用系统的基本信息
-    
+    '''记录每个应用系统的基本信息'''
     ServiceType_CHOICES = (('hexin','核心'),('fuzhu','辅助'),('qita','其他'))
     Status_CHOICES = (('shangxian','上线'),('xiaxian','下线'),('zhanting','暂停'))
    
@@ -48,9 +40,17 @@ class CM_Application(models.Model):
     Description = models.CharField(max_length=500, verbose_name = '系统描述')
     Remark = models.CharField(max_length=500, blank=True, verbose_name = '备注')
     #UpdateDate = models.DateField(default = datetime.date.today(),verbose_name = '更新日期')
-    UpdateDate = models.DateField(verbose_name = '更新日期')  
-    
-     
+    UpdateDate = models.DateField(verbose_name = '更新日期')
+
+    def save(self, *args, **kwargs):
+        super(CM_Application, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(CM_Application, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
     def __unicode__(self):
         return "{}\t{}".format(self.AppID,self.ChineseName)
  
@@ -58,12 +58,6 @@ class CM_Application(models.Model):
         db_table = u"cm_vrms_wiki_cm_application"
         verbose_name = u"应用系统配置信息"
         verbose_name_plural = u"应用系统配置基本信息表" 
-
-
-
-
-
-
 
     
 class CM_Application_Maintainer(models.Model):
@@ -80,6 +74,15 @@ class CM_Application_Maintainer(models.Model):
     DevCompanyPM = models.CharField(max_length=32, verbose_name = '开发公司联系人')
     TestPM = models.CharField(max_length=32, verbose_name = '第三方测试负责人')
     TestLD = models.CharField(max_length=32, verbose_name = '第三方测试组长')
+
+    def save(self, *args, **kwargs):
+        super(CM_Application_Maintainer, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(CM_Application_Maintainer, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}".format(self.ID)
@@ -89,14 +92,23 @@ class CM_Application_Maintainer(models.Model):
         verbose_name=u"应用系统配置人员信息"
         verbose_name_plural=u"应用系统配置人员信息表"
 
+
 class Cluser(models.Model):
     #记录虚拟化集群信息
     
     CluserID = models.AutoField(primary_key=True, verbose_name = '编号')
     VCenter = models.CharField(max_length=128, verbose_name = '数据中心')
     CluserName = models.CharField(max_length=128, verbose_name = '集群名称')
-    
-    
+
+    def save(self, *args, **kwargs):
+        super(Cluser, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Cluser, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
     def __unicode__(self):
         return "{}\t{}".format(self.VCenter,self.CluserName)
     class Meta:
@@ -125,6 +137,15 @@ class Device(models.Model):
     REMARK = models.CharField(max_length=1024,blank=True, verbose_name = '功率负载')
     #UpdateTime = models.DateField(default = datetime.date.today(), verbose_name = '更新时间')
     UpdateTime = models.DateField(verbose_name = '更新时间')
+
+    def save(self, *args, **kwargs):
+        super(Device, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Device, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}\t{}\t{}".format(self.DeviceSN,self.MANUFACTURER,self.CATEGORY)
@@ -147,6 +168,15 @@ class storage_detail(models.Model):
     DISK_NUM = models.CharField(max_length=32, verbose_name = 'DISK数量')
     IP = models.CharField(max_length=32, verbose_name = '管理IP')
     EXPANSIBILITY = models.CharField(max_length=32,choices=EXPANSIBILITY_CHOICES, verbose_name = '扩展柜')
+
+    def save(self, *args, **kwargs):
+        super(storage_detail, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(storage_detail, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}\t{}".format(self.StorageId,self.STORAGE_NAME)
@@ -180,7 +210,15 @@ class Appserver(models.Model):
     Remark1 = models.CharField(max_length=1024,blank=True,verbose_name = 'UAT版本',help_text='当前环境UAT版本号')
     #UpdateTime = models.DateField(default = datetime.date.today(), verbose_name = '更新时间')
     UpdateTime = models.DateField( verbose_name = '更新时间')
-   
+
+    def save(self, *args, **kwargs):
+        super(Appserver, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Appserver, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}\t{}\t{}".format(self.AppServerID,self.HostName,self.AppID)
@@ -197,6 +235,16 @@ class Mount(models.Model):
     StorageDeviceId = models.ForeignKey(storage_detail, verbose_name = '存储ID')
     AppServerID = models.ForeignKey(Appserver, verbose_name = '服务器编号')
     MountPath = models.CharField(max_length=128, verbose_name = '外接存储挂载点')
+
+    def save(self, *args, **kwargs):
+        super(Mount, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Mount, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
     def __unicode__(self):
         return "{}".format(self.MountPath)
     
@@ -212,6 +260,16 @@ class LB(models.Model):
     AppID = models.ForeignKey(CM_Application, verbose_name='应用系统ID')
     LBName = models.CharField(max_length = 64, verbose_name = '负载均衡名称')
     LBIP = models.CharField(max_length = 32, verbose_name = '负载均衡IP')
+
+    def save(self, *args, **kwargs):
+        super(LB, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(LB, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
     def __unicode__(self):
         return "{}\t{}".format(self.LBID,self.LBName)
     
@@ -227,6 +285,16 @@ class LB_Member(models.Model):
     AppID = models.ForeignKey(CM_Application, verbose_name='应用系统ID')
     AppServerID = models.ForeignKey(Appserver, verbose_name = '服务器编号')
     AppServerIP = models.CharField(max_length = 64, verbose_name = '服务器IP')
+
+    def save(self, *args, **kwargs):
+        super(LB_Member, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(LB_Member, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
     def __unicode__(self):
         return "{}\t{}\t{}\t{}".format(self.LBID,self.AppID,self.AppServerID,self.AppServerIP)
     
@@ -245,6 +313,15 @@ class CM_Users(models.Model):
     ExpirationDate = models.DateField(verbose_name = '用户到期时间', help_text='永不到期，用“9999-12-31”表示')
     PGroupName = models.CharField(max_length=32, verbose_name = '主组')
     SGroupName = models.CharField(max_length=64, verbose_name = '附属组',blank=True)
+
+    def save(self, *args, **kwargs):
+        super(CM_Users, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(CM_Users, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}\t{}".format(self.UserID,self.UserName)
@@ -260,6 +337,15 @@ class Config_File(models.Model):
     ConfigName = models.CharField(max_length =256, verbose_name = '应用配置文件名')
     UserID = models.ForeignKey(CM_Users,to_field='UserID', verbose_name = '用户ID')
     ConfigDescription = models.CharField(max_length =2048, blank=True, verbose_name = '参数说明')
+
+    def save(self, *args, **kwargs):
+        super(Config_File, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Config_File, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}\t{}\t{}".format(self.ConfigId,self.AppServerID,self.ConfigName)
@@ -277,6 +363,15 @@ class Log_File(models.Model):
     LogPath = models.CharField(max_length=256, verbose_name = '日志所在目录')
     LogDescription = models.CharField(max_length=256, blank=True, verbose_name = '日志内容说明')
     LifeCycle = models.CharField(max_length=512, blank=True, verbose_name = '定期维护说明')
+
+    def save(self, *args, **kwargs):
+        super(Log_File, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Log_File, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}".format(self.LogId)
@@ -293,6 +388,15 @@ class Server_Process_Pool(models.Model):
     ProcessName = models.CharField(max_length = 64, verbose_name = '进程名')
     Port = models.IntegerField(verbose_name = '端口号')
     Function = models.CharField(max_length = 256, blank=True, verbose_name = '功能说明')
+
+    def save(self, *args, **kwargs):
+        super(Server_Process_Pool, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Server_Process_Pool, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}\t{}".format(self.ProcessId,self.ProcessName)
@@ -310,6 +414,15 @@ class Software(models.Model):
     SoftwareName = models.CharField(max_length=32, verbose_name = '软件名')
     InstallPath = models.CharField(max_length=256, verbose_name = '安装路径')
     Version = models.CharField(max_length=32, verbose_name = '版本号')
+
+    def save(self, *args, **kwargs):
+        super(Software, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Software, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}\t{}\t{}".format(self.SoftwareID,self.SoftwareType,self.SoftwareName)
@@ -333,6 +446,15 @@ class Weblogic(models.Model):
     JNDIName = models.CharField(max_length=64, verbose_name='JNDI名')
     JDBCUrl = models.CharField(max_length=64, verbose_name='JDBCUrl')
     Driver = models.CharField(max_length=64, verbose_name='驱动名称')
+
+    def save(self, *args, **kwargs):
+        super(Weblogic, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Weblogic, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}".format(self.WeblogicID)
@@ -349,6 +471,15 @@ class Weblogic_Jdbc(models.Model):
     JNDIName = models.CharField(max_length=64, verbose_name='JNDI名')
     JDBCUrl = models.CharField(max_length=64, verbose_name='JDBCUrl')
     Driver = models.CharField(max_length=64, verbose_name='驱动名称')
+
+    def save(self, *args, **kwargs):
+        super(Weblogic_Jdbc, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Weblogic_Jdbc, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}\t{}".format(self.JdbcID,self.WeblogicID)
@@ -364,6 +495,15 @@ class Weblogic_Server(models.Model):
     WeblogicServerName = models.CharField(max_length=32, verbose_name = 'WeblogicServer名')
     Listener = models.CharField(max_length=32, verbose_name = '监听端口')
     SSLListener  = models.CharField(max_length=32, verbose_name = 'SSL监听端口')
+
+    def save(self, *args, **kwargs):
+        super(Weblogic_Server, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Weblogic_Server, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}\t{}\t{}".format(self.ServerID,self.WeblogicID,self.WeblogicServerName)
@@ -376,6 +516,15 @@ class Weblogic_Jdbc_Map(models.Model):
     #记录WeblogicJDBC映射信息
     ServerID = models.ForeignKey(Weblogic_Server, verbose_name = 'ServerID')
     JdbcID = models.ForeignKey(Weblogic_Jdbc, verbose_name = 'JDBCID')
+
+    def save(self, *args, **kwargs):
+        super(Weblogic_Jdbc_Map, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Weblogic_Jdbc_Map, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}\t{}".format(self.ServerID, self.JdbcID)
@@ -392,6 +541,15 @@ class Weblogic_App(models.Model):
     DeployPath = models.CharField(max_length=128, verbose_name = 'WebApp部署路径')
     DeployType = models.CharField(max_length=32, verbose_name = '部署类型')
     Description = models.CharField(max_length=256, blank=True, verbose_name = '描述信息')
+
+    def save(self, *args, **kwargs):
+        super(Weblogic_App, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Weblogic_App, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}\t{}".format(self.AppID,self.AppName)
@@ -411,6 +569,15 @@ class License(models.Model):
     DueDate = models.DateField( verbose_name = '到期日')
     Company = models.CharField(max_length = 64, verbose_name = '厂商')  
     Remark = models.CharField(max_length = 128,blank=True, verbose_name = '备注')
+
+    def save(self, *args, **kwargs):
+        super(License, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(License, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}\t{}\t{}\t{}".format(self.LicenseID,self.AppID,self.AppServerID,self.Software)
@@ -434,6 +601,15 @@ class DB(models.Model):
     DbUser = models.CharField(max_length=32, verbose_name = '数据库用户')
     HA  = models.CharField(max_length=32, choices = HA_CHOICES, verbose_name = '高可用模式')
     MEMBER = models.CharField(max_length = 128,verbose_name = '组员')
+
+    def save(self, *args, **kwargs):
+        super(DB, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(DB, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}".format(self.DBID)
@@ -451,6 +627,15 @@ class MQ(models.Model):
     QRemote = models.CharField(max_length=32, verbose_name = '远程队列名')
     Chanel = models.CharField(max_length=32, verbose_name = '通道')
     Port = models.IntegerField(verbose_name='端口')
+
+    def save(self, *args, **kwargs):
+        super(MQ, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(MQ, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}".format(self.MQID)
@@ -466,6 +651,15 @@ class Tomcat(models.Model):
     Port = models.IntegerField(verbose_name = '监听端口')
     SSLPort = models.IntegerField(verbose_name = 'SSL监听端口')
     DocmentRoot = models.CharField(max_length=128, verbose_name = 'DocmentRoot')
+
+    def save(self, *args, **kwargs):
+        super(Tomcat, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Tomcat, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}".format(self.TomcatID)
@@ -480,6 +674,15 @@ class Apache(models.Model):
     Port = models.IntegerField(verbose_name = '监听端口')
     SSLPort = models.IntegerField(verbose_name = 'SSL监听端口')
     DocmentRoot = models.CharField(max_length=128, verbose_name = 'DocmentRoot')
+
+    def save(self, *args, **kwargs):
+        super(Apache, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Apache, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}".format(self.ApacheID)
@@ -492,6 +695,15 @@ class Other(models.Model):
     OtherID = models.AutoField(primary_key=True, verbose_name = 'OtherID')
     SoftwareID = models.ForeignKey(Software, verbose_name = '软件ID')
     Description = models.CharField(max_length=1024, verbose_name = '描述')
+
+    def save(self, *args, **kwargs):
+        super(Other, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Other, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}".format(self.OtherID)
@@ -521,6 +733,15 @@ class server_detail(models.Model):
     DISK_SIZE = models.CharField(max_length=32,verbose_name = '硬盘可用容量')
     NETWORK_CARD = models.CharField(max_length=1024, verbose_name = '网卡组成')
     HBACARD = models.CharField(max_length=1024, verbose_name = '光纤卡组成')
+
+    def save(self, *args, **kwargs):
+        super(server_detail, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(server_detail, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}\t{}".format(self.ServerId,self.ServerName)
@@ -529,7 +750,6 @@ class server_detail(models.Model):
         verbose_name=u"服务器详细信息"
         verbose_name_plural=u"服务器详细信息表"
         
-
         
 class NetDevice_detail(models.Model):
     #记录每台网络设备的详细信息
@@ -539,6 +759,15 @@ class NetDevice_detail(models.Model):
     NetDeviceType = models.CharField(max_length=64, verbose_name = '设备序类型')
     MANAGE_IP = models.CharField(max_length=32, verbose_name = '管理地址')
     IOS_VERSION = models.CharField(max_length=32, verbose_name = 'IOS版本')
+
+    def save(self, *args, **kwargs):
+        super(NetDevice_detail, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(NetDevice_detail, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}".format(self.NetDeviceId)
@@ -553,7 +782,15 @@ class Equipment_detail(models.Model):
     DeviceID = models.ForeignKey(Device, verbose_name = '物理机编号')
     DeviceSN = models.CharField(max_length=64, verbose_name = '设备序列号')
     Description = models.CharField(max_length=1024,blank=True, verbose_name = '描述')
-    
+
+    def save(self, *args, **kwargs):
+        super(Equipment_detail, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Equipment_detail, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}".format(self.EquipmentId)
@@ -574,6 +811,15 @@ class Config_Item(models.Model):
     bl1 = models.BooleanField(verbose_name = '同一版本不同环境是否相同')
     bl2 = models.BooleanField(verbose_name = '不同版本相同环境是否相同')
     ConfigDescription = models.CharField(max_length =2048, blank=True, verbose_name = '参数说明')
+
+    def save(self, *args, **kwargs):
+        super(Config_Item, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(Config_Item, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
     
     def __unicode__(self):
         return "{}".format(self.ConfigItemId)
@@ -588,6 +834,16 @@ class ImageStore(models.Model):
     AppID = models.ForeignKey(CM_Application,  verbose_name = '应用系统ID')
     name = models.CharField(max_length=150,null=True)
     img = models.ImageField(upload_to='img')
+
+    def save(self, *args, **kwargs):
+        super(ImageStore, self).save(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
+
+    def delete(self, *args, **kwargs):
+        super(ImageStore, self).delete(*args, **kwargs)
+        wiki_manager.set_changed(True)
+
     def __unicode__(self):
         return "{}".format(self.name)
     class Meta:
@@ -596,6 +852,4 @@ class ImageStore(models.Model):
         verbose_name_plural=u"服务器架构图表"
 
     
-    
-    
-    
+

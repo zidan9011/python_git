@@ -102,7 +102,7 @@ WSGI_APPLICATION = 'cm_vrms_upload.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cm_vrms',
+        'NAME': 'cm_vrms_test',
         'USER' :'root',
         'PASSWORD' : 'root',
         'HOST' :'127.0.0.1',
@@ -142,6 +142,7 @@ MEDIA_ROOT =  '/media/'
 LOGIN_URL = '/login/'
 CRONJOBS = (
     
-    ('31 11 * * *', 'cm_vrms.cm_vrms_baseline.views.update_db_from_work_for_crontab'),
+    #('31 11 * * *', 'cm_vrms.cm_vrms_baseline.views.update_db_from_work_for_crontab'),
+    ('0 8 * * *', 'django.core.management.call_command', ['updateCommand']),
 
 )

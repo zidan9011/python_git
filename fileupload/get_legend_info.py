@@ -44,7 +44,7 @@ class Legend_Info_System():
     def get_type_dict(self):
         '''将输入的target数据,加载到legend信息中'''
         for target in self.s_info_target:
-            self.s_info_target[target] = self.s_info_target[target]
+            #self.s_info_target[target] = self.s_info_target[target]
             '''补充数据细节到另外四个数据存储器中'''
             for link_info in self.s_info_target[target]:#对于两节点的交互信息
                 tmp_info = link_info.split("\t")
@@ -83,7 +83,7 @@ class DataEX_Legend_Info_System_old():
     def get_type_dict(self):
         '''将输入的target数据,加载到legend信息中'''
         for target in self.s_info_target:
-            self.s_info_target[target] = self.s_info_target[target]
+            #self.s_info_target[target] = self.s_info_target[target]
             '''补充数据细节到另外四个数据存储器中'''
             for link_info in self.s_info_target[target]:#对于两节点的交互信息
                 tmp_info = link_info.split("\t")
@@ -116,7 +116,7 @@ class DataEX_Legend_Info_System():
     def get_type_dict(self):
         '''将输入的target数据,加载到legend信息中'''
         for target in self.s_info_target:
-            self.s_info_target[target] = self.s_info_target[target]
+            #self.s_info_target[target] = self.s_info_target[target]
             '''补充数据细节到另外四个数据存储器中'''
             for link_info in self.s_info_target[target]:#对于两节点的交互信息
                 tmp_info = link_info.split("\t")
