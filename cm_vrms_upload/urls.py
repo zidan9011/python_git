@@ -101,13 +101,7 @@ urlpatterns = patterns('',
     (r'^test_report_bar',test_report_bar),
     (r'^test_report_charts',test_report_charts),
     (r'^show_items',show_items),
-    
-    
-    
-    
-    
-   
-    
+       
 )
 
 

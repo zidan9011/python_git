@@ -109,7 +109,7 @@ class CM_BaseLine_Info(models.Model):
         verbose_name=u"版本基线信息"
         verbose_name_plural=u"各系统版本基线表(总)"
 @singleton    
-class CM_BaseLine_Data_Info(models.Model):
+class CM_BaseLine_Data_Info(object):
     '''为基线信息'''
     
     def __init__(self):

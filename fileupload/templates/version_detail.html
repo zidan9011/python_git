@@ -4,7 +4,6 @@
     <title>配置管理系统</title>
 </head>
 <body>
-    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
     <form action="/{{search_type}}/" method="get">
         <input type="text" name="query">
         {% if node_name %}
@@ -12,6 +11,8 @@
         {% endif %}
         <input type="submit" value="Search">
     </form>
+    
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
     <div id="main" style="height:600px"></div>
     <!-- ECharts单文件引入 -->
     <script src="{{ STATIC_URL }}js/echarts.js"></script>

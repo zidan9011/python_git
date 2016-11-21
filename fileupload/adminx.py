@@ -52,7 +52,7 @@ xadmin.site.register(NameMap, NameMapAdmin)
 
 
 class DateExchangeAdmin(object):
-    list_export = ('xlsx',)
+    list_export = ('xls',)
     reversion_enable = True
     actions = ['delete_selected']
     #列表页，列表顶部显示的字段名称
@@ -116,7 +116,7 @@ xadmin.site.register(DataExchangeInfo, DateExchangeAdmin)
 
 
 class SysConfAdmin(object):
-    list_export = ('xlsx',)
+    #list_export = ('xlsx',)
     reversion_enable = True
     actions = ['delete_selected']
     #列表页，列表顶部显示的字段名称
@@ -174,7 +174,7 @@ xadmin.site.register(SysDataMineInfo, SysDataMineAdmin)
 
 class VerConfAdmin(object):
     reversion_enable = True
-    list_export = ('xls',)    
+    list_export = ('xls',)
     actions = ['delete_selected']
     #列表页，列表顶部显示的字段名称        
     fields = ('main_up_sys_name', 'main_up_sys_version', 
@@ -225,7 +225,7 @@ xadmin.site.register(VerConfInfo, VerConfAdmin)
 
 class Report_DetailAdmin(object):
     
-    list_export = ('xlsx',)
+    list_export = ('xlsx', 'xls',)
     reversion_enable = True
     save_as = True
     actions = ['delete_selected']

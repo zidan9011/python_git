@@ -18,6 +18,8 @@ import MySQLdb
 from django.db import connection,transaction
 from fileupload.models import SystemInfo,VersionInfo,SysConfInfo,VerConfInfo,DataExInfo
 from django.core.files.base import ContentFile
+import time
+#from .wikiManager import WikiManager
 
 key_node = ["外汇交易系统","本币交易系统","X-Swap"]
 
@@ -26,9 +28,8 @@ def wiki_index(request):
     cursor1 = connection.cursor() 
     cursor1.execute("SELECT DISTINCT(ChineseName) from cm_vrms_wiki_cm_application;")
     wiki_name = cursor1.fetchall()
-    name_list_raw=[list(val) for val in wiki_name]
-    name_list=[val[0] for val in name_list_raw]
-
+    #name_list_raw=[list(val) for val in wiki_name]
+    name_list=[val[0] for val in wiki_name]
     c = Context({'STATIC_URL': '/static/'})
     c["node_list_1"] = [val for val in name_list if val in key_node]
     c["node_list_2"] = [val for val in name_list if val not in key_node]
@@ -167,99 +168,49 @@ def get_overview_info(ChineseName):
     #该项目版本历次升级信息的详情展示
     out_str = out_str.encode("utf-8")
     tabel_end = "</tbody> </table></div>"
-    return "{}{}{}{}".format(table_upper, table_title, out_str, tabel_end) 
-        
+    return "{}{}{}{}".format(table_upper, table_title, out_str, tabel_end)
+
 def application_tree(request):
     #返回树状图
     tmp_request = request.path.rstrip("/")
     request_node_name = tmp_request.replace("/application_tree_","").encode("utf-8")
-    table_content1,macth_val_list1 = get_content(CM_Application,"ChineseName",[request_node_name])
-    table_content2,macth_val_list2 = get_content(CM_Application_Maintainer,"AppID",macth_val_list1)
-    table_content3,match_val_list3 = get_content(Appserver,"AppID",macth_val_list1)
-    table_content_img,match_val_list_img = get_content(ImageStore,"AppID",macth_val_list1)
-    table_content_mount,match_val_list_mount = get_content(Mount,"AppServerID",match_val_list3)
-    table_content_LB,match_val_list_LB = get_content(LB,"AppID",macth_val_list1)
-    table_content_LB_member,match_val_list_LB_Member = get_content(LB_Member,"AppServerID",match_val_list3)
-    table_content4,match_val_list4 = get_content(CM_Users,"AppServerID",match_val_list3)
-    table_content5,match_val_list5 = get_content(Config_File,"AppServerID",match_val_list3)
-    table_content_conf_item,match_val_list__conf_item = get_content(Config_Item,"ConfigName",match_val_list5)
-    table_content6,match_val_list6 = get_content(Log_File,"AppServerID",match_val_list3)
-    table_content7,match_val_list7 = get_content(Server_Process_Pool,"AppServerID",match_val_list3)
-    table_content8,match_val_list8 = get_content(Software,"AppServerID",match_val_list3)
-    table_content9,match_val_list9 = get_content(Weblogic,"SoftwareID",match_val_list8)
-    table_content10,match_val_list10 = get_content(Weblogic_Jdbc,"WeblogicID",match_val_list9)
-    table_content11,match_val_list11 = get_content(Weblogic_Server,"WeblogicID",match_val_list9)
-    table_content12,match_val_list12 = get_content(Weblogic_Jdbc_Map,"ServerID",match_val_list11)
-    table_content13,match_val_list13 = get_content(Weblogic_App,"ServerID",match_val_list11)
-    table_content_License,match_val_License = get_content(License,"AppID",macth_val_list1)
-    table_content14,match_val_list14 = get_content(DB,"SoftwareID",match_val_list8)
-    table_content15,match_val_list15 = get_content(MQ,"SoftwareID",match_val_list8)
-    table_content16,match_val_list16 = get_content(Tomcat,"SoftwareID",match_val_list8)
-    table_content17,match_val_list17 = get_content(Apache,"SoftwareID",match_val_list8)
-    table_content18,match_val_list18 = get_content(Other,"SoftwareID",match_val_list8)
-    device_id_list = set()
-    for app_server in match_val_list3:
-        try:
-            device_id_list.add(app_server.DeviceID.DeviceID)
-        except:
-            pass
-    device_id_list = list(device_id_list)
-    
-    cluser_id_list = set()
-    for app_server in match_val_list3:
-        try:
-            cluser_id_list.add(app_server.CluserID.CluserID)
-        except:
-            pass
-    cluser_id_list = list(cluser_id_list)
-    
-    table_content_cluser,match_val_list_cluser = get_content(Cluser,"CluserID",cluser_id_list)
-    table_content19,match_val_list19 = get_content(Device,"DeviceID",device_id_list)
-    table_content_cluser,match_val_list_cluser = get_content(Cluser,"CluserID",cluser_id_list)
-    table_content20,match_val_list20 = get_content(server_detail,"DeviceID",match_val_list19)
-    table_content21,match_val_list21 = get_content(storage_detail,"DeviceID",match_val_list19)
-    table_content22,match_val_list22 = get_content(NetDevice_detail,"DeviceID",match_val_list19)
-    table_content23,match_val_list23 = get_content(Equipment_detail,"DeviceID",match_val_list19)
-    
-    table_overview=get_overview_info(request_node_name)
-    
-    
+
+    wikiContent = wiki_manager.get_wiki_content(request_node_name)
+    table_content = wikiContent.get_content_list()
     
     c = Context({'STATIC_URL': '/static/'})
     c["source_name"] = request_node_name
-    c["table_content1"] = table_content1
-    c["table_content2"] = table_content2
-    c["table_content3"] = table_content3
-    c["table_content4"] = table_content4
-    c["table_content3"] = table_content3
-    c["table_content4"] = table_content4
-    c["table_content5"] = table_content5
-    c["table_content_conf_item"] = table_content_conf_item
-    c["table_content6"] = table_content6
-    c["table_content7"] = table_content7
-    c["table_content8"] = table_content8
-    c["table_content9"] = table_content9
-    c["table_content10"] = table_content10
-    c["table_content11"] = table_content11
-    c["table_content12"] = table_content12
-    c["table_content13"] = table_content13
-    c["table_content14"] = table_content14
-    c["table_content15"] = table_content15
-    c["table_content16"] = table_content16
-    c["table_content17"] = table_content17
-    c["table_content18"] = table_content18
-    c["table_content_cluser"] = table_content_cluser
-    c["table_content19"] = table_content19
-    c["table_content20"] = table_content20
-    c["table_content21"] = table_content21
-    c["table_content22"] = table_content22
-    c["table_content23"] = table_content23
-    c["table_content_mount"] = table_content_mount
-    c["table_content_LB"] = table_content_LB
-    c["table_content_LB_member"] = table_content_LB_member
-    c["table_content_License"] = table_content_License
-    c["table_content_img"] = table_content_img
-    c["table_overview"] = table_overview
+    c["table_content1"] = table_content[0]
+    c["table_content2"] = table_content[1]
+    c["table_content3"] = table_content[2]
+    c["table_content4"] = table_content[3]
+    c["table_content5"] = table_content[4]
+    c["table_content6"] = table_content[5]
+    c["table_content7"] = table_content[6]
+    c["table_content8"] = table_content[7]
+    c["table_content9"] = table_content[8]
+    c["table_content10"] = table_content[9]
+    c["table_content11"] = table_content[10]
+    c["table_content12"] = table_content[11]
+    c["table_content13"] = table_content[12]
+    c["table_content14"] = table_content[13]
+    c["table_content15"] = table_content[14]
+    c["table_content16"] = table_content[15]
+    c["table_content17"] = table_content[16]
+    c["table_content18"] = table_content[17]
+    c["table_content19"] = table_content[18]
+    c["table_content20"] = table_content[19]
+    c["table_content21"] = table_content[20]
+    c["table_content22"] = table_content[21]
+    c["table_content23"] = table_content[22]
+    c["table_content_cluser"] = table_content[23]
+    c["table_content_img"] = table_content[24]
+    c["table_content_mount"] = table_content[25]
+    c["table_content_conf_item"] = table_content[26]
+    c["table_content_License"] = table_content[27]
+    c["table_content_LB"] = table_content[28]
+    c["table_content_LB_member"] = table_content[29]
+    c["table_overview"] = table_content[30]
 
     out_path = "application_tree"    
     return render_to_response(out_path+'.html',context_instance=c)

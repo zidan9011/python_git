@@ -7,6 +7,7 @@ sys.setdefaultencoding('utf-8')
 import copy
 import xlrd
 import datetime
+import time
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
 
@@ -26,7 +27,7 @@ def convert_xlsx_csv(xlsx_path,csv_path):
     wb = xlrd.open_workbook(xlsx_path) 
     sheet_name = wb.sheet_names()[0]
     sh = wb.sheet_by_name(sheet_name) 
-    your_csv_file = open(csv_path, 'wb') 
+    your_csv_file = open(csv_path, 'wb+')
     for rownum in xrange(sh.nrows):
         line_values = sh.row_values(rownum)
         line_types = sh.row_types(rownum)
@@ -52,12 +53,15 @@ def convert_xlsx_csv(xlsx_path,csv_path):
     
 
 def convert_csv_csv(file_path,csv_path):#转gbk的csv为utf-8的
-    fout = open(csv_path,"w+")
-    for line in open(file_path):
-        line = line.strip()
-        line_str = line.decode("gbk").encode("utf-8")
-        line_str = "\t".join(line_str.split(","))
-        fout.write(line_str+"\n")
+    fout = open(csv_path,"wb+")
+
+    with open(file_path) as source_file:
+        for line in source_file.xreadlines():
+            line = line.strip()
+            line_str = line.decode("gbk").encode("utf-8")
+            line_str = "\t".join(line_str.split(","))
+            fout.write(line_str + "\n")
+
     fout.close()
     
 
@@ -86,7 +90,7 @@ class NameMap(models.Model):
         
         
 @singleton
-class NamemapInfo(models.Model):
+class NamemapInfo(object):
     '''namemap_info 即为名称映射信息'''
     
     def __init__(self):
@@ -148,7 +152,7 @@ class SysName_Info(models.Model):
         verbose_name_plural=u"测试周报系统名称表"
         
 @singleton
-class SysNameInfo(models.Model):
+class SysNameInfo(object):
     '''SysNameInfo 即为测试管理周报中系统标准命名信息'''
     
     def __init__(self):
@@ -165,8 +169,11 @@ class SysNameInfo(models.Model):
         file_path = os.getcwd()
         in_path = file_path+"\\cm_vrms_upload\\media\\pictures\\"
         upload_file_path=in_path+filename#上传文件的地址
-        csv_path = "{}SysName_conf{}.csv".format(in_path,"".join(filename.split(".")))
+        user_name = request.user.username
+        upload_time = time.strftime('%Y%m%d%H%M', time.localtime())
+        csv_path = "{}SysName_conf_{}_{}_{}.csv".format(in_path, filename.split(".")[0], user_name, upload_time)
         csv_path = csv_path.decode("utf-8").encode("gbk")
+
         if ".xls" in filename:
             #xlsx_path= in_path+filename+".xlsx"#system_conf.xlsx/version.xlsx/SysName_conf.xlsx
             #将上传进来的配置文件改为csv文件,并且改成utf-8的格式
@@ -180,22 +187,21 @@ class SysNameInfo(models.Model):
     def write_conf_info_to_db(self,request,file_path):
         '''将信息从文件更新到数据库中'''
         f_info = open(file_path)
-        sys_info = [val.strip() for val in f_info.readlines()]
+        f_info.readline()  # 舍弃第一行表头（列名）
+        sys_info = (val.strip().split('\t') for val in f_info.readlines())
         f_info.close()
-        sys_info = sys_info[1:]
-        sys_info = [val.split("\t") for val in sys_info]
         
         for node_info in sys_info:
             if len(node_info) != 2:
                 continue
 
+            node_info[0] = node_info[0].replace("(", "（")
+            node_info[0] = node_info[0].replace(")", "）")
             try:
-                node_info[0]=node_info[0].replace("(","（")
-                node_info[0]=node_info[0].replace(")","）")
                 conf_info_tmp = SysName_Info.objects.get(SysName=node_info[0],map_sysname=node_info[1])
                 
-        
-                conf_info_tmp.save()#更新
+                #若存在，则不更新
+                #conf_info_tmp.save()#更新
             except SysName_Info.DoesNotExist:
                 try:
                     conf_info_tmp = SysName_Info(SysName=node_info[0],map_sysname=node_info[1])
@@ -217,8 +223,7 @@ class SysNameInfo(models.Model):
                 
                 if SysName not in sys_source_node_info:
                     sys_source_node_info[SysName]=[]
-                
-                    
+
                 sys_source_node_info[SysName].append('''{0}'''.format(map_sysname))
             
             except:
@@ -286,7 +291,7 @@ class Report_Detail(models.Model):
         verbose_name_plural=u"测试周报信息表"
         
 @singleton
-class Report_DetailInfo(models.Model):
+class Report_DetailInfo(object):
     '''Report_DetailInfo 即为测试管理周报中的详细信息'''
     
     def __init__(self):
@@ -302,9 +307,12 @@ class Report_DetailInfo(models.Model):
         #上传文件后触发,更新文件且插入数据库
         file_path = os.getcwd()
         in_path = file_path+"\\cm_vrms_upload\\media\\pictures\\"
-        upload_file_path=in_path+filename#上传文件的地址
-        csv_path = "{}Report_Detail_conf{}.csv".format(in_path,"".join(filename.split(".")))
+        upload_file_path = in_path + filename  # 上传文件的地址
+        user_name = request.user.username
+        upload_time = time.strftime('%Y%m%d%H%M', time.localtime())
+        csv_path = "{}Report_Detail_conf_{}_{}_{}.csv".format(in_path, filename.split(".")[0], user_name, upload_time)
         csv_path = csv_path.decode("utf-8").encode("gbk")
+
         if ".xls" in filename:
             #xlsx_path= in_path+filename+".xlsx"#system_conf.xlsx/version.xlsx/SysName_conf.xlsx/Report_Detail_conf.xlsx
             #将上传进来的配置文件改为csv文件,并且改成utf-8的格式
@@ -330,13 +338,11 @@ class Report_DetailInfo(models.Model):
         Workload_map_info = {'超签报':'cqb','正常':'zc','超采购':'ccg','空':'','NA':'NA'}
         CRType_map_info = {'正常':'zc','紧急':'jj','例行':'lx','快捷':'kj','空':'','NA':'NA'}
         PerformanceTest_map_info = {'有':'y','无':'n','空':''}
-        
-        
+
         f_info = open(file_path)
-        sys_info = [val.strip() for val in f_info.readlines()]
+        f_info.readline()  # 舍弃第一行表头（列名）
+        sys_info = (val.strip().split('\t') for val in f_info.readlines())
         f_info.close()
-        sys_info = sys_info[1:]
-        sys_info = [val.split("\t") for val in sys_info]
         
         for node_info in sys_info:
             systemname = node_info[0]
@@ -485,18 +491,13 @@ class Report_DetailInfo(models.Model):
                                                                                                                                                                              PerformanceTest,
                                                                                                                                                                              Writter,
                                                                                                                                                                              UpdateDate))
-                
 
-                
-            
+
+
             except:
                 print sys_source_node_info
                        
         return sys_source_node_info
-
-
-
-
 
 
 
@@ -694,7 +695,7 @@ class VerConfInfo(models.Model):
 
 
 @singleton
-class DataExInfo(models.Model):
+class DataExInfo(object):
     '''DataEx_info 即为数据交互信息'''
     
     def __init__(self):
@@ -711,8 +712,11 @@ class DataExInfo(models.Model):
         file_path = os.getcwd()
         in_path = file_path+"\\cm_vrms_upload\\media\\pictures\\"
         upload_file_path=in_path+filename#上传文件的地址
-        csv_path = "{}dataex_conf{}.csv".format(in_path,"".join(filename.split(".")))
+        user_name = request.user.username
+        upload_time = time.strftime('%Y%m%d%H%M', time.localtime())
+        csv_path = "{}dataex_conf_{}_{}_{}.csv".format(in_path, filename.split(".")[0], user_name, upload_time)
         csv_path = csv_path.decode("utf-8").encode("gbk")
+
         if ".xls" in filename:
             #xlsx_path= in_path+filename+".xlsx"#system_conf.xlsx/version.xlsx
             #将上传进来的配置文件改为csv文件,并且改成utf-8的格式
@@ -725,11 +729,16 @@ class DataExInfo(models.Model):
         
     def write_conf_info_to_db(self,request,file_path):
         '''将信息从文件更新到数据库中'''
+        #f_info = open(file_path)
+        #sys_info = [val.strip() for val in f_info.readlines()]
+        #f_info.close()
+        #sys_info = sys_info[1:]
+        #sys_info = [val.split("\t") for val in sys_info]
+
         f_info = open(file_path)
-        sys_info = [val.strip() for val in f_info.readlines()]
+        f_info.readline()  # 舍弃第一行（列名）
+        sys_info = (val.strip().split('\t') for val in f_info.readlines())
         f_info.close()
-        sys_info = sys_info[1:]
-        sys_info = [val.split("\t") for val in sys_info]
         
         for node_info in sys_info:
             if len(node_info) != 18:
@@ -754,8 +763,8 @@ class DataExInfo(models.Model):
                                                         exchange_method=node_info[15],
                                                         publisher=node_info[16],
                                                         subscriber=node_info[17])
-        
-                conf_info_tmp.save()#更新
+                # 若存在，就不更新
+                #conf_info_tmp.save()#更新
             except DataExchangeInfo.DoesNotExist:
                 try:
                     conf_info_tmp = DataExchangeInfo(service_num=node_info[0],
@@ -861,10 +870,8 @@ class DataExInfo(models.Model):
         return sys_source_node_info
 
 
-
-
 @singleton
-class SystemInfo(models.Model):
+class SystemInfo(object):
     '''sys_info 即为系统信息'''
     
     def __init__(self):
@@ -881,7 +888,9 @@ class SystemInfo(models.Model):
         file_path = os.getcwd()
         in_path = file_path+"\\cm_vrms_upload\\media\\pictures\\"
         upload_file_path=in_path+filename#上传文件的地址
-        csv_path = "{}system_conf{}.csv".format(in_path,"".join(filename.split(".")))
+        user_name = request.user.username
+        upload_time = time.strftime('%Y%m%d%H%M', time.localtime())
+        csv_path = "{}system_conf_{}_{}_{}.csv".format(in_path, filename.split(".")[0], user_name, upload_time)
         csv_path = csv_path.decode("utf-8").encode("gbk")
         if ".xls" in filename:
             #xlsx_path= in_path+filename+".xlsx"#system_conf.xlsx/version.xlsx
@@ -889,6 +898,8 @@ class SystemInfo(models.Model):
             convert_xlsx_csv(upload_file_path,csv_path)
         elif ".csv" in filename:
             convert_csv_csv(upload_file_path,csv_path)#将gbk修正为utf-8
+        else:
+            return
         self.write_conf_info_to_db(request,csv_path)#插入数据库
         self.refresh_sys_info()#更新sysinfo
         
@@ -896,10 +907,9 @@ class SystemInfo(models.Model):
     def write_conf_info_to_db(self,request,file_path):
         '''将信息从文件更新到数据库中'''
         f_info = open(file_path)
-        sys_info = [val.strip() for val in f_info.readlines()]
+        f_info.readline()#舍弃第一行（列名）
+        sys_info = (val.strip().split('\t') for val in f_info.readlines())
         f_info.close()
-        sys_info = sys_info[1:]
-        sys_info = [val.split("\t") for val in sys_info]
         
         for node_info in sys_info:
             if len(node_info) != 6:
@@ -919,7 +929,8 @@ class SystemInfo(models.Model):
                 conf_info_tmp.conn_method=node_info[4]
                 conf_info_tmp.type=node_info[5]
                 '''
-                conf_info_tmp.save()#更新
+                #若存在，就不更新
+                #conf_info_tmp.save()#更新
             except SysConfInfo.DoesNotExist:
                 conf_info_tmp = SysConfInfo(node_source=node_info[0], 
                               node_target=node_info[1],
@@ -931,12 +942,15 @@ class SystemInfo(models.Model):
                 
                 ct = ContentType.objects.get_for_model(SysConfInfo)
                 LogEntry.objects.log_action(
-                    user_id=request.user.id, 
+                    user_id=request.user.id,
                     content_type_id=ct.pk,
                     object_id=conf_info_tmp.pk,
                     object_repr=conf_info_tmp.__unicode__(),
                     action_flag=1,
                     change_message="已添加系统信息")
+            except SysConfInfo.MultipleObjectsReturned, e:
+                '''数据库中存在重复数据？'''
+                pass
                 
         return True       
             
@@ -973,7 +987,7 @@ class SystemInfo(models.Model):
         return sys_source_node_info
     
 @singleton         
-class VersionInfo(models.Model):
+class VersionInfo(object):
     '''ver_info 即为版本信息'''
     
     def __init__(self):
@@ -1103,10 +1117,13 @@ class VersionInfo(models.Model):
     def update_conf_from_file(self,request,filename="version_conf.xlsx"):
         #上传文件后触发,更新文件且插入数据库
         file_path = os.getcwd()
-        in_path = file_path+"\\cm_vrms_upload\\media\\pictures\\"
-        upload_file_path=in_path+filename#上传文件的地址
-        csv_path = "{}version_conf{}.csv".format(in_path,"".join(filename.split(".")))
+        in_path = file_path + "\\cm_vrms_upload\\media\\pictures\\"
+        upload_file_path = in_path + filename  # 上传文件的地址
+        user_name = request.user.username
+        upload_time = time.strftime('%Y%m%d%H%M', time.localtime())
+        csv_path = "{}version_conf_{}_{}_{}.csv".format(in_path, filename.split(".")[0], user_name, upload_time)
         csv_path = csv_path.decode("utf-8").encode("gbk")
+
         if ".xls" in filename:
             #xlsx_path= in_path+filename+".xlsx"#system_conf.xlsx/version.xlsx
             #将上传进来的配置文件改为csv文件,并且改成utf-8的格式
@@ -1123,11 +1140,11 @@ class VersionInfo(models.Model):
     def check_if_correct(self,file_path):
         '''监测当前这个csv文件内容是否正常,有无冲突行'''
         conflict_list = []
+
         f_info = open(file_path)
-        ver_info = [val.strip() for val in f_info.readlines()]
+        f_info.readline()  # 舍弃第一行（列名）
+        ver_info = (val.strip().split('\t') for val in f_info.readlines())
         f_info.close()
-        ver_info = ver_info[1:]
-        ver_info = [val.split("\t") for val in ver_info]
         
         for index,node_info in enumerate(ver_info):
             if len(node_info) == 8:#若是缺失后两列的
@@ -1168,17 +1185,19 @@ class VersionInfo(models.Model):
         if len(conflict_list) > 0:
             return conflict_list#返回冲突数据
         return None#返回空值
-   
-
-   
         
     def write_conf_info_to_db(self,request,file_path):
         '''将信息从文件更新到数据库中'''
+        #f_info = open(file_path)
+        #ver_info = [val.strip() for val in f_info.readlines()]
+        #f_info.close()
+        #ver_info = ver_info[1:]
+        #ver_info = [val.split("\t") for val in ver_info]
+
         f_info = open(file_path)
-        ver_info = [val.strip() for val in f_info.readlines()]
+        f_info.readline()  # 舍弃第一行（列名）
+        ver_info = (val.strip().split('\t') for val in f_info.readlines())
         f_info.close()
-        ver_info = ver_info[1:]
-        ver_info = [val.split("\t") for val in ver_info]
         
         for node_info in ver_info:
             if len(node_info) == 8:#若是缺失后两列的
@@ -1207,7 +1226,9 @@ class VersionInfo(models.Model):
                 conf_info_tmp.main_relevant_con_if_sync=node_info[7]
                 conf_info_tmp.depend_detail=node_info[8]
                 conf_info_tmp.data_interaction_detail=node_info[9]
-                conf_info_tmp.save()#更新
+
+                #若存在，就不更新
+                #conf_info_tmp.save()#更新
             except VerConfInfo.DoesNotExist:
                 conf_info_tmp = VerConfInfo(main_up_sys_name=node_info[0], 
                               main_up_sys_version=node_info[1],
@@ -1265,10 +1286,6 @@ class VersionInfo(models.Model):
                                                                                      depend_detail,
                                                                                      data_interaction_detail)
         return ver_source_node_info
-
- 
-    
-
     
         
 class Picture(models.Model):

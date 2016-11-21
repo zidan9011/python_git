@@ -142,6 +142,7 @@ MEDIA_ROOT =  '/media/'
 LOGIN_URL = '/login/'
 CRONJOBS = (
     
-    ('31 11 * * *', 'cm_vrms.cm_vrms_baseline.views.update_db_from_work_for_crontab'),
+    #('31 11 * * *', 'cm_vrms.cm_vrms_baseline.views.update_db_from_work_for_crontab'),
+    ('0 8 * * *', 'django.core.management.call_command', ['updateCommand']),
 
 )
