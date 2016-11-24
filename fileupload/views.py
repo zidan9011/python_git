@@ -115,7 +115,8 @@ def versys_search_detail(request):
     for val in source_node_list:
         val = val.encode("utf-8")
     if(len(source_node_list)) == 0:#若没有查到,则返回全量页面
-        return system_detail(request)
+        #return system_detail(request)
+        return version_detail(request)
     c = Context({'STATIC_URL': '/static/'})
     c["node_list_1"] = [val for val in source_node_list if val in key_node]
     c["node_list_2"] = [val for val in source_node_list if val not in key_node]
@@ -141,7 +142,7 @@ def versys2_search_detail(request):
             return HttpResponseRedirect('/version_detail/')#重定向到版本页之初
 
     version_lists = v_info[request_node_name]
-    node_version_list = [request_node_name+"\t"+val for val in version_lists if request_node_version in val]#组合成"系统名+版本号"的形式
+    node_version_list = [request_node_name+"\t"+val for val in version_lists if request_node_version.lower() in val.lower()]#组合成"系统名+版本号"的形式
     c = Context({'STATIC_URL': '/static/'})
     if request_node_name in key_node:
         c["node_list_1"] = node_version_list
@@ -221,8 +222,9 @@ def version_node_detail(request):
     request_node_name_version = request.path[:-1].replace("/version_node_detail_","").encode("utf-8")
     if "|" not in request_node_name_version:
         return HttpResponseRedirect('/version_detail/')#重定向到版本页之初
-    request_node_name = request_node_name_version.split("|")[0]
-    request_node_version = request_node_name_version.split("|")[1]
+    #request_node_name = request_node_name_version.split("|")[0]
+    #request_node_version = request_node_name_version.split("|")[1]
+    request_node_name, request_node_version = request_node_name_version.split('|')
     if "V" not in request_node_version:
         return HttpResponseRedirect('/version_detail_for_one_system_'+request_node_name+'/')#重定向到某个系统具体版本页之初
     node_info = {}
@@ -253,7 +255,8 @@ def version_node_detail(request):
     c["target_others"] = [node_name_version for node_name_version in node_list if node_name_version not in c["target_need_test"] and node_name_version not in c["target_need_sync"]]
     out_title = "版本"
     c["out_title"] = out_title#指示接下来跳转的位置
-    c["source_download_info"] = request_node_name+"|"+request_node_version
+    #c["source_download_info"] = request_node_name+"|"+request_node_version
+    c["source_download_info"] = request_node_name_version
     return render_to_response('version_node_detail.html',context_instance=c)
 
 
@@ -401,6 +404,7 @@ def get_update_time_table_info(all_need_list):
         need_sql = "select AppName,AppVersion,UpdateDate,environment_fir from update_time where AppName='"+sysname+"' and AppVersion='"+version+"';"
         cursor.execute(need_sql)
         count_currentnum = cursor.fetchall()
+        cursor.close()
         uat_time = ""
         moni_time = ""
         for val in count_currentnum:
@@ -424,8 +428,9 @@ def version_node_net(request):
     request_node_name_version = request.path[:-1].replace("/version_node_net_","").encode("utf-8")
     if "|" not in request_node_name_version:
         return HttpResponseRedirect('/version_detail/')#重定向到版本页之初
-    request_node_name = request_node_name_version.split("|")[0]
-    request_node_version = request_node_name_version.split("|")[1]
+    #request_node_name = request_node_name_version.split("|")[0]
+    #request_node_version = request_node_name_version.split("|")[1]
+    request_node_name, request_node_version = request_node_name_version.split('|')
     if "V" not in request_node_version:
         return HttpResponseRedirect('/version_detail_for_one_system_'+request_node_name+'/')#重定向到某个系统具体版本页之初
     node_info = {}
@@ -572,7 +577,8 @@ def version_node_net(request):
     c["out_title"] = out_title#指示接下来跳转的位置
     c["source_target_info"] = source_target_node_info
     c["table_content"] = convert_info_table(source_target_node_info)
-    c["source_download_info"] = request_node_name+"|"+request_node_version
+    #c["source_download_info"] = request_node_name+"|"+request_node_version
+    c["source_download_info"] = request_node_name_version
 
     all_need_list = [source_node] + sum(all_node_list,[])
     c["out_str"] = get_update_time_table_info(all_need_list)
@@ -586,8 +592,9 @@ def version_node_detail_csv(request):#输出csv文件
     request_node_name_version = request.path[:-1].replace("/version_node_csv_detail_","").encode("utf-8")
     if "|" not in request_node_name_version:
         return HttpResponseRedirect('/version_detail/')#重定向到版本页之初
-    request_node_name = request_node_name_version.split("|")[0]
-    request_node_version = request_node_name_version.split("|")[1]
+    #request_node_name = request_node_name_version.split("|")[0]
+    #request_node_version = request_node_name_version.split("|")[1]
+    request_node_name, request_node_version = request_node_name_version.split('|')
     if "V" not in request_node_version:
         return HttpResponseRedirect('/version_detail_for_one_system_'+request_node_name+'/')#重定向到某个系统具体版本页之初
     node_info = {}
@@ -626,8 +633,9 @@ def version_net_detail_csv(request):#输出csv文件
     request_node_name_version = request.path[:-1].replace("/version_net_detail_csv_","").encode("utf-8")
     if "|" not in request_node_name_version:
         return HttpResponseRedirect('/version_detail/')#重定向到版本页之初
-    request_node_name = request_node_name_version.split("|")[0]
-    request_node_version = request_node_name_version.split("|")[1]
+    #request_node_name = request_node_name_version.split("|")[0]
+    #request_node_version = request_node_name_version.split("|")[1]
+    request_node_name, request_node_version = request_node_name_version.split('|')
     if "V" not in request_node_version:
         return HttpResponseRedirect('/version_detail_for_one_system_'+request_node_name+'/')#重定向到某个系统具体版本页之初
     node_info = {}
@@ -688,8 +696,9 @@ def version_net_detail_csv_old(request):#输出csv文件
     request_node_name_version = request.path[:-1].replace("/version_net_detail_csv_","").encode("utf-8")
     if "|" not in request_node_name_version:
         return HttpResponseRedirect('/version_detail/')#重定向到版本页之初
-    request_node_name = request_node_name_version.split("|")[0]
-    request_node_version = request_node_name_version.split("|")[1]
+    #request_node_name = request_node_name_version.split("|")[0]
+    #request_node_version = request_node_name_version.split("|")[1]
+    request_node_name, request_node_version = request_node_name_version.split('|')
     if "V" not in request_node_version:
         return HttpResponseRedirect('/version_detail_for_one_system_'+request_node_name+'/')#重定向到某个系统具体版本页之初
     node_info = {}
@@ -888,16 +897,12 @@ def dataex_node_detail(request):
     full_legend,full_category,legend_node_info = legend_info.get_legend_list()
     c["legend_list"] = full_legend
     '''categories信息'''
-    c["category_list"] =  full_category
+    c["category_list"] = full_category
     '''更详细的node信息'''
     #构造所有的node信息,方便category_index查找
-    c["node_category_list"] =  legend_node_info
+    c["node_category_list"] = legend_node_info
 
     return render_to_response('dataex_node_detail.html',context_instance=c)
-
-
-
-
 
 
 

@@ -28,6 +28,7 @@ def wiki_index(request):
     cursor1 = connection.cursor() 
     cursor1.execute("SELECT DISTINCT(ChineseName) from cm_vrms_wiki_cm_application;")
     wiki_name = cursor1.fetchall()
+    cursor1.close()
     #name_list_raw=[list(val) for val in wiki_name]
     name_list=[val[0] for val in wiki_name]
     c = Context({'STATIC_URL': '/static/'})
@@ -41,14 +42,14 @@ def wiki_index(request):
 
 def wiki_index_search(request):
     '''百科搜索详情'''
-    cursor1 = connection.cursor() 
-    cursor1.execute("SELECT DISTINCT(ChineseName) from cm_vrms_wiki_cm_application;")
+    request_node_name = request.GET["query"].encode("utf-8")
+    cursor1 = connection.cursor()
+    cursor1.execute("SELECT DISTINCT(ChineseName) FROM cm_vrms_wiki_cm_application WHERE ChineseName LIKE '%{}%';".format(request_node_name))
     wiki_name = cursor1.fetchall()
+    cursor1.close()
     name_list_raw=[list(val) for val in wiki_name]
     name_list=[val[0] for val in name_list_raw]
-   
-    request_node_name = request.GET["query"].encode("utf-8")
-    name_list = [val for val in name_list if request_node_name.lower() in val.lower()]
+
     for val in name_list:
         val = val.encode("utf-8")
     if(len(name_list)) == 0:#若没有查到,则返回全量页面
@@ -127,6 +128,7 @@ def get_overview_info(ChineseName):
     need_sql = "select a.ChineseName,a.EnglishName,b.DevPM,b.DevCompanyPM,b.TestPM,b.TestLD,b.CMA,b.CMB,c.Remark,c.Remark1,c.ServiceIP ,c.LogicHostname from cm_vrms_wiki_cm_application a,cm_vrms_wiki_cm_application_maintainer b,cm_vrms_wiki_appserver c where a.AppID = b.AppID_id and a.AppID = c.AppID_id and ChineseName = '"+ChineseName+"' "
     cursor.execute(need_sql)
     overview_info = cursor.fetchall()
+    cursor.close()
     table_upper = '''<div class='tab-pane fade' id='CM_Overview'><table class='table table-bordered table-striped'> <thead><tbody>'''
     table_title = "<th>系统名称</th><th>英文简称</th><th>项目经理</th><th>开发联系人</th><th>第三方测试负责人</th><th>测试组长</th><th>UAT环境负责人A</th><th>UAT环境负责人B</th><th>环境类别及版本</th><th>IP地址</th><th>逻辑主机名</th>"
     out_str = ""

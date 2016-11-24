@@ -78,15 +78,19 @@ def cm_bi_index(request):
     cursor1 = connection.cursor() 
     cursor1.execute("SELECT COUNT(AppName) FROM `cm_vrms_baseline_cm_baseline_info` where status_id !=5 and environment_fir !='模拟环境' and update_type !='模拟发布' and UpdateDate BETWEEN '"+this_month_first+"' and '"+this_month_last+"';")
     count_total = cursor1.fetchall()
+    cursor1.close()
     cursor2 = connection.cursor()
     cursor2.execute("SELECT COUNT(id) FROM `cm_vrms_baseline_errors` where status_id !=5 and UpdateDate BETWEEN '"+this_month_first+"' and '"+this_month_last+"' and problem_type LIKE 'A%';")
     count_Pro_A = cursor2.fetchall()
+    cursor2.close()
     cursor3 = connection.cursor()
     cursor3.execute("SELECT COUNT(id) FROM `cm_vrms_baseline_errors` where status_id !=5 and UpdateDate BETWEEN '"+this_month_first+"' and '"+this_month_last+"' and problem_type LIKE 'B%';")
     count_Pro_B = cursor3.fetchall()
+    cursor3.close()
     cursor5 = connection.cursor()
     cursor5.execute("SELECT COUNT(CaSystemName) FROM `cq_uatst` where State!='Rejected' and  submitdate BETWEEN '"+this_month_first+" 00:00:00' and '"+this_month_last+" 23:59:59' ;")
     count_envi_Pro = cursor5.fetchall()
+    cursor5.close()
     c['count_total_result'] = count_total[0][0]
     c['count_A_pro'] = count_Pro_A[0][0]
     c['count_B_pro'] = count_Pro_B[0][0]
@@ -94,6 +98,7 @@ def cm_bi_index(request):
     cursor4 = connection.cursor()
     cursor4.execute("select AppName,AppVersion,version_num FROM `cm_vrms_baseline_cm_baseline_info` where UpdateDate between '"+this_month_first+"' and '"+this_month_last+"' and version_num >=4 and update_type = '升级' ORDER BY UpdateDate;")
     count_sys = cursor4.fetchall()
+    cursor4.close()
 
     sys_up_count_dict = {}
     for count_info in count_sys:
@@ -163,11 +168,12 @@ def bi_update(request):
     cursor1 = connection.cursor() 
     cursor1.execute("select project,COUNT(AppName) from cm_vrms_baseline_cm_baseline_info where status_id !=5 and environment_fir !='模拟环境' and update_type !='模拟发布' and UpdateDate BETWEEN '"+this_month_first+"' and '"+this_month_last+"' GROUP  BY project;")
     count_currentnum = cursor1.fetchall()
+    cursor1.close()
     current_num = dict([[val[0],int(val[1])] for val in count_currentnum])
-    
     cursor2 = connection.cursor() 
     cursor2.execute("SELECT project,COUNT(AppName) FROM cm_vrms_baseline_cm_baseline_info where status_id !=5 and environment_fir !='模拟环境' and update_type !='模拟发布' and UpdateDate BETWEEN  '"+last_month_first+"' and '"+last_month_last+"' GROUP  BY project;")
     count_lastmonthnum = cursor2.fetchall()
+    cursor2.close()
     last_num = dict([[val[0],int(val[1])] for val in count_lastmonthnum])
     
     all_projects_list = sorted(list(set(current_num.keys() + last_num.keys())))
@@ -270,11 +276,13 @@ def bi_problem(request):
     cursor1 = connection.cursor() 
     cursor1.execute("SELECT project,problem_type,COUNT(id) FROM cm_vrms_baseline_errors where status_id !=5 and  UpdateDate BETWEEN '"+this_month_first+"' and '"+this_month_last+"' GROUP  BY project,problem_type;")
     count_currentnum = cursor1.fetchall()
+    cursor1.close()
     current_info_join = get_problem_num(count_currentnum)
 
     cursor2 = connection.cursor() 
     cursor2.execute("SELECT project,problem_type,COUNT(id) FROM cm_vrms_baseline_errors where status_id !=5 and  UpdateDate BETWEEN '"+last_month_first+"' and '"+last_month_last+"' GROUP  BY project,problem_type;")
     count_lastnum = cursor2.fetchall()
+    cursor2.close()
     last_info_join = get_problem_num(count_lastnum)
     
     last_num_ab = []
@@ -414,11 +422,13 @@ def bi_envi_prob(request):
     cursor1 = connection.cursor() 
     cursor1.execute("SELECT CaSystemName,COUNT(CaSystemName) num FROM `cq_uatst` where State!='Rejected' and submitdate BETWEEN '"+this_month_first+" 00:00:00' and '"+this_month_last+" 23:59:59' group by CaSystemName order by num DESC;")
     count_currentnum = cursor1.fetchall()
+    cursor1.close()
     systemname_count_this = [[val[0],int(val[1])] for val in count_currentnum]#按照由大到小排序
     #上月问题统计
     cursor2 = connection.cursor() 
     cursor2.execute("SELECT CaSystemName,COUNT(CaSystemName) num FROM `cq_uatst` where State!='Rejected' and submitdate BETWEEN '"+last_month_first+" 00:00:00' and '"+last_month_last+" 23:59:59' group by CaSystemName order by num DESC;")
     count_lastnum = cursor2.fetchall()
+    cursor2.close()
     systemname_count_last = dict([[val[0],int(val[1])] for val in count_lastnum])#方便本月信息在其内查找    
     down_rate_out_str = ""  
     #生成月环比下降信息
@@ -490,6 +500,7 @@ def bi_human(request):
     cursor1 = connection.cursor() 
     cursor1.execute("select author_name, COUNT(id) from cm_vrms_baseline_cm_baseline_subject_info where (status_id !=5 and update_date between '"+this_month_first+"' and '"+this_month_last+"') and (environment_fir like '%UAT%' or environment_fir like'%模拟环境%') GROUP BY author_name;")
     count_currentnum = cursor1.fetchall()
+    cursor1.close()
     human_update_count_dict = {}
     for count_info in count_currentnum:
         author_name,update_num = count_info
@@ -503,6 +514,7 @@ def bi_human(request):
     cursor2 = connection.cursor() 
     cursor2.execute("SELECT Principal, COUNT(Principal) FROM `cq_uatst` where submitdate BETWEEN '"+this_month_first+" 00:00:00' and '"+this_month_last+" 23:59:59' GROUP BY Principal;")
     count_vir_pro_num = cursor2.fetchall()
+    cursor2.close()
     human_vir_pro_count_dict = {}
     for count_vir_info in count_vir_pro_num:
         Principal,vir_pro_num = count_vir_info
@@ -517,6 +529,7 @@ def bi_human(request):
     cursor3 = connection.cursor() 
     cursor3.execute("select author_name, problem_type, COUNT(problem_type) from cm_vrms_baseline_errors where status_id !=5 and UpdateDate BETWEEN '"+this_month_first+"' and '"+this_month_last+"' GROUP BY author_name, problem_type;")
     count_error_num = cursor3.fetchall()
+    cursor3.close()
     error_info_join_raw = get_problem_num(count_error_num)
     error_info_join = sorted(error_info_join_raw.items(),key = lambda k:k[1],reverse=True)
     name_list = [val[0] for val in error_info_join]

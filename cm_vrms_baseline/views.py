@@ -179,6 +179,7 @@ def cm_baseline_count(request):
     cursor1 = connection.cursor() 
     cursor1.execute("SELECT DATE_FORMAT(UpdateDate,'%Y-%m') months, AppName, COUNT(AppName) counts FROM cm_vrms_baseline_cm_baseline_info GROUP BY months ,AppName")
     raw_result = cursor1.fetchall()#month,系统名,当月升级次数
+    cursor1.close()
     sys_up_info_dict = {}#app_name,month,update_num
     for sys_up_info in raw_result:
         sys_month,app_name,update_num = sys_up_info
@@ -188,6 +189,7 @@ def cm_baseline_count(request):
     cursor2 = connection.cursor()
     cursor2.execute("SELECT DATE_FORMAT(UpdateDate,'%Y-%m') months FROM cm_vrms_baseline_cm_baseline_info GROUP BY months")
     raw_result_month = cursor2.fetchall()
+    cursor2.close()
     c['Updatemonth_list'] = [val[0] for val in raw_result_month]
     
     c['AppName_list'] = sys_up_info_dict.keys()#x轴上的系统名列表
@@ -234,7 +236,7 @@ def update_db_data():
     #{4:"工作类别",35:"开始时间",36:"计划完成时间",68:"升级类别",69:"补丁号",70:"升级前版本号",71:"发布版本号",72:"上线版本号",73:"升级审批人",74:"升级环境（一级）",75:"环境分类（二级）",76:"环境分类（三级）",77:"升级日期",78:"变更内容-部署升级",79:"升级方式",80:"是否有数据库变更",81:"客户端内容",82:"基线号",83:"升级步骤手册页数",88:"工作量（人天）",84:"问题原因",87:"问题分类-升级问题",229:"升级原因"}
     CM_BaseLine_Subject_Info.objects.all().delete()#首先全部删除该表
     CM_BaseLine_Info.objects.all().delete()#首先全部删除该表
-    CmVrmsBaselineErrors.objects.all().delete()#首先全部删除该表  
+    CmVrmsBaselineErrors.objects.all().delete()#首先全部删除该表
     id_val_map = [4,35,36,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,88,84,87,229]
     issue_info_list = CmVrmsBaselineIssues.objects.all()#issue所有信息
     customvalues_list = CmVrmsBaselineCustomValues.objects.values('customized_id', 'custom_field_id', 'value')#issue_id,type_id,value的所有信息
@@ -594,6 +596,7 @@ def get_updatetime_from_db(request):
     UpdatetimeInfo.objects.all().delete()
     cursor1 = connection.cursor() 
     cursor1.execute("INSERT INTO  update_time (AppName,AppVersion,UpdateDate,environment_fir) select AppName,AppVersion,min(UpdateDate),environment_fir from cm_vrms_baseline_cm_baseline_info GROUP BY AppName,AppVersion")
+    cursor1.close()
     return HttpResponseRedirect('/version_detail/')#重定向
     
  

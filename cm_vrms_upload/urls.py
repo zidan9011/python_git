@@ -71,7 +71,7 @@ urlpatterns = patterns('',
     
     (r'^login/$',  login),
     (r'^logout/$', logout),
-    (r'^changepwd/$', changepwd), 
+    (r'^changepwd/$', changepwd),
     (r'^system_detail_mine/$', system_detail_mine),
     (r'^update_db_from_work/$', update_db_from_work),
     (r'^alert_info/$', alert_info),
@@ -94,6 +94,7 @@ urlpatterns = patterns('',
 	(r'^update_table_from_wiki/$',update_table_from_wiki),
     (r'^show_middleware/$',show_middleware),
     (r'^middleware_detail_*',middleware_detail),
+    (r'^middleware_search/$', middleware_search),
     
     
     (r'^test_report_index',test_report_index),
