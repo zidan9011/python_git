@@ -127,8 +127,6 @@ def versys_search_detail(request):
     c["search_type"] = "versys_search_detail"#查找方式
     return render_to_response(out_path+'.html',context_instance=c)
 
-
-
 def versys2_search_detail(request):
     '''版本中更进一步的版本号详情'''
     request_node_name = request.GET["query_node"].encode("utf-8")
@@ -179,8 +177,6 @@ def version_detail_for_one_system(request):#将一个系统的所有版本列出
     c["node_name"] = request_node_name
     c["search_type"] = "versys2_search_detail"#查找方式
     return render_to_response(out_path+'.html',context_instance=c)
-
-
 
 
 def system_node_detail(request):
@@ -273,7 +269,6 @@ def convert_info_table(source_target_node_info):#'{{source_info}} - {{taget}}':'
         result += "<tr><th>{}</th><th>{}</th><th>{}</th><th>{}</th></tr>".format(source,target,s_t_info[0],s_t_info[3])
     result += "</table>"
     return result
-
 
 
 def version_node_net_old(request):
@@ -404,7 +399,6 @@ def get_update_time_table_info(all_need_list):
         need_sql = "select AppName,AppVersion,UpdateDate,environment_fir from update_time where AppName='"+sysname+"' and AppVersion='"+version+"';"
         cursor.execute(need_sql)
         count_currentnum = cursor.fetchall()
-        cursor.close()
         uat_time = ""
         moni_time = ""
         for val in count_currentnum:
@@ -418,6 +412,7 @@ def get_update_time_table_info(all_need_list):
         out_str = format_str.format(*out_list)
         #该项目版本历次升级信息的详情展示
         return_str += out_str.encode("utf-8")
+    cursor.close()
     return return_str
 
 
@@ -919,16 +914,16 @@ def login(request):
             user = auth.authenticate(username=username, password=password)
             if user is not None and user.is_active:
                 auth.login(request, user)
-                return HttpResponseRedirect('/upload_file/')#重定向
+                return HttpResponseRedirect(request.GET['next'])
             else:
                 return render_to_response('login.html', RequestContext(request, {'form': form,'password_is_wrong':True}))
         else:
             return render_to_response('login.html', RequestContext(request, {'form': form,}))
 
-@login_required
+#@login_required
 def logout(request):
     auth.logout(request)
-    return HttpResponseRedirect("/login/")
+    return HttpResponseRedirect("/upload_file/")
 
 @login_required
 def changepwd(request):
@@ -945,14 +940,11 @@ def changepwd(request):
                 newpassword = request.POST.get('newpassword1', '')
                 user.set_password(newpassword)
                 user.save()
-                return render_to_response('index.html', RequestContext(request,{'changepwd_success':True}))
+                return HttpResponseRedirect('/upload_file/')
             else:
-                return render_to_response('changepwd.html', RequestContext(request, {'form': form,'oldpassword_is_wrong':True}))
+                return render_to_response('changepwd.html', RequestContext(request, {'form': form, 'oldpassword_is_wrong': True}))
         else:
-            return render_to_response('changepwd.html', RequestContext(request, {'form': form,}))
-
-
-
+            return render_to_response('changepwd.html', RequestContext(request, {'form': form}))
 
 
 class PictureCreateView(CreateView):

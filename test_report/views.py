@@ -215,7 +215,6 @@ def test_report_bar(request):
     out_path = "test_report_bar"  
     return render_to_response(out_path+'.html',context_instance=c)
 
-
 def test_report_charts(request):
     c = Context({'STATIC_URL': '/static/'})
     cursor1 = connection.cursor() 

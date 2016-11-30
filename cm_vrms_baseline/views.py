@@ -191,7 +191,6 @@ def cm_baseline_count(request):
     raw_result_month = cursor2.fetchall()
     cursor2.close()
     c['Updatemonth_list'] = [val[0] for val in raw_result_month]
-    
     c['AppName_list'] = sys_up_info_dict.keys()#x轴上的系统名列表
     c['update_counts_list'] = [[sys_up_info_dict[app_name_val].get(month_val,0) for app_name_val in c['AppName_list']] for month_val in c['Updatemonth_list']]
     c['update_counts_list_1'] = c['update_counts_list'][0]#单独把第一行的数据拿出来
@@ -358,7 +357,6 @@ def update_db_from_work(request):
 def update_db_from_work_bi(request):
     update_db_data() 
     return HttpResponseRedirect('/cm_bi_index/')#重定向
-
 
 
 def get_version_info_from_work_bi(request):

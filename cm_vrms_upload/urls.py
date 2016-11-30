@@ -87,21 +87,19 @@ urlpatterns = patterns('',
     (r'^get_version_info_from_work_bi/$', get_version_info_from_work_bi),
     #(r'^get_version_info_from_work_bi/$', insert_into_version),
     
-    
     (r'^get_updatetime_from_db/$', get_updatetime_from_db),
-	
-	
-	(r'^update_table_from_wiki/$',update_table_from_wiki),
-    (r'^show_middleware/$',show_middleware),
-    (r'^middleware_detail_*',middleware_detail),
+
+	(r'^update_table_from_wiki/$', update_table_from_wiki),
+    (r'^show_middleware/$', show_middleware),
+    (r'^middleware_detail_*', middleware_detail),
     (r'^middleware_search/$', middleware_search),
     
     
-    (r'^test_report_index',test_report_index),
-    (r'^test_report_node_*',test_report_node),
-    (r'^test_report_bar',test_report_bar),
-    (r'^test_report_charts',test_report_charts),
-    (r'^show_items',show_items),
+    (r'^test_report_index', test_report_index),
+    (r'^test_report_node_*', test_report_node),
+    (r'^test_report_bar', test_report_bar),
+    (r'^test_report_charts', test_report_charts),
+    (r'^show_items', show_items),
        
 )
 
