@@ -272,6 +272,7 @@ class Report_Detail(models.Model):
     
     def save(self, *args, **kwargs):
         '''重写保存方法'''
+        self.Reason = self.Reason.replace('\t', '  ')
         super(Report_Detail, self).save(*args, **kwargs) # Call the "real" save() method.
         tmp_info = Report_DetailInfo()#更新sys_info
         tmp_info.refresh_sys_info()

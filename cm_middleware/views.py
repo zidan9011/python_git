@@ -34,21 +34,22 @@ IMIX_node = "IMIX"
 def update_table_from_wiki(request):
     '''由Appserver表'''
     '''AppServerID,ChineseName,remark,serviceip,port,service_name'''
-    appserver_info_list = Appserver.objects.all().order_by('AppID_id','ServiceIP')#appserver所有信息
+    #appserver_info_list = Appserver.objects.all().order_by('AppID_id','ServiceIP')#appserver所有信息
+    appserver_info_list = Appserver.objects.filter(AppID_id__isnull = False).exclude(Remark__exact = '')
     #Envi_Detail.objects.all().delete()
  
     need_data_dict = {}
     for appserver_info in appserver_info_list:
         AppID_Raw = appserver_info.AppID
-        if (AppID_Raw is None):
-            continue
+        #if (AppID_Raw is None):
+        #    continue
         AppID = AppID_Raw.AppID
         ChineseName = AppID_Raw.ChineseName.encode("utf-8")
         ServiceIP=appserver_info.ServiceIP
         Usage = appserver_info.Usage.encode("utf-8")
         Remark = appserver_info.Remark.encode("utf-8")
-        if (Remark==''):
-            continue
+        #if (Remark==''):
+        #    continue
         one_need_data_list = [AppID,ChineseName,Remark]
         one_need_data_list = [str(val) for val in one_need_data_list]
         one_need_data_key = "_\t_".join(one_need_data_list)
@@ -90,8 +91,7 @@ def show_middleware(request):
         one_node_ID = s_node_info.AppID_Source
         one_node_name = one_node_ID.AppName
         one_node_envi = one_node_ID.EnviName
-        one_node_info = [one_node_name,one_node_envi]
-        one_node_info = " | ".join(one_node_info)
+        one_node_info = " | ".join([one_node_name, one_node_envi])
         need_show_list.append(one_node_info)
     
     c = Context({'STATIC_URL': '/static/'})
@@ -103,6 +103,27 @@ def show_middleware(request):
     out_title = "系统环境"
     c["out_title"] = out_title#页面标题
     return render_to_response(out_path+'.html',context_instance=c)
+
+
+def middleware_search(request):
+    if 'query' in request.GET:
+        request_node_name = request.GET["query"]
+    s_info = Envi_Relation.objects.all()
+    need_show_list = []
+    for s_node_info in s_info:
+        one_node = s_node_info.AppID_Source
+        one_node_info = " | ".join([one_node.AppName, one_node.EnviName])
+        if (one_node_info in need_show_list) or (request_node_name.lower() not in one_node_info.lower()):
+            continue
+        need_show_list.append(one_node_info)
+
+    c = Context({'STATIC_URL': '/static/'})
+
+    c["need_show_list_ETL"] = [val for val in need_show_list if ETL_node in val]
+    c["need_show_list_IMIX"] = [val for val in need_show_list if IMIX_node in val]
+    c["jump_to"] = "middleware_detail"  # 指示接下来跳转的位置
+    out_title = "系统环境"
+    return render_to_response('show_middleware.html', context_instance = c)
 
 
 #将数据库中存在的服务器类型信息的转化成对应的中文名
@@ -172,11 +193,12 @@ def middleware_detail(request):
     c = Context({'STATIC_URL': '/static/'})
  
     out_title = "系统"
-    target_list = [val for val in target_info]
+    #target_list = [val for val in target_info]
     target_info_list = ["name:'{}',ip:'{}'".format(val,node_info_dict[val]) for val in target_info if val in node_info_dict]
     c["request_node_name_envi"] = request_node_name_envi  
     c["request_node_name_ip"] = request_node_name_ip 
-    c["target_list"] = [val for val in target_list] 
+    #c["target_list"] = [val for val in target_list]
+    c["target_list"] = target_info
     c["target_info_list"] = target_info_list 
     
     

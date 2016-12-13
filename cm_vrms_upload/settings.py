@@ -45,7 +45,7 @@ INSTALLED_APPS = (
     'cm_vrms_bi',
     'bootstrap_toolkit',
     'cm_vrms_baseline',
-	'cm_middleware',
+    'cm_middleware',
     'test_report',
     'cm_vrms_uat_info',
     
@@ -55,6 +55,7 @@ INSTALLED_APPS = (
     'django_crontab',
     
 )
+
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -67,10 +68,6 @@ MIDDLEWARE_CLASSES = (
     
     
 )
-
-
-
-
 
 
 ROOT_URLCONF = 'cm_vrms_upload.urls'

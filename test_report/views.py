@@ -70,6 +70,7 @@ def test_report_index(request):
     cursor2 = connection.cursor() 
     cursor1.execute("select tb2.PlanTime,tb1.Main_SysName,tb1.Main_VersionNum,tb2.ProjectName,tb2.OverallSchedule,tb2.ProjectStage, count(case when tb1.TestType='sjlc' then tb1.TestType end) AS testtype1, count(case when tb1.TestType='wyxlc' then tb1.TestType end) AS testtype2 from test_report_report_detail tb1  LEFT JOIN test_report_report_detail tb2 ON tb1.Main_SysName=tb2.Main_SysName and tb1.Main_VersionNum=tb2.Main_VersionNum where tb2.TestType='zxt' GROUP BY tb1.Main_SysName,tb1.Main_VersionNum HAVING   PlanTime BETWEEN '"+str_need_date_time_start+"' and '"+str_need_date_time_end+"' order by tb2.PlanTime ;")
     report_result = cursor1.fetchall()
+    cursor1.close()
     need_out_list = ""
     for val in report_result:
         PlanTime,Main_SysName,Main_VersionNum,ProjectName,OverallSchedule,projectStage,testtype1,testtype2 = val
@@ -113,6 +114,7 @@ def test_report_index(request):
             need_out_list += "</tbody>"
         except:
             print Main_SysName_ver
+    cursor2.close()
     c["need_out_list"] = need_out_list
     return render_to_response(out_path+'.html',context_instance=c)
 def show_items(request):
@@ -213,12 +215,12 @@ def test_report_bar(request):
     out_path = "test_report_bar"  
     return render_to_response(out_path+'.html',context_instance=c)
 
-
 def test_report_charts(request):
     c = Context({'STATIC_URL': '/static/'})
     cursor1 = connection.cursor() 
     cursor1.execute("select count(id),OverallSchedule from test_report_report_detail group by OverallSchedule ORDER BY count(id);")
     overallschedule_result = cursor1.fetchall()
+    cursor1.close()
     overallschedule_data=[]
     overallschedule_namedata=[]
     for val in overallschedule_result:
@@ -233,6 +235,7 @@ def test_report_charts(request):
     cursor2 = connection.cursor() 
     cursor2.execute("select count(id),VersionQuality from test_report_report_detail group by VersionQuality ORDER BY count(id);")
     versionquality_result = cursor2.fetchall()
+    cursor2.close()
     versionquality_data=[]
     versionquality_namedata=[]
     for val in versionquality_result:
@@ -246,6 +249,7 @@ def test_report_charts(request):
     cursor3 = connection.cursor() 
     cursor3.execute("select count(id),ManpowerInput from test_report_report_detail group by ManpowerInput ORDER BY count(id);")
     manpowerinput_result = cursor3.fetchall()
+    cursor3.close()
     manpowerinput_data=[]
     manpowerinput_namedata=[]
     for val in manpowerinput_result:
@@ -259,6 +263,7 @@ def test_report_charts(request):
     cursor4 = connection.cursor() 
     cursor4.execute("select count(id),Workload from test_report_report_detail group by Workload ORDER BY count(id);")
     workload_result = cursor4.fetchall()
+    cursor4.close()
     workload_data=[]
     workload_namedata=[]
     for val in workload_result:
@@ -272,6 +277,7 @@ def test_report_charts(request):
     cursor5 = connection.cursor() 
     cursor5.execute("select count(id),ProjectStage from test_report_report_detail group by ProjectStage ORDER BY count(id);")
     projectstage_result = cursor5.fetchall()
+    cursor5.close()
     projectstage_namedata = []
     projectstage_numdata=[]
     for val in projectstage_result:

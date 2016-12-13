@@ -5,7 +5,7 @@
 </head>
 <body>
     <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-    <form action="/dataex_search_detail/" method="get">
+    <form action="/middleware_search/" method="get">
         <input type="text" name="query">
         <input type="submit" value="Search">
     </form>
@@ -29,9 +29,8 @@
             ],
             function (ec) {
                 // 基于准备好的dom，初始化echarts图表
-                var myChart = ec.init(document.getElementById('main')); 
-		
-        
+                var myChart = ec.init(document.getElementById('main'));
+
         var option = {
     title : {
         text: '{{out_title}}',
@@ -119,7 +118,7 @@
         }
     ]
 };
-myChart.setOption(option); 
+myChart.setOption(option);
 var ecConfig = require('echarts/config');
 function eConsole(param) {
 	var nodeName = param.name;
